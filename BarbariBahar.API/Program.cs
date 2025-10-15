@@ -49,6 +49,21 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+var myClientAppCorsPolicy = "AllowMyClient";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myClientAppCorsPolicy,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:8080") // آدرس فرانت‌اند شما
+                                .AllowAnyHeader() // اجازه دادن به همه هدرها (مثل Content-Type, Authorization)
+                                .AllowAnyMethod(); // اجازه دادن به همه متدهای HTTP (GET, POST, PUT, DELETE, etc.)
+                      });
+});
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -72,6 +87,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -80,6 +96,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(myClientAppCorsPolicy);
 app.UseAuthentication(); // <-- این خط را اضافه کنید
 app.UseRouting(); // <-- این خط را برای اطمینان اضافه کنید (اگر نبود)
 

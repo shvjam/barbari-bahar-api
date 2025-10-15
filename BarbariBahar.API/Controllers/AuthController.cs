@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BarbariBahar.API.DTOs;
 using System.Threading.Tasks;             // Task
 
 
@@ -78,7 +79,11 @@ namespace BarbariBahar.API.Controllers
             // اگر کاربری با این شماره موبایل پیدا نشد، خطای 404 برمی‌گردانیم
             if (user == null)
             {
-                return NotFound("کاربری با این شماره موبایل یافت نشد.");
+                var errorResponse = new ErrorResponseDto
+                {
+                    Message = "کاربری با این شماره موبایل یافت نشد."
+                };
+                return NotFound(errorResponse); // حالا یک آبجکت JSON برمی‌گردانیم
             }
 
             // در آینده اینجا رمز عبور را چک می‌کنیم. فعلاً از آن عبور می‌کنیم.
