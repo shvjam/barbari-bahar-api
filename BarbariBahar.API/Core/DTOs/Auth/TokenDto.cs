@@ -2,7 +2,7 @@
 {
     public class TokenDto
     {
-        public string Token { get; set; } = string.Empty;
-        public DateTime Expiration { get; set; }
+        public string token { get; set; } = string.Empty; // تغییر به حروف کوچک
+        public DateTime expiration { get; set; } // تغییر به حروف کوچک
     }
 }

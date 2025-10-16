@@ -1,9 +1,7 @@
-﻿// BarbariBahar.API/DTOs/ErrorResponseDto.cs
-
-namespace BarbariBahar.API.DTOs
+﻿namespace BarbariBahar.API.Core.DTOs
 {
     public class ErrorResponseDto
     {
-        public string Message { get; set; }
+        public string Message { get; set; } = default!;
     }
 }

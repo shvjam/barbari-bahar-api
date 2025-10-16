@@ -4,6 +4,7 @@ using BarbariBahar.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    partial class BarbariBaharDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251015152241_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,9 +36,6 @@ namespace BarbariBahar.API.Migrations
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -68,23 +68,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Customer"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Driver"
-                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>

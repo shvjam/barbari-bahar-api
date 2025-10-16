@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+
 namespace BarbariBahar.API.Data.Entities
 {
     public class User

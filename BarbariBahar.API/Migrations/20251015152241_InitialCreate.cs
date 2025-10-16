@@ -48,6 +48,33 @@ namespace BarbariBahar.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OtpRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtpRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OtpRequests_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtpRequests_UserId",
+                table: "OtpRequests",
+                column: "UserId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",
                 table: "Users",
@@ -57,6 +84,9 @@ namespace BarbariBahar.API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "OtpRequests");
+
             migrationBuilder.DropTable(
                 name: "Users");
 

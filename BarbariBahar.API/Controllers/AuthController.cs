@@ -1,128 +1,157 @@
-﻿using BarbariBahar.API.Core.DTOs.Auth;
-using BarbariBahar.API.Data;             // مسیر صحیح DbContext
-using BarbariBahar.API.Data.Entities;
-using BarbariBahar.Core.DTOs.Auth;
+﻿using BarbariBahar.API.Core.DTOs;
+using BarbariBahar.API.Core.DTOs.User;
+using BarbariBahar.API.Core.DTOs.Auth;
+using BarbariBahar.API.Data;
+using BarbariBahar.API.Data.Entities; // <--- using برای User
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration; // IConfiguration
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using BarbariBahar.API.DTOs;
-using System.Threading.Tasks;             // Task
-
+using System.Security.Cryptography;
 
 namespace BarbariBahar.API.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;
-        private readonly IConfiguration _configuration;
 
-        public AuthController(BarbariBaharDbContext context, IConfiguration configuration)
+        // ما دیگر به UserManager نیازی نداریم، پس آن را حذف می‌کنیم.
+        public AuthController(BarbariBaharDbContext context)
         {
             _context = context;
-            _configuration = configuration;
         }
 
-        // متدهای API اینجا اضافه خواهند شد
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp([FromBody] SendOtpRequestDto request)
         {
-            // 1. بررسی اینکه آیا کاربری با این موبایل وجود دارد یا خیر
-            var userExists = await _context.Users.AnyAsync(u => u.Mobile == registerDto.Mobile);
-            if (userExists)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { Message = "کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است." });
+                return BadRequest(ModelState);
             }
 
-            // 2. پیدا کردن نقش "Customer"
-            var customerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Customer");
-            if (customerRole == null)
-            {
-                // این یک خطای سیستمی است. در حالت عادی نباید رخ دهد چون ما نقش‌ها را از قبل ساختیم
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "نقش پیش‌فرض مشتری در سیستم یافت نشد." });
-            }
+            // چون شماره همیشه با فرمت "09..." می‌آید، نیازی به تبدیل نیست.
+            // مستقیم با همان شماره کار می‌کنیم.
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Mobile == request.phone);
 
-            // 3. ایجاد یک نمونه جدید از کاربر
-            var newUser = new User
-            {
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                Mobile = registerDto.Mobile,
-                RoleId = customerRole.Id,
-                IsActive = true, // کاربر به صورت پیش‌فرض فعال است
-                CreatedAt = DateTime.UtcNow
-            };
-
-            // 4. اضافه کردن کاربر به دیتابیس
-            await _context.Users.AddAsync(newUser);
-            await _context.SaveChangesAsync();
-
-            // 5. برگرداندن پاسخ موفقیت‌آمیز
-            return Ok(new { Message = "ثبت‌نام با موفقیت انجام شد." });
-        }
-
-        [HttpPost("Login")] // آدرس این API می‌شود: /api/v1/Auth/Login
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
-        {
-            // مرحله 1: پیدا کردن کاربر بر اساس شماره موبایل
-            // ما نیاز داریم که نقش کاربر را هم همراهش بیاوریم، پس از Include استفاده می‌کنیم.
-            var user = await _context.Users
-                                     .Include(u => u.Role) // بسیار مهم: نقش کاربر را هم از دیتابیس بخوان
-                                     .SingleOrDefaultAsync(u => u.Mobile == loginDto.Mobile);
-
-            // اگر کاربری با این شماره موبایل پیدا نشد، خطای 404 برمی‌گردانیم
             if (user == null)
             {
-                var errorResponse = new ErrorResponseDto
+                user = new User
                 {
-                    Message = "کاربری با این شماره موبایل یافت نشد."
+                    Mobile = request.phone,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true, // یا هر مقدار پیش‌فرض دیگری
+                    RoleId = 1, // ID نقش پیش‌فرض (مثلاً Customer). مطمئن شو چنین نقشی در دیتابیس داری.
+                    FirstName = null, // در ابتدا نام ندارد
+                    LastName = null,  // در ابتدا نام خانوادگی ندارد
                 };
-                return NotFound(errorResponse); // حالا یک آبجکت JSON برمی‌گردانیم
+                _context.Users.Add(user);
+                // اینجا save نکن، در انتها یکجا همه چیز ذخیره می‌شود.
             }
 
-            // در آینده اینجا رمز عبور را چک می‌کنیم. فعلاً از آن عبور می‌کنیم.
+            var otpCode = GenerateRandomOtp();
 
-            // مرحله 2: تولید توکن JWT
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            // غیرفعال کردن کدهای قبلی کاربر (این یک بهینه‌سازی خوب است)
+            var previousOtps = await _context.OtpRequests
+                                             .Where(o => o.UserId == user.Id && !o.IsUsed)
+                                             .ToListAsync();
+            foreach (var oldOtp in previousOtps)
             {
-                // اطلاعاتی که می‌خواهیم داخل توکن قرار دهیم (Claims)
-                Subject = new ClaimsIdentity(new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.MobilePhone, user.Mobile),
-        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-        new Claim(ClaimTypes.Role, user.Role.Name) // اصلاح خطای اول
-    }, "jwt"), // اصلاح خطای دوم
+                oldOtp.IsUsed = true; // یا می‌توانید آنها را حذف کنید
+            }
 
-                // زمان انقضای توکن (از appsettings.json می‌خوانیم)
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpirationInMinutes"]!)),
-
-                // الگوریتم امضا و کلید امنیتی
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature),
-
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"]
+            // ساخت رکورد OTP جدید
+            var otpRequest = new OtpRequest
+            {
+                User = user, // <<--- روش بهتر: به جای UserId، کل شیء User را پاس بده
+                Code = otpCode,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(2), // کد برای ۲ دقیقه معتبر است
+                CreatedAt = DateTime.UtcNow,
+                IsUsed = false
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+            _context.OtpRequests.Add(otpRequest);
 
-            // مرحله 3: ارسال توکن به کاربر
-            return Ok(new TokenDto
+            // حالا با یک بار SaveChanges، هم کاربر جدید (اگر وجود داشت) و هم کد OTP جدید ذخیره می‌شوند.
+            await _context.SaveChangesAsync(); // این خط دیگر خطا نمی‌دهد
+
+            // نمایش کد OTP در لاگ یا toast برای تست (در حالت پروداکشن این خط باید حذف شود)
+            System.Diagnostics.Debug.WriteLine($"OTP for {request.phone} is: {otpCode}");
+            // یا می‌توانید آن را در هدر پاسخ برای تست برگردانید.
+
+            return Ok(new
             {
-                Token = tokenString,
-                Expiration = token.ValidTo
+                Message = "کد تایید با موفقیت ارسال شد.",
+                RequestId = otpRequest.Id // ID رکورد OTP را برای مرحله بعد به فرانت‌اند می‌فرستیم
             });
+        }
+
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequestDto request)
+        {
+            // در این متد هم باید دنبال درخواست OTP بر اساس requestId بگردیم
+            // و نه شماره تلفن. کد قبلی شما درست بود.
+            var otpRequest = await _context.OtpRequests
+                // من `Include(o => o.User)` را اضافه می‌کنم تا کاربر همزمان لود شود و یک کوئری به دیتابیس کمتر بزنیم
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == request.requestId && o.Code == request.code && !o.IsUsed);
+
+            if (otpRequest == null)
+            {
+                return BadRequest(new ErrorResponseDto { Message = "کد تایید نادرست یا استفاده شده است." });
+            }
+
+            if (otpRequest.ExpiresAt < DateTime.UtcNow)
+            {
+                otpRequest.IsUsed = true; // کد منقضی را هم به عنوان استفاده شده علامت بزن
+                await _context.SaveChangesAsync();
+                return BadRequest(new ErrorResponseDto { Message = "کد منقضی شده است." });
+            }
+
+            // چون از Include استفاده کردیم، دیگر نیازی به خط زیر نیست
+            // var user = await _context.Users.FindAsync(otpRequest.UserId);
+            var user = await _context.Users
+                                 .Include(u => u.Role) // <<-- این خط، جدول Roles را به کوئری Join می‌کند
+                                 .FirstOrDefaultAsync(u => u.Id == otpRequest.UserId);
+            if (user == null)
+            {
+                // این حالت خیلی بعید است ولی برای اطمینان
+                return NotFound(new ErrorResponseDto { Message = "کاربر مرتبط با این کد یافت نشد." });
+            }
+
+            otpRequest.IsUsed = true;
+            await _context.SaveChangesAsync();
+
+            var fakeToken = $"FAKE_JWT_TOKEN_FOR_USER_{user.Id}_{Guid.NewGuid()}";
+
+            var response = new VerifyOtpResponseDto
+            {
+                Message = "ورود با موفقیت انجام شد",
+                Token = fakeToken,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Mobile = user.Mobile,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    // اینجا نقش کاربر را از شیء Role که Include کردیم می‌خوانیم
+                    Role = user.Role?.Name ?? "Customer" // <<-- این خط اضافه شد. اگر نقش نداشت، پیش‌فرض Customer باشد
+                }
+            };
+
+            return Ok(response);
+        }
+
+
+        private string GenerateRandomOtp()
+        {
+            // یک کد 6 رقمی تولید می‌کند
+            return new Random().Next(100000, 1000000).ToString("D6");
+        }
+        private static string GenerateRandomOtp(int length = 6)
+        {
+            // این تابع قبلی ممکن است گاهی کد 5 رقمی تولید کند. این نسخه بهتر است.
+            return new Random().Next(100000, 1000000).ToString("D6");
         }
     }
 }

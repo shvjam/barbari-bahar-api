@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    [Migration("20251015054541_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251015153755_SeedRolesData")]
+    partial class SeedRolesData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,34 @@ namespace BarbariBahar.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.OtpRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OtpRequests");
+                });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Role", b =>
                 {
@@ -40,6 +68,23 @@ namespace BarbariBahar.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Customer"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Driver"
+                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
@@ -74,6 +119,17 @@ namespace BarbariBahar.API.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.OtpRequest", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
