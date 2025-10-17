@@ -1,0 +1,16 @@
+﻿namespace BarbariBahar.API.Data.Entities
+{
+    public class Driver : User
+    {
+        public Driver()
+        {
+            Role = Role.Driver;
+        }
+        // ویژگی‌های اختصاصی راننده
+        public string NationalCode { get; set; } = string.Empty;
+        public string? ProfilePictureUrl { get; set; }
+        public int WorkerCount { get; set; }
+        public string CarModel { get; set; }
+        public string CarPlateNumber { get; set; }
+    }
+}

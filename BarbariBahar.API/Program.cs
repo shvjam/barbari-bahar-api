@@ -1,47 +1,53 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+﻿// using های لازم در بالای فایل
 using BarbariBahar.API.Data;
 using Microsoft.EntityFrameworkCore;
-
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
+using BarbariBahar.API.Data.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// 1. خواندن Connection String
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// 2. اضافه کردن DbContext
 builder.Services.AddDbContext<BarbariBaharDbContext>(options =>
-       options.UseSqlServer(connectionString));
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"]!;
+    options.UseSqlServer(connectionString));
 
+// 3. اضافه کردن سرویس OTP
+builder.Services.AddScoped<OtpRequest>();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        });
 builder.Services.AddEndpointsApiExplorer();
+
+// 4. پیکربندی Swagger برای ارسال توکن (مهم برای تست‌های آینده)
 builder.Services.AddSwaggerGen(options =>
 {
-    // این بخش تعریف امنیت را به Swagger اضافه می‌کند
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer",
         BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "لطفا توکن JWT را همراه با کلمه Bearer وارد کنید (مثال: Bearer 12345abcdef)"
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\n\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\""
     });
 
-    // این بخش به Swagger می‌گوید که برای اجرای APIها، این امنیت لازم است
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            new OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },
@@ -50,45 +56,41 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-var myClientAppCorsPolicy = "AllowMyClient";
 
-builder.Services.AddCors(options =>
+// --- بخش حیاتی: پیکربندی JWT Authentication ---
+
+// 5. خواندن کلید مخفی از appsettings
+var jwtKey = builder.Configuration["JwtSettings:Key"];
+if (string.IsNullOrEmpty(jwtKey))
 {
-    options.AddPolicy(name: myClientAppCorsPolicy,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:8080") // آدرس فرانت‌اند شما
-                                .AllowAnyHeader() // اجازه دادن به همه هدرها (مثل Content-Type, Authorization)
-                                .AllowAnyMethod(); // اجازه دادن به همه متدهای HTTP (GET, POST, PUT, DELETE, etc.)
-                      });
-});
-
+    throw new InvalidOperationException("JWT Key not configured."); // یک بررسی اولیه برای جلوگیری از خطای زمان اجرا
+}
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-        };
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)) // تبدیل کلید به بایت
+    };
+});
+
+// این سرویس را برای کنترلرها لازم داریم
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -96,10 +98,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors(myClientAppCorsPolicy);
-app.UseAuthentication(); // <-- این خط را اضافه کنید
-app.UseRouting(); // <-- این خط را برای اطمینان اضافه کنید (اگر نبود)
 
+// --- بخش حیاتی: فعال‌سازی Middleware های Authentication ---
+
+// 6. این دو خط باید حتماً بین UseHttpsRedirection و MapControllers باشند
+// و ترتیبشان هم مهم است! اول Authentication و بعد Authorization.
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

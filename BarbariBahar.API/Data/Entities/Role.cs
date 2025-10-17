@@ -1,11 +1,11 @@
 ﻿namespace BarbariBahar.API.Data.Entities
 {
-    public class Role
+    // ما از کلمه کلیدی enum استفاده می‌کنیم، نه class
+    // و آن را public می‌کنیم تا از همه جای پروژه قابل دسترسی باشد.
+    public enum Role
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-
-        // Navigation Property: یک نقش می‌تواند به چندین کاربر اختصاص داده شود
-        public virtual ICollection<User> Users { get; set; } = null!;
+        Customer,
+        Driver,
+        Admin
     }
 }

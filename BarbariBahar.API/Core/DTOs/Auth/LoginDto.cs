@@ -6,6 +6,6 @@ namespace BarbariBahar.API.Core.DTOs.Auth
     {
         [Required(ErrorMessage = "وارد کردن شماره موبایل الزامی است.")]
         [RegularExpression(@"^09\d{9}$", ErrorMessage = "فرمت شماره موبایل صحیح نیست.")]
-        public string Mobile { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
     }
 }
