@@ -1,12 +1,16 @@
 ﻿// using های لازم در بالای فایل
 using BarbariBahar.API.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using BarbariBahar.API.Hubs; // یادت نره Namespace هاب رو اضافه کنی
 using BarbariBahar.API.Data.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using System.Text.Json.Serialization; // این using را در بالای فایل اضافه کن
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,15 +21,38 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<BarbariBaharDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddSignalR();
+
 // 3. اضافه کردن سرویس OTP
 builder.Services.AddScoped<OtpRequest>();
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name:MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins(
+                                "http://localhost:8080", // آدرس فرانت‌اند شما
+                                "https://localhost:7259", // آدرس HTTPS بک‌اند
+                                "http://localhost:5249"  // آدرس HTTP بک‌اند (از launchSettings.json برداشتم)
+                              )
+                                .AllowAnyHeader()  // اجازه عبور هر نوع هِدِر
+                                .AllowAnyMethod() // اجازه اجرای هر نوع متد
+                                .AllowCredentials();
+                      });
+});
+
 
 builder.Services.AddControllers()
         .AddJsonOptions(options =>
         {
-            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 builder.Services.AddEndpointsApiExplorer();
+
+
+
 
 // 4. پیکربندی Swagger برای ارسال توکن (مهم برای تست‌های آینده)
 builder.Services.AddSwaggerGen(options =>
@@ -96,7 +123,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
 // --- بخش حیاتی: فعال‌سازی Middleware های Authentication ---
@@ -105,7 +132,15 @@ app.UseHttpsRedirection();
 // و ترتیبشان هم مهم است! اول Authentication و بعد Authorization.
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+               Path.Combine(builder.Environment.ContentRootPath, "Uploads")),
+    RequestPath = "/Uploads"
+});
 
 app.MapControllers();
+app.UseStaticFiles(); // این خط باید وجود داشته باشد
+app.MapHub<LocationHub>("/hubs/location");
 
 app.Run();
