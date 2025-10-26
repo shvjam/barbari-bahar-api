@@ -1,8 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import AdminOrders from "./AdminOrders";
+import AdminDrivers from "./AdminDrivers";
+import AdminUsers from "./AdminUsers";
 
 export default function DashboardAdmin() {
+  const [tab, setTab] = useState<"overview" | "orders" | "drivers" | "users">("overview");
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-6">
