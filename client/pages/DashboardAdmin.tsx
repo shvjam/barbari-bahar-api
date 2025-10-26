@@ -92,7 +92,7 @@ export default function DashboardAdmin() {
           <Card>
             <CardContent>
               <div className="text-sm text-foreground/70">تسویه‌های در انتظار</div>
-              <div className="text-2xl font-bold mt-2">2</div>
+              <div className="text-2xl font-bold mt-2">{stats.pendingSettlements ?? 0}</div>
             </CardContent>
           </Card>
         </div>
