@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
+import AddressPicker from "@/components/AddressPicker";
 
 type PackagingType = "none" | "all" | "large" | "small";
 
@@ -25,7 +26,7 @@ const HEAVY_ITEMS = [
 
 const PACKING_SMALLS = [
   { id: "clothes", title: "لباس، کیف و کفش" },
-  { id: "kitchen_small", title: "ظروف و لوازم برقی کوچک آشپزخانه" },
+  { id: "kitchen_small", title: "ظروف و لو��زم برقی کوچک آشپزخانه" },
   { id: "supplies", title: "مواد غذایی، شوینده و بهداشتی" },
   { id: "books", title: "کتاب" },
   { id: "other", title: "سایر" },
@@ -395,7 +396,7 @@ export default function Order() {
               <Button variant="outline">اعمال</Button>
             </div>
             <div className="mt-4 text-xs text-foreground/60">
-              درصورت مراجعه متخصص و عدم انجام کار بنا به نظر مشتری، ۲۵۰٬۰۰۰ تومان هزینه کارشناسی دریافت می‌شود.
+              درصورت مراجعه ��تخصص و عدم انجام کار بنا به نظر مشتری، ۲۵۰٬۰۰۰ تومان هزینه کارشناسی دریافت می‌شود.
             </div>
           </CardContent>
         </Card>
