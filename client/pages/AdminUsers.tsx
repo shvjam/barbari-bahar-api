@@ -29,9 +29,21 @@ export default function AdminUsers() {
     try {
       const url = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : "/api/admin/users";
       const res = await apiFetch(url);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data = await res.json();
-      setUsers(data.users || data);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+      }
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        const data = await res.json().catch(async () => {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Invalid JSON response: ${txt.substring(0,200)}`);
+        });
+        setUsers(data.users || data);
+      } else {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Expected JSON but received: ${txt.substring(0,200)}`);
+      }
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری کاربران", description: String(err) });
@@ -50,7 +62,10 @@ export default function AdminUsers() {
         method: "PATCH",
         body: JSON.stringify({ active }),
       });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+      }
       toast({ title: "وضعیت کاربر بروزرسانی شد" });
       load();
     } catch (err) {
@@ -100,7 +115,7 @@ export default function AdminUsers() {
                     <tr key={u.id} className="border-t">
                       <td className="py-2">{u.id}</td>
                       <td className="py-2">{u.name}</td>
-                      <td className="py-2">{u.email || "—"}</td>
+                      <td className="py-2">{u.email || "���"}</td>
                       <td className="py-2">{u.active ? "بله" : "خیر"}</td>
                       <td className="py-2 flex gap-2">
                         <Button size="sm" onClick={() => toggleActive(u.id, !u.active)}>
