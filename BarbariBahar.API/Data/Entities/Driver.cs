@@ -12,7 +12,5 @@
         public int WorkerCount { get; set; }
         public string CarModel { get; set; }
         public string CarPlateNumber { get; set; }
-
-        public virtual ICollection<Order> Orders { get; set; }
     }
 }

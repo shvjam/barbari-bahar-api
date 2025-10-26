@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BarbariBahar.API.Core.DTOs.Product
 {
-    public class CreatePackagingProductDto
+    public class UpdatePackagingProductDto
     {
         [Required]
         public string Name { get; set; }
@@ -15,5 +15,8 @@ namespace BarbariBahar.API.Core.DTOs.Product
 
         [Required]
         public int CategoryId { get; set; }
+
+        [Required]
+        public bool IsAvailable { get; set; }
     }
 }

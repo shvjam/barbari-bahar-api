@@ -3,6 +3,7 @@ using BarbariBahar.API.Core.DTOs.PricingFactor;
 using BarbariBahar.API.Data; // مسیر DbContext شما
 using BarbariBahar.API.Data.Entities; // مسیر مدل‌های شما
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace BarbariBahar.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // آدرس این کنترلر می شود: /api/pricingfactors
+    [Authorize(Roles = "Admin")]
     public class PricingFactorsController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;
@@ -128,6 +130,69 @@ namespace BarbariBahar.Api.Controllers
             await _context.SaveChangesAsync();
 
             // در صورت موفقیت، کد 204 No Content را برگردان
+            return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<PricingFactorDto>> CreatePricingFactor([FromBody] CreatePricingFactorDto createDto)
+        {
+            var newFactor = new PricingFactor
+            {
+                Name = createDto.Name,
+                Price = createDto.Price,
+                Unit = createDto.Unit,
+                Category = createDto.Category,
+                IsActive = createDto.IsActive
+            };
+
+            _context.PricingFactors.Add(newFactor);
+            await _context.SaveChangesAsync();
+
+            var factorToReturn = new PricingFactorDto
+            {
+                Id = newFactor.Id,
+                Name = newFactor.Name,
+                Price = newFactor.Price,
+                Unit = newFactor.Unit,
+                Category = newFactor.Category,
+                IsActive = newFactor.IsActive
+            };
+
+            return CreatedAtAction(nameof(GetPricingFactor), new { id = newFactor.Id }, factorToReturn);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePricingFactor(int id, [FromBody] UpdatePricingFactorDto updateDto)
+        {
+            var factorFromDb = await _context.PricingFactors.FindAsync(id);
+
+            if (factorFromDb == null)
+            {
+                return NotFound();
+            }
+
+            factorFromDb.Name = updateDto.Name;
+            factorFromDb.Price = updateDto.Price;
+            factorFromDb.Unit = updateDto.Unit;
+            factorFromDb.Category = updateDto.Category;
+            factorFromDb.IsActive = updateDto.IsActive;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePricingFactor(int id)
+        {
+            var pricingFactor = await _context.PricingFactors.FindAsync(id);
+            if (pricingFactor == null)
+            {
+                return NotFound();
+            }
+
+            _context.PricingFactors.Remove(pricingFactor);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
