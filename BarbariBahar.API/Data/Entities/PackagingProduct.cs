@@ -10,6 +10,7 @@
         public int Stock { get; set; } // تعداد موجودی
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsAvailable { get; set; } = true;
         
 
         // ارتباط با دسته‌بندی محصولات

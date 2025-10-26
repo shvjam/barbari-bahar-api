@@ -3,6 +3,7 @@ using BarbariBahar.API.Core.DTOs.PricingFactor;
 using BarbariBahar.API.Data; // مسیر DbContext شما
 using BarbariBahar.API.Data.Entities; // مسیر مدل‌های شما
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace BarbariBahar.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // آدرس این کنترلر می شود: /api/pricingfactors
+    [Authorize(Roles = "Admin")]
     public class PricingFactorsController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;

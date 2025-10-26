@@ -8,7 +8,7 @@ namespace BarbariBahar.API.Data.Entities
 
     public abstract class User
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Mobile { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; }= string.Empty;
