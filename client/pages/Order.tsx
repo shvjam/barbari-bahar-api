@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import React, { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -167,7 +166,7 @@ export default function Order() {
 
               {step === 1 && (
                 <motion.div key="step-1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">آیا به سرویس بسته‌بندی نیاز دارید؟</div>
+                  <div className="font-bold text-lg">آیا به سرویس بسته‌بندی ��یاز دارید؟</div>
                   <div className="grid sm:grid-cols-2 gap-3 mt-4 max-w-2xl">
                     <label className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "yes" ? "ring-2 ring-primary" : ""}`}>
                       <div className="font-bold">بله</div>
