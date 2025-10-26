@@ -80,7 +80,7 @@ export default function DashboardAdmin() {
           <Card>
             <CardContent>
               <div className="text-sm text-foreground/70">درآمد امروز</div>
-              <div className="text-2xl font-bold mt-2">45,000,000 تومان</div>
+              <div className="text-2xl font-bold mt-2">{(stats.todayIncome ?? 0).toLocaleString()} تومان</div>
             </CardContent>
           </Card>
           <Card>
