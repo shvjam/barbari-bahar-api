@@ -31,10 +31,23 @@ export default function AdminOrders() {
     setLoading(true);
     try {
       const res = await apiFetch(`/api/admin/orders?page=${page}&perPage=${perPage}`);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data = await res.json();
-      // Expecting { orders: Order[], total: number }
-      setOrders(data.orders || data);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
+      }
+
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        const data = await res.json().catch(async (e) => {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Invalid JSON response: ${txt.substring(0, 200)}`);
+        });
+        // Expecting { orders: Order[], total: number }
+        setOrders(data.orders || data);
+      } else {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
+      }
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری سفارش‌ها", description: String(err) });
