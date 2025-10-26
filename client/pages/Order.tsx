@@ -217,7 +217,7 @@ export default function Order() {
 
               {step === 3 && packNeeded === "yes" && (
                 <motion.div key="step-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">قصد بسته‌بن��ی کدام موارد را دارید؟</div>
+                  <div className="font-bold text-lg">قصد بسته‌بندی کدام موارد را دارید؟</div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {PACKING_SMALLS.map((it) => {
                       const item = packSmalls[it.id] || { checked: false };
@@ -415,7 +415,7 @@ export default function Order() {
             {/* Nav */}
             <div className="mt-6 flex items-center justify-between">
               <Button variant="outline" onClick={prev} disabled={step === 0}>مرحله قبل</Button>
-              {step < 9 ? (
+              {step < totalSteps ? (
                 <Button onClick={next} disabled={!canNext()}>ادامه</Button>
               ) : (
                 <Button>تایید و ادامه</Button>
