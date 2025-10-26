@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -99,7 +100,7 @@ export default function Order() {
     if (extraFloors > 0) breakdown.push({ code: "floors", title: "طبقات مبدا/مقصد", unitPrice: 75_000, quantity: extraFloors, total: extraFloors * 75_000 });
 
     // Elevator absence adds a flat effort cost
-    if (originElevator === "no") breakdown.push({ code: "no_elev_o", title: "بدون آسانسور در مبدا", unitPrice: 120_000, quantity: 1, total: 120_000 });
+    if (originElevator === "no") breakdown.push({ code: "no_elev_o", title: "بدون آسانسور د�� مبدا", unitPrice: 120_000, quantity: 1, total: 120_000 });
     if (destElevator === "no") breakdown.push({ code: "no_elev_d", title: "بدون آسانسور در مقصد", unitPrice: 120_000, quantity: 1, total: 120_000 });
 
     // Heavy items
