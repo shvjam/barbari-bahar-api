@@ -110,6 +110,30 @@ namespace BarbariBahar.API.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed Data
+            modelBuilder.Entity<ServiceCategory>().HasData(
+                new ServiceCategory { Id = 1, Name = "جابجایی شهری" },
+                new ServiceCategory { Id = 2, Name = "حمل بار بین شهری" },
+                new ServiceCategory { Id = 3, Name = "بسته بندی" }
+            );
+
+            modelBuilder.Entity<PackagingProductCategory>().HasData(
+                new PackagingProductCategory { Id = 1, Name = "کارتن‌ها" },
+                new PackagingProductCategory { Id = 2, Name = "لوازم محافظتی" }
+            );
+
+            modelBuilder.Entity<PackagingProduct>().HasData(
+                new PackagingProduct { Id = 1, Name = "کارتن سه لایه", Price = 50000, CategoryId = 1 },
+                new PackagingProduct { Id = 2, Name = "نایلون حباب دار (متری)", Price = 25000, CategoryId = 2 },
+                new PackagingProduct { Id = 3, Name = "چسب پهن", Price = 30000, CategoryId = 2 }
+            );
+
+            modelBuilder.Entity<PricingFactor>().HasData(
+                new PricingFactor { Id = 1, Name = "وانت", Price = 500000, ServiceCategoryId = 1, Unit = "سرویس" },
+                new PricingFactor { Id = 2, Name = "کارگر", Price = 250000, ServiceCategoryId = 1, Unit = "نفر" },
+                new PricingFactor { Id = 3, Name = "هزینه به ازای هر کیلومتر", Price = 10000, ServiceCategoryId = 2, Unit = "کیلومتر" }
+            );
         }
     }
 }

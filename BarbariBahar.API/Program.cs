@@ -19,7 +19,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // 2. اضافه کردن DbContext
 builder.Services.AddDbContext<BarbariBaharDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddSignalR();
 

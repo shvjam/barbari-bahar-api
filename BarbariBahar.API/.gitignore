@@ -35,3 +35,6 @@
     
     # Environment files
     .env
+
+    # Database files
+    *.db
