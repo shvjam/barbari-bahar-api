@@ -13,6 +13,7 @@ import Placeholder from "./pages/Placeholder";
 import DashboardCustomer from "./pages/DashboardCustomer";
 import DashboardDriver from "./pages/DashboardDriver";
 import DashboardAdmin from "./pages/DashboardAdmin";
+import AdminSettings from "./pages/AdminSettings";
 import { Layout } from "@/components/layout/Layout";
 
 const queryClient = new QueryClient();
