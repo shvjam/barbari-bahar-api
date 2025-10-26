@@ -24,7 +24,7 @@ namespace BarbariBahar.API.Data.Entities
         // --- پراپرتی‌ها را برمی‌گردانیم ---
 
         // UserId را به صورت int? تعریف می‌کنیم. علامت ؟ یعنی این فیلد می‌تواند NULL باشد.
-        public int? UserId { get; set; }
+        public long? UserId { get; set; }
 
         // پراپرتی ناوبری (Navigation Property)
         // از کلمه کلیدی virtual برای فعال کردن Lazy Loading استفاده می‌کنیم.
