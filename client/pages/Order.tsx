@@ -320,20 +320,33 @@ export default function Order() {
 
               {step === 6 && (
                 <motion.div key="step-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">اقلام سنگین یا حجیم</div>
-                  <div className="grid gap-3 mt-3 max-w-2xl">
-                    {HEAVY_ITEMS.map((h) => {
-                      const qty = heavy[h.id] || 0;
-                      return (
-                        <div key={h.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
-                          <div className="text-sm">{h.title}</div>
-                          <div className="flex items-center gap-3">
-                            <Counter value={qty} onChange={(q) => setHeavy((s) => ({ ...s, [h.id]: q }))} />
-                            <div className="text-xs text-foreground/70">{h.price.toLocaleString()} تومان</div>
-                          </div>
+                  <div className="font-bold text-lg">آدرس مبدا و مقصد</div>
+                  <div className="mt-3 grid gap-3">
+                    <div className="border rounded-xl p-3">
+                      <div className="text-sm mb-2">آدرس مبدا</div>
+                      <div className="flex items-center gap-2">
+                        <Input value={originAddress?.label || ""} placeholder="آدرس مبدا انتخاب نشده" readOnly />
+                        <div>
+                          <AddressPicker
+                            buttonLabel={originAddress ? "ویرایش" : "انتخاب"}
+                            onSelect={(a) => setOriginAddress(a)}
+                          />
                         </div>
-                      );
-                    })}
+                      </div>
+                    </div>
+
+                    <div className="border rounded-xl p-3">
+                      <div className="text-sm mb-2">آدرس مقصد</div>
+                      <div className="flex items-center gap-2">
+                        <Input value={destAddress?.label || ""} placeholder="آدرس مقصد انتخاب نشده" readOnly />
+                        <div>
+                          <AddressPicker
+                            buttonLabel={destAddress ? "ویرایش" : "انتخاب"}
+                            onSelect={(a) => setDestAddress(a)}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
