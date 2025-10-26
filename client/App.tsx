@@ -14,6 +14,9 @@ import DashboardCustomer from "./pages/DashboardCustomer";
 import DashboardDriver from "./pages/DashboardDriver";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import AdminSettings from "./pages/AdminSettings";
+import AdminOrders from "./pages/AdminOrders";
+import AdminDrivers from "./pages/AdminDrivers";
+import AdminUsers from "./pages/AdminUsers";
 import { Layout } from "@/components/layout/Layout";
 
 const queryClient = new QueryClient();
