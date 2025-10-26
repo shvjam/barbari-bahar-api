@@ -38,6 +38,9 @@ const App = () => (
             <Route path="/dashboard/driver" element={<DashboardDriver />} />
             <Route path="/dashboard/admin" element={<DashboardAdmin />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/drivers" element={<AdminDrivers />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
