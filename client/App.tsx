@@ -30,6 +30,9 @@ const App = () => (
             <Route path="/shop" element={<Placeholder title="فروشگاه کارتن" />} />
             <Route path="/about" element={<Placeholder title="درباره ما" />} />
             <Route path="/contact" element={<Placeholder title="تماس با ما" />} />
+            <Route path="/dashboard/customer" element={<DashboardCustomer />} />
+            <Route path="/dashboard/driver" element={<DashboardDriver />} />
+            <Route path="/dashboard/admin" element={<DashboardAdmin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
