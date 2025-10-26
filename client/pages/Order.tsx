@@ -124,7 +124,7 @@ export default function Order() {
     return true;
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, 9));
+  const next = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
@@ -136,7 +136,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌رو��", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -364,7 +364,7 @@ export default function Order() {
               {step === 9 && (
                 <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
-                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی بر اساس انتخاب‌های شما محاس��ه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
+                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی بر اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
                   <div className="mt-4 space-y-2">
                     {estimate.breakdown.map((b) => (
                       <div key={b.code} className="flex items-center justify-between text-sm border rounded-lg p-2">
