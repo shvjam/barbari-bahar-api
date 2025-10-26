@@ -4,6 +4,7 @@ using BarbariBahar.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    partial class BarbariBaharDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251026113029_Add_Service_Categories")]
+    partial class Add_Service_Categories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,38 +213,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("PackagingProducts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            IsActive = true,
-                            IsAvailable = true,
-                            Name = "کارتن سه لایه",
-                            Price = 50000m,
-                            Stock = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CategoryId = 2,
-                            IsActive = true,
-                            IsAvailable = true,
-                            Name = "نایلون حباب دار (متری)",
-                            Price = 25000m,
-                            Stock = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CategoryId = 2,
-                            IsActive = true,
-                            IsAvailable = true,
-                            Name = "چسب پهن",
-                            Price = 30000m,
-                            Stock = 0
-                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackagingProductCategory", b =>
@@ -259,18 +230,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PackagingProductCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "کارتن‌ها"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "لوازم محافظتی"
-                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingServiceSubItem", b =>
@@ -321,35 +280,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasIndex("ServiceCategoryId");
 
                     b.ToTable("PricingFactors");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IsActive = true,
-                            Name = "وانت",
-                            Price = 500000m,
-                            ServiceCategoryId = 1,
-                            Unit = "سرویس"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IsActive = true,
-                            Name = "کارگر",
-                            Price = 250000m,
-                            ServiceCategoryId = 1,
-                            Unit = "نفر"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            IsActive = true,
-                            Name = "هزینه به ازای هر کیلومتر",
-                            Price = 10000m,
-                            ServiceCategoryId = 2,
-                            Unit = "کیلومتر"
-                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.ServiceCategory", b =>
@@ -367,23 +297,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServiceCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "جابجایی شهری"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "حمل بار بین شهری"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "بسته بندی"
-                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Ticket", b =>
@@ -399,6 +312,10 @@ namespace BarbariBahar.API.Migrations
 
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("OrderId")
                         .HasColumnType("bigint");
@@ -425,36 +342,6 @@ namespace BarbariBahar.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Tickets");
-                });
-
-            modelBuilder.Entity("BarbariBahar.API.Data.Entities.TicketMessage", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("SenderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("TicketId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SenderId");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("TicketMessages");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
@@ -642,25 +529,6 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BarbariBahar.API.Data.Entities.TicketMessage", b =>
-                {
-                    b.HasOne("BarbariBahar.API.Data.Entities.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("BarbariBahar.API.Data.Entities.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Sender");
-
-                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
