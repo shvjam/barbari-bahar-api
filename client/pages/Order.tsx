@@ -136,7 +136,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آ��انسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -193,7 +193,7 @@ export default function Order() {
                     <label className="flex items-center gap-3 border rounded-xl p-3 cursor-pointer">
                       <RadioGroupItem value="all" id="pack_all" />
                       <div>
-                        <div className="font-bold">بسته‌بندی تمام ل��ازم منزل</div>
+                        <div className="font-bold">بسته‌بندی تمام لوازم منزل</div>
                         <div className="text-sm text-foreground/70">ریز و درشت</div>
                       </div>
                     </label>
@@ -373,6 +373,19 @@ export default function Order() {
 
               {step === 8 && (
                 <motion.div key="step-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                  <div className="font-bold text-lg">پیاده‌روی مورد نیاز</div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {[0, 20, 35, 40, 50, 65, 200].map((m) => (
+                      <Button key={m} variant={walk === m ? "default" : "outline"} onClick={() => setWalk(m as any)}>
+                        {m === 0 ? "ندارم" : m}
+                      </Button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 9 && (
+                <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">تعداد کارگر</div>
                   <p className="text-sm text-foreground/70">حداقل ۴ نفر</p>
                   <div className="mt-3">
@@ -384,7 +397,7 @@ export default function Order() {
               {step === 9 && (
                 <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
-                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی بر اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
+                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
                   <div className="mt-4 space-y-2">
                     {estimate.breakdown.map((b) => (
                       <div key={b.code} className="flex items-center justify-between text-sm border rounded-lg p-2">
