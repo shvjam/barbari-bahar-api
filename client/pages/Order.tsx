@@ -217,7 +217,7 @@ export default function Order() {
 
               {step === 3 && packNeeded === "yes" && (
                 <motion.div key="step-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">قصد بسته‌بندی کدام موارد را دارید؟</div>
+                  <div className="font-bold text-lg">قصد بسته‌بن��ی کدام موارد را دارید؟</div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {PACKING_SMALLS.map((it) => {
                       const item = packSmalls[it.id] || { checked: false };
@@ -394,8 +394,8 @@ export default function Order() {
                 </motion.div>
               )}
 
-              {step === 9 && (
-                <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+              {step === 10 && (
+                <motion.div key="step-10" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
                   <p className="text-sm text-foreground/70 mt-1">قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
                   <div className="mt-4 space-y-2">
