@@ -29,9 +29,21 @@ export default function AdminDrivers() {
     setLoading(true);
     try {
       const res = await apiFetch(`/api/admin/drivers`);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data = await res.json();
-      setDrivers(data.drivers || data);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
+      }
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        const data = await res.json().catch(async () => {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Invalid JSON response: ${txt.substring(0, 200)}`);
+        });
+        setDrivers(data.drivers || data);
+      } else {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
+      }
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری رانندگان", description: String(err) });
@@ -50,7 +62,10 @@ export default function AdminDrivers() {
         method: "POST",
         body: JSON.stringify({ name, phone }),
       });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+      }
       toast({ title: "راننده اضافه شد" });
       setName("");
       setPhone("");
@@ -67,7 +82,10 @@ export default function AdminDrivers() {
         method: "PATCH",
         body: JSON.stringify({ active }),
       });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+      }
       toast({ title: "وضعیت راننده بروزرسانی شد" });
       load();
     } catch (err) {
