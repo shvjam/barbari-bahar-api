@@ -19,5 +19,19 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Admin mock routes
+  const admin = require("./routes/admin");
+  app.get("/api/admin/stats", admin.getStats);
+  app.get("/api/admin/orders", admin.getOrders);
+  app.get("/api/admin/orders/:id", admin.getOrderById);
+  app.patch("/api/admin/orders/:id", admin.patchOrder);
+
+  app.get("/api/admin/drivers", admin.getDrivers);
+  app.post("/api/admin/drivers", admin.postDriver);
+  app.patch("/api/admin/drivers/:id", admin.patchDriver);
+
+  app.get("/api/admin/users", admin.getUsers);
+  app.patch("/api/admin/users/:id", admin.patchUser);
+
   return app;
 }
