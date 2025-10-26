@@ -4,6 +4,7 @@ using BarbariBahar.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    partial class BarbariBaharDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251026113029_Add_Service_Categories")]
+    partial class Add_Service_Categories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

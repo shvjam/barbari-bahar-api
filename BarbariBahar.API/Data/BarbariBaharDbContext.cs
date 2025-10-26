@@ -9,6 +9,7 @@ namespace BarbariBahar.API.Data
     {
         public BarbariBaharDbContext(DbContextOptions<BarbariBaharDbContext> options) : base(options) { }
         public DbSet<PricingFactor> PricingFactors { get; set; }
+        public DbSet<ServiceCategory> ServiceCategories { get; set; }
         public DbSet<PackagingProduct> PackagingProducts { get; set; }
         public DbSet<PackagingProductCategory> PackagingProductCategories { get; set; }
         public DbSet<User> Users { get; set; }

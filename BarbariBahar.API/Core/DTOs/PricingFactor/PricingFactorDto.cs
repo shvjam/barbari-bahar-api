@@ -1,6 +1,4 @@
-﻿using BarbariBahar.API.Data.Entities;
-
-namespace BarbariBahar.API.Core.Dtos.PricingFactor // مطمئن شو namespace با پروژه تو مطابقت دارد
+namespace BarbariBahar.API.Core.DTOs.PricingFactor // مطمئن شو namespace با پروژه تو مطابقت دارد
 {
     public class PricingFactorDto
     {
@@ -8,7 +6,8 @@ namespace BarbariBahar.API.Core.Dtos.PricingFactor // مطمئن شو namespace 
         public string Name { get; set; }
         public decimal Price { get; set; }
         public string Unit { get; set; }
-        public PricingFactorCategory Category { get; set; } // <--- از string به enum تغییر کرد
+        public int ServiceCategoryId { get; set; }
+        public string ServiceCategoryName { get; set; }
         public bool IsActive { get; set; }
     }
 }

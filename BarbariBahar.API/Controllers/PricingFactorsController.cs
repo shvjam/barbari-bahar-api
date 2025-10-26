@@ -1,50 +1,59 @@
-﻿using BarbariBahar.API.Core.Dtos.PricingFactor;
 using BarbariBahar.API.Core.DTOs.PricingFactor;
-using BarbariBahar.API.Data; // مسیر DbContext شما
-using BarbariBahar.API.Data.Entities; // مسیر مدل‌های شما
+using BarbariBahar.API.Data;
+using BarbariBahar.API.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BarbariBahar.Api.Controllers
+namespace BarbariBahar.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // آدرس این کنترلر می شود: /api/pricingfactors
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class PricingFactorsController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;
 
-        // سازنده (Constructor) برای تزریق وابستگی DbContext
         public PricingFactorsController(BarbariBaharDbContext context)
         {
             _context = context;
         }
 
-        // اینجا Endpoints را یکی یکی اضافه خواهیم کرد
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PricingFactorDto>>> GetPricingFactors()
+        public async Task<ActionResult<IEnumerable<PricingFactorDto>>> GetPricingFactors([FromQuery] int? serviceCategoryId)
         {
-            var factors = await _context.PricingFactors
+            var query = _context.PricingFactors.AsQueryable();
+
+            if (serviceCategoryId.HasValue)
+            {
+                query = query.Where(p => p.ServiceCategoryId == serviceCategoryId.Value);
+            }
+
+            var factors = await query
+                .Include(p => p.ServiceCategory) // Join with ServiceCategories
                 .Select(p => new PricingFactorDto
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Price = p.Price,
                     Unit = p.Unit,
-                    Category = p.Category, // مستقیم انتساب میدهیم
+                    ServiceCategoryId = p.ServiceCategoryId,
+                    ServiceCategoryName = p.ServiceCategory.Name, // Get the name from the joined table
                     IsActive = p.IsActive
                 })
                 .ToListAsync();
 
             return Ok(factors);
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<PricingFactorDto>> GetPricingFactor(int id)
         {
-            var factor = await _context.PricingFactors.FindAsync(id);
+            var factor = await _context.PricingFactors
+                .Include(p => p.ServiceCategory)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (factor == null)
             {
@@ -57,7 +66,8 @@ namespace BarbariBahar.Api.Controllers
                 Name = factor.Name,
                 Price = factor.Price,
                 Unit = factor.Unit,
-                Category = factor.Category,
+                ServiceCategoryId = factor.ServiceCategoryId,
+                ServiceCategoryName = factor.ServiceCategory.Name,
                 IsActive = factor.IsActive
             };
 
@@ -67,13 +77,18 @@ namespace BarbariBahar.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<PricingFactorDto>> CreatePricingFactor([FromBody] CreatePricingFactorDto createDto)
         {
-            // دیگر نیازی به TryParse نیست!
+            var serviceCategory = await _context.ServiceCategories.FindAsync(createDto.ServiceCategoryId);
+            if (serviceCategory == null)
+            {
+                return BadRequest(new { message = "دسته بندی انتخاب شده معتبر نیست." });
+            }
+
             var newFactor = new PricingFactor
             {
                 Name = createDto.Name,
                 Price = createDto.Price,
                 Unit = createDto.Unit,
-                Category = createDto.Category, // مستقیم انتساب میدهیم
+                ServiceCategoryId = createDto.ServiceCategoryId,
                 IsActive = createDto.IsActive
             };
 
@@ -86,12 +101,14 @@ namespace BarbariBahar.Api.Controllers
                 Name = newFactor.Name,
                 Price = newFactor.Price,
                 Unit = newFactor.Unit,
-                Category = newFactor.Category, // مستقیم انتساب میدهیم
+                ServiceCategoryId = newFactor.ServiceCategoryId,
+                ServiceCategoryName = serviceCategory.Name,
                 IsActive = newFactor.IsActive
             };
 
             return CreatedAtAction(nameof(GetPricingFactor), new { id = newFactor.Id }, factorToReturn);
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePricingFactor(int id, [FromBody] UpdatePricingFactorDto updateDto)
         {
@@ -102,34 +119,34 @@ namespace BarbariBahar.Api.Controllers
                 return NotFound();
             }
 
+            var serviceCategory = await _context.ServiceCategories.FindAsync(updateDto.ServiceCategoryId);
+            if (serviceCategory == null)
+            {
+                return BadRequest(new { message = "دسته بندی انتخاب شده معتبر نیست." });
+            }
+
             factorFromDb.Name = updateDto.Name;
             factorFromDb.Price = updateDto.Price;
             factorFromDb.Unit = updateDto.Unit;
-            factorFromDb.Category = updateDto.Category; // مستقیم انتساب میدهیم
+            factorFromDb.ServiceCategoryId = updateDto.ServiceCategoryId;
             factorFromDb.IsActive = updateDto.IsActive;
-
-            // ... بقیه کد بدون تغییر
 
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePricingFactor(int id)
         {
-            // ابتدا آیتم مورد نظر برای حذف را پیدا کن
             var pricingFactor = await _context.PricingFactors.FindAsync(id);
             if (pricingFactor == null)
             {
-                // اگر پیدا نشد، خطای 404 برگردان
                 return NotFound();
             }
 
-            // به Entity Framework بگو که این آیتم باید حذف شود
             _context.PricingFactors.Remove(pricingFactor);
-            // تغییرات را در دیتابیس ذخیره کن
             await _context.SaveChangesAsync();
 
-            // در صورت موفقیت، کد 204 No Content را برگردان
             return NoContent();
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using BarbariBahar.API.Data.Entities;
 
-namespace BarbariBahar.API.Core.Dtos.PricingFactor // مطمئن شو namespace با پروژه تو مطابقت دارد
+namespace BarbariBahar.API.Core.DTOs.PricingFactor // مطمئن شو namespace با پروژه تو مطابقت دارد
 {
     public class UpdatePricingFactorDto
     {
@@ -17,7 +16,7 @@ namespace BarbariBahar.API.Core.Dtos.PricingFactor // مطمئن شو namespace 
         public string Unit { get; set; }
 
         [Required(ErrorMessage = "دسته بندی اجباری است.")]
-        public PricingFactorCategory Category { get; set; } // <--- از string به enum تغییر کرد
+        public int ServiceCategoryId { get; set; }
 
         public bool IsActive { get; set; }
     }
