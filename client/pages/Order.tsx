@@ -17,7 +17,7 @@ const HEAVY_ITEMS = [
   { id: "dining", title: "میز ناهارخوری ۶ نفره به بالا", price: 300_000 },
   { id: "closet", title: "کمد/بوفه/کتابخانه قد > 185cm", price: 375_000 },
   { id: "treadmill", title: "تردمیل/دوچرخه/الپتیکال", price: 500_000 },
-  { id: "glass", title: "��یشه ۴ میل به بالا و > ۱m", price: 280_000 },
+  { id: "glass", title: "شیشه ۴ میل به بالا و > ۱m", price: 280_000 },
   { id: "aquarium", title: "آکواریوم/صندلی ماساژ/…", price: 450_000 },
   { id: "piano", title: "پیانو", price: 750_000 },
   { id: "safe_light", title: "گاوصندوق ≤ 120kg", price: 400_000 },
@@ -91,7 +91,7 @@ export default function Order() {
     if (packNeeded === "yes") {
       if (packMen > 0) breakdown.push({ code: "pack_male", title: "هزینه نیروی بسته‌بندی آقا", unitPrice: 800_000, quantity: packMen, total: packMen * 800_000 });
       if (packWomen > 0)
-        breakdown.push({ code: "pack_female", title: "هز��نه نیروی بسته‌بندی خانم", unitPrice: 800_000, quantity: packWomen, total: packWomen * 800_000 });
+        breakdown.push({ code: "pack_female", title: "هزینه نیروی بسته‌بندی خانم", unitPrice: 800_000, quantity: packWomen, total: packWomen * 800_000 });
     }
 
     // Floors (simple example: 75k per floor over 1 per origin/destination)
@@ -120,6 +120,7 @@ export default function Order() {
     if (step === 1) return packNeeded !== "";
     if (step === 2 && packNeeded === "yes") return packType !== "none";
     if (step === 5) return originElevator !== "" && destElevator !== "";
+    if (step === 6) return originAddress !== null && destAddress !== null;
     return true;
   };
 
@@ -135,7 +136,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌رو��", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -363,7 +364,7 @@ export default function Order() {
               {step === 9 && (
                 <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
-                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی بر اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
+                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی بر اساس انتخاب‌های شما محاس��ه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
                   <div className="mt-4 space-y-2">
                     {estimate.breakdown.map((b) => (
                       <div key={b.code} className="flex items-center justify-between text-sm border rounded-lg p-2">
