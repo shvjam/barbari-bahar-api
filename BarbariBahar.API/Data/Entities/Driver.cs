@@ -1,3 +1,5 @@
+using BarbariBahar.API.Data.Enums;
+
 ﻿namespace BarbariBahar.API.Data.Entities
 {
     public class Driver : User
@@ -12,6 +14,7 @@
         public int WorkerCount { get; set; }
         public string CarModel { get; set; }
         public string CarPlateNumber { get; set; }
+        public DriverStatus Status { get; set; }
         public virtual System.Collections.Generic.ICollection<Order> Orders { get; set; }
     }
 }

@@ -6,15 +6,13 @@ namespace BarbariBahar.API.Core.DTOs.Auth
     public class VerifyRegisterOtpDto
     {
         // اطلاعات پایه
-        [Required]
-        public string FirstName { get; set; } = string.Empty;
-        [Required]
-        public string LastName { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
         [Required]
         [RegularExpression(@"^09\d{9}$")]
         public string Phone { get; set; } = string.Empty;
         [Required]
-        public string Role { get; set; } = string.Empty; // "Customer" or "Driver"
+        public string Role { get; set; } // "Customer" or "Driver"
 
         // اطلاعات تایید OTP
         [Required]

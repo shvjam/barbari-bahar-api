@@ -79,6 +79,10 @@ namespace BarbariBahar.API.Data
                 .Property(a => a.Type)
                 .HasConversion<string>();
             
+            modelBuilder.Entity<Driver>()
+                .Property(d => d.Status)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Ticket>()
                 .Property(t => t.Status)
                 .HasConversion<string>();

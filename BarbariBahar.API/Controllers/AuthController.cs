@@ -169,9 +169,9 @@ namespace BarbariBahar.API.Controllers
             if (request.Role == "Driver")
             {
                 // اعتبارسنجی فیلدهای راننده
-                if (string.IsNullOrWhiteSpace(request.NationalCode) || string.IsNullOrWhiteSpace(request.CarModel) || string.IsNullOrWhiteSpace(request.CarPlateNumber))
+                if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName) || string.IsNullOrWhiteSpace(request.NationalCode) || string.IsNullOrWhiteSpace(request.CarModel) || string.IsNullOrWhiteSpace(request.CarPlateNumber))
                 {
-                    return BadRequest(new { message = "برای ثبت‌نام به عنوان راننده، کد ملی، مدل خودرو و شماره پلاک الزامی است." });
+                    return BadRequest(new { message = "برای ثبت‌نام به عنوان راننده، نام، نام خانوادگی، کد ملی، مدل خودرو و شماره پلاک الزامی است." });
                 }
 
                 newUser = new Driver
@@ -179,7 +179,8 @@ namespace BarbariBahar.API.Controllers
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     Mobile = request.Phone,
-                    IsActive = true,
+                    IsActive = false, // راننده تا زمان تایید ادمین غیرفعال است
+                    Status = BarbariBahar.API.Data.Enums.DriverStatus.PendingApproval,
                     CreatedAt = DateTime.UtcNow,
                     NationalCode = request.NationalCode,
                     CarModel = request.CarModel,

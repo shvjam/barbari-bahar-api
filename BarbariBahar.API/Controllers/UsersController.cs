@@ -41,15 +41,15 @@ namespace BarbariBahar.API.Controllers
 
             // مرحله ۳: تشخیص نقش کاربر بر اساس نوع آن
             string roleName;
-            if (user is Admin)
+            if (user is BarbariBahar.API.Data.Entities.Admin)
             {
                 roleName = "Admin";
             }
-            else if (user is Driver)
+            else if (user is BarbariBahar.API.Data.Entities.Driver)
             {
                 roleName = "Driver";
             }
-            else // if (user is Customer)
+            else // if (user is BarbariBahar.API.Data.Entities.Customer)
             {
                 roleName = "Customer";
             }
