@@ -1,5 +1,11 @@
 import "./global.css";
 
+// DEV: mock admin API to avoid backend missing in preview
+if (import.meta.env.DEV) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  import("./lib/mockAdmin");
+}
+
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -33,7 +39,7 @@ const App = () => (
             <Route path="/order" element={<Order />} />
             <Route path="/shop" element={<Placeholder title="فروشگاه کارتن" />} />
             <Route path="/about" element={<Placeholder title="درباره ما" />} />
-            <Route path="/contact" element={<Placeholder title="تماس با ما" />} />
+            <Route path="/contact" element={<Placeholder title="تم��س با ما" />} />
             <Route path="/dashboard/customer" element={<DashboardCustomer />} />
             <Route path="/dashboard/driver" element={<DashboardDriver />} />
             <Route path="/dashboard/admin" element={<DashboardAdmin />} />
