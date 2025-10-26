@@ -25,7 +25,7 @@ namespace BarbariBahar.API.Controllers
         {
             // مرحله ۱: پیدا کردن ID کاربر از توکن (Claim)
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out long userId))
             {
                 return Unauthorized(new { Message = "توکن نامعتبر یا فاقد ID کاربر است." });
             }

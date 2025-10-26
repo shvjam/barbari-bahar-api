@@ -9,5 +9,6 @@
         }
 
         // در آینده می‌توانید ویژگی‌های اختصاصی Customer را اینجا اضافه کنید.
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }
