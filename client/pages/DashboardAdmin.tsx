@@ -86,7 +86,7 @@ export default function DashboardAdmin() {
           <Card>
             <CardContent>
               <div className="text-sm text-foreground/70">رانندگان فعال</div>
-              <div className="text-2xl font-bold mt-2">12</div>
+              <div className="text-2xl font-bold mt-2">{stats.activeDrivers ?? 0}</div>
             </CardContent>
           </Card>
           <Card>
