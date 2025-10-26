@@ -128,7 +128,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -169,7 +169,7 @@ export default function Order() {
                     </label>
                     <label className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "no" ? "ring-2 ring-primary" : ""}`}>
                       <div className="font-bold">خیر</div>
-                      <div className="text-sm text-foreground/70">بدون بسته‌بندی ادامه می‌دهم</div>
+                      <div className="text-sm text-foreground/70">بدون ب��ته‌بندی ادامه می‌دهم</div>
                       <div className="mt-2 flex items-center gap-2">
                         <input type="radio" name="packNeed" checked={packNeeded === "no"} onChange={() => setPackNeeded("no")} />
                       </div>
@@ -294,7 +294,7 @@ export default function Order() {
                       </div>
                     </div>
                     <div className="border rounded-xl p-3">
-                      <div className="text-sm mb-2">طبقه مقصد</div>
+                      <div className="text-sm mb-2">طبقه مقص��</div>
                       <Input type="number" min={1} max={12} value={destFloor} onChange={(e) => setDestFloor(parseInt(e.target.value || "1"))} />
                       <div className="mt-3 text-sm mb-2">آسانسور در مقصد</div>
                       <div className="flex gap-3">
