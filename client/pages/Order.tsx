@@ -136,7 +136,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آ��انسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -193,7 +193,7 @@ export default function Order() {
                     <label className="flex items-center gap-3 border rounded-xl p-3 cursor-pointer">
                       <RadioGroupItem value="all" id="pack_all" />
                       <div>
-                        <div className="font-bold">بسته‌بندی تمام لوازم منزل</div>
+                        <div className="font-bold">بسته‌بندی تمام ل��ازم منزل</div>
                         <div className="text-sm text-foreground/70">ریز و درشت</div>
                       </div>
                     </label>
@@ -353,13 +353,20 @@ export default function Order() {
 
               {step === 7 && (
                 <motion.div key="step-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">پیاده‌روی مورد نیاز</div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {[0, 20, 35, 40, 50, 65, 200].map((m) => (
-                      <Button key={m} variant={walk === m ? "default" : "outline"} onClick={() => setWalk(m as any)}>
-                        {m === 0 ? "ندارم" : m}
-                      </Button>
-                    ))}
+                  <div className="font-bold text-lg">اقلام سنگین یا حجیم</div>
+                  <div className="grid gap-3 mt-3 max-w-2xl">
+                    {HEAVY_ITEMS.map((h) => {
+                      const qty = heavy[h.id] || 0;
+                      return (
+                        <div key={h.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
+                          <div className="text-sm">{h.title}</div>
+                          <div className="flex items-center gap-3">
+                            <Counter value={qty} onChange={(q) => setHeavy((s) => ({ ...s, [h.id]: q }))} />
+                            <div className="text-xs text-foreground/70">{h.price.toLocaleString()} تومان</div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
