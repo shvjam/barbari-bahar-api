@@ -23,6 +23,7 @@ namespace BarbariBahar.API.Data
         public DbSet<OrderAddress> OrderAddresses { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<TicketMessage> TicketMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -110,6 +111,18 @@ namespace BarbariBahar.API.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TicketMessage>()
+                .HasOne(tm => tm.Ticket)
+                .WithMany() // A ticket can have many messages
+                .HasForeignKey(tm => tm.TicketId)
+                .OnDelete(DeleteBehavior.Cascade); // If a ticket is deleted, delete its messages
+
+            modelBuilder.Entity<TicketMessage>()
+                .HasOne(tm => tm.Sender)
+                .WithMany() // A user can send many messages
+                .HasForeignKey(tm => tm.SenderId)
+                .OnDelete(DeleteBehavior.Restrict); // Don't delete user if they have messages
 
             // Seed Data
             modelBuilder.Entity<ServiceCategory>().HasData(

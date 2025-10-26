@@ -23,8 +23,6 @@ namespace BarbariBahar.API.Data.Entities
 
         [Required]
         public string Subject { get; set; }
-        [Required]
-        public string Message { get; set; }
 
         [Required]
         public TicketStatus Status { get; set; } = TicketStatus.Open;

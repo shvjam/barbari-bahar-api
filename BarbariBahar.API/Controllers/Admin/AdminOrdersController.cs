@@ -120,5 +120,35 @@ namespace BarbariBahar.API.Controllers.Admin
                 return BadRequest(new { message = "وضعیت ارسال شده معتبر نیست." });
             }
         }
+
+        // PATCH: api/admin/orders/{id}/assign-driver
+        [HttpPatch("{id}/assign-driver")]
+        public async Task<IActionResult> AssignDriverToOrder(long id, [FromBody] BarbariBahar.API.Core.DTOs.Admin.AssignDriverDto assignDriverDto)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound(new { message = "سفارش مورد نظر یافت نشد." });
+            }
+
+            var driver = await _context.Drivers.FindAsync(assignDriverDto.DriverId);
+            if (driver == null)
+            {
+                return BadRequest(new { message = "راننده مورد نظر یافت نشد." });
+            }
+
+            if (driver.Status != Data.Enums.DriverStatus.Active)
+            {
+                return BadRequest(new { message = "راننده انتخاب شده در وضعیت فعال قرار ندارد." });
+            }
+
+            order.DriverId = assignDriverDto.DriverId;
+            order.Status = Data.Entities.OrderStatus.InProgress;
+            order.LastUpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "راننده با موفقیت به سفارش تخصیص داده شد." });
+        }
     }
 }
