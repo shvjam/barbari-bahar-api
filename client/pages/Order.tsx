@@ -17,7 +17,7 @@ const HEAVY_ITEMS = [
   { id: "dining", title: "میز ناهارخوری ۶ نفره به بالا", price: 300_000 },
   { id: "closet", title: "کمد/بوفه/کتابخانه قد > 185cm", price: 375_000 },
   { id: "treadmill", title: "تردمیل/دوچرخه/الپتیکال", price: 500_000 },
-  { id: "glass", title: "شیشه ۴ میل به بالا و > ۱m", price: 280_000 },
+  { id: "glass", title: "��یشه ۴ میل به بالا و > ۱m", price: 280_000 },
   { id: "aquarium", title: "آکواریوم/صندلی ماساژ/…", price: 450_000 },
   { id: "piano", title: "پیانو", price: 750_000 },
   { id: "safe_light", title: "گاوصندوق ≤ 120kg", price: 400_000 },
@@ -68,7 +68,13 @@ export default function Order() {
   const [walk, setWalk] = useState<0 | 20 | 35 | 40 | 50 | 65 | 200>(0);
   const [workers, setWorkers] = useState(4);
 
+  // Addresses chosen via map/search
+  const [originAddress, setOriginAddress] = useState<{ label: string; lat: number; lon: number } | null>(null);
+  const [destAddress, setDestAddress] = useState<{ label: string; lat: number; lon: number } | null>(null);
+
   const selectedService = sp.get("service") || "moving-truck";
+
+  const totalSteps = 10;
 
   const estimate = useMemo(() => {
     const breakdown: { code: string; title: string; unitPrice: number; quantity: number; total: number }[] = [];
@@ -85,7 +91,7 @@ export default function Order() {
     if (packNeeded === "yes") {
       if (packMen > 0) breakdown.push({ code: "pack_male", title: "هزینه نیروی بسته‌بندی آقا", unitPrice: 800_000, quantity: packMen, total: packMen * 800_000 });
       if (packWomen > 0)
-        breakdown.push({ code: "pack_female", title: "هزینه نیروی بسته‌بندی خانم", unitPrice: 800_000, quantity: packWomen, total: packWomen * 800_000 });
+        breakdown.push({ code: "pack_female", title: "هز��نه نیروی بسته‌بندی خانم", unitPrice: 800_000, quantity: packWomen, total: packWomen * 800_000 });
     }
 
     // Floors (simple example: 75k per floor over 1 per origin/destination)
