@@ -1,6 +1,10 @@
 using BarbariBahar.API.Data;
+using BarbariBahar.API.Core.DTOs.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BarbariBahar.API.Controllers
 {
@@ -16,14 +20,13 @@ namespace BarbariBahar.API.Controllers
             _context = context;
         }
 
-        // Endpoints will be added here in the next step
         [HttpGet]
         public async Task<IActionResult> GetOrders()
         {
             var orders = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrderAddresses)
-                .Select(o => new BarbariBahar.API.Core.DTOs.Order.OrderSummaryDto
+                .Select(o => new OrderSummaryDto
                 {
                     Id = o.Id,
                     TrackingCode = o.TrackingCode,
@@ -31,8 +34,8 @@ namespace BarbariBahar.API.Controllers
                     Status = o.Status.ToString(),
                     CreatedAt = o.CreatedAt,
                     FinalPrice = o.FinalPrice,
-                    OriginAddress = o.OrderAddresses.FirstOrDefault(a => a.Type == BarbariBahar.API.Data.Entities.AddressType.Origin).FullAddress,
-                    DestinationAddress = o.OrderAddresses.FirstOrDefault(a => a.Type == BarbariBahar.API.Data.Entities.AddressType.Destination).FullAddress
+                    OriginAddress = o.OrderAddresses.FirstOrDefault(a => a.Type == Data.Entities.AddressType.Origin).FullAddress,
+                    DestinationAddress = o.OrderAddresses.FirstOrDefault(a => a.Type == Data.Entities.AddressType.Destination).FullAddress
                 })
                 .ToListAsync();
 
@@ -54,21 +57,21 @@ namespace BarbariBahar.API.Controllers
                 return NotFound();
             }
 
-            var orderDetail = new BarbariBahar.API.Core.DTOs.Order.OrderDetailDto
+            var orderDetail = new OrderDetailDto
             {
                 Id = order.Id,
                 TrackingCode = order.TrackingCode,
                 Status = order.Status.ToString(),
                 CreatedAt = order.CreatedAt,
                 FinalPrice = order.FinalPrice,
-                Customer = new BarbariBahar.API.Core.DTOs.Order.CustomerInfoDto
+                Customer = new CustomerInfoDto
                 {
                     Id = order.Customer.Id,
                     FirstName = order.Customer.FirstName,
                     LastName = order.Customer.LastName,
                     Mobile = order.Customer.Mobile
                 },
-                Driver = order.Driver == null ? null : new BarbariBahar.API.Core.DTOs.Order.DriverInfoDto
+                Driver = order.Driver == null ? null : new DriverInfoDto
                 {
                     Id = order.Driver.Id,
                     FirstName = order.Driver.FirstName,
@@ -77,12 +80,12 @@ namespace BarbariBahar.API.Controllers
                     CarModel = order.Driver.CarModel,
                     CarPlateNumber = order.Driver.CarPlateNumber
                 },
-                Addresses = order.OrderAddresses.Select(a => new BarbariBahar.API.Core.DTOs.Order.OrderAddressDetailDto
+                Addresses = order.OrderAddresses.Select(a => new OrderAddressDetailDto
                 {
                     FullAddress = a.FullAddress,
                     Type = a.Type.ToString()
                 }).ToList(),
-                Items = order.OrderItems.Select(i => new BarbariBahar.API.Core.DTOs.Order.OrderItemDetailDto
+                Items = order.OrderItems.Select(i => new OrderItemDetailDto
                 {
                     ItemName = i.ItemName,
                     Quantity = i.Quantity,
@@ -95,7 +98,7 @@ namespace BarbariBahar.API.Controllers
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(long id, [FromBody] BarbariBahar.API.Core.DTOs.Order.UpdateOrderStatusRequestDto updateStatusDto)
+        public async Task<IActionResult> UpdateOrderStatus(long id, [FromBody] UpdateOrderStatusRequestDto updateStatusDto)
         {
             var order = await _context.Orders.FindAsync(id);
 
@@ -104,7 +107,7 @@ namespace BarbariBahar.API.Controllers
                 return NotFound();
             }
 
-            if (Enum.TryParse<BarbariBahar.API.Data.Entities.OrderStatus>(updateStatusDto.Status, true, out var newStatus))
+            if (System.Enum.TryParse<Data.Entities.OrderStatus>(updateStatusDto.Status, true, out var newStatus))
             {
                 order.Status = newStatus;
                 await _context.SaveChangesAsync();
@@ -115,7 +118,7 @@ namespace BarbariBahar.API.Controllers
         }
 
         [HttpPut("{id}/assign-driver")]
-        public async Task<IActionResult> AssignDriver(long id, [FromBody] BarbariBahar.API.Core.DTOs.Order.AssignDriverRequestDto assignDriverDto)
+        public async Task<IActionResult> AssignDriver(long id, [FromBody] AssignDriverRequestDto assignDriverDto)
         {
             var order = await _context.Orders.FindAsync(id);
             if (order == null)

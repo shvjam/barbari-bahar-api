@@ -1,5 +1,6 @@
 using BarbariBahar.API.Data;
-using BarbariBahar.API.Data;
+using BarbariBahar.API.Core.DTOs.Product;
+using BarbariBahar.API.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +20,17 @@ namespace BarbariBahar.API.Controllers
             _context = context;
         }
 
-        [HttpGet("packaging")]
+        // CRUD Endpoints will be added here
+        [HttpGet]
+        [AllowAnonymous] // Allow anonymous access to get products
         public async Task<IActionResult> GetPackagingProducts()
         {
             var products = await _context.PackagingProducts.ToListAsync();
             return Ok(products);
         }
 
-        [HttpGet("packaging/{id}")]
+        [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPackagingProduct(int id)
         {
             var product = await _context.PackagingProducts.FindAsync(id);
@@ -39,21 +43,21 @@ namespace BarbariBahar.API.Controllers
             return Ok(product);
         }
 
-        [HttpPost("packaging")]
-        public async Task<IActionResult> CreatePackagingProduct([FromBody] BarbariBahar.API.Core.DTOs.Product.CreatePackagingProductDto createDto)
+        [HttpPost]
+        public async Task<IActionResult> CreatePackagingProduct([FromBody] CreatePackagingProductDto createDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var newProduct = new BarbariBahar.API.Data.Entities.PackagingProduct
+            var newProduct = new PackagingProduct
             {
                 Name = createDto.Name,
                 Price = createDto.Price,
                 Description = createDto.Description,
                 CategoryId = createDto.CategoryId,
-                IsAvailable = true // Default to available on creation
+                IsAvailable = true
             };
 
             _context.PackagingProducts.Add(newProduct);
@@ -62,8 +66,8 @@ namespace BarbariBahar.API.Controllers
             return CreatedAtAction(nameof(GetPackagingProduct), new { id = newProduct.Id }, newProduct);
         }
 
-        [HttpPut("packaging/{id}")]
-        public async Task<IActionResult> UpdatePackagingProduct(int id, [FromBody] BarbariBahar.API.Core.DTOs.Product.UpdatePackagingProductDto updateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePackagingProduct(int id, [FromBody] UpdatePackagingProductDto updateDto)
         {
             if (!ModelState.IsValid)
             {
@@ -88,7 +92,7 @@ namespace BarbariBahar.API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("packaging/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePackagingProduct(int id)
         {
             var product = await _context.PackagingProducts.FindAsync(id);
@@ -101,6 +105,40 @@ namespace BarbariBahar.API.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/upload-image")]
+        public async Task<IActionResult> UploadImage(int id, IFormFile file)
+        {
+            var product = await _context.PackagingProducts.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound("Product not found.");
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Upload a valid image.");
+            }
+
+            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (!Directory.Exists(uploadsFolderPath))
+            {
+                Directory.CreateDirectory(uploadsFolderPath);
+            }
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadsFolderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            product.ImageUrl = $"/Uploads/{fileName}";
+            await _context.SaveChangesAsync();
+
+            return Ok(new { ImageUrl = product.ImageUrl });
         }
     }
 }

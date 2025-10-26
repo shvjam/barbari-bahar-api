@@ -4,6 +4,7 @@ using BarbariBahar.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    partial class BarbariBaharDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251026060246_AddLatLngToOrderAddress")]
+    partial class AddLatLngToOrderAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
