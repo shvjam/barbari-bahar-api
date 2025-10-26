@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import * as admin from "./routes/admin";
 
 export function createServer() {
   const app = express();
@@ -20,7 +21,6 @@ export function createServer() {
   app.get("/api/demo", handleDemo);
 
   // Admin mock routes
-  const admin = require("./routes/admin");
   app.get("/api/admin/stats", admin.getStats);
   app.get("/api/admin/orders", admin.getOrders);
   app.get("/api/admin/orders/:id", admin.getOrderById);
