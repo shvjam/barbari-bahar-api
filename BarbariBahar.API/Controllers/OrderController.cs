@@ -127,5 +127,78 @@ namespace BarbariBahar.API.Controllers
 
             return Ok(new { OrderId = newOrder.Id, TrackingCode = newOrder.TrackingCode });
         }
+
+        // GET: api/order/my-orders
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var customerIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!long.TryParse(customerIdStr, out var customerId))
+            {
+                return Unauthorized();
+            }
+
+            var orders = await _context.Orders
+                .Where(o => o.CustomerId == customerId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new BarbariBahar.API.Core.DTOs.Order.CustomerOrderSummaryDto
+                {
+                    Id = o.Id,
+                    TrackingCode = o.TrackingCode,
+                    Status = o.Status.ToString(),
+                    FinalPrice = o.FinalPrice,
+                    CreatedAt = o.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(orders);
+        }
+
+        // GET: api/order/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMyOrderById(long id)
+        {
+            var customerIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!long.TryParse(customerIdStr, out var customerId))
+            {
+                return Unauthorized();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrderAddresses)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && o.CustomerId == customerId);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "سفارش مورد نظر یافت نشد." });
+            }
+
+            var orderDetail = new BarbariBahar.API.Core.DTOs.Order.CustomerOrderDetailDto
+            {
+                Id = order.Id,
+                TrackingCode = order.TrackingCode,
+                Status = order.Status.ToString(),
+                FinalPrice = order.FinalPrice,
+                CreatedAt = order.CreatedAt,
+                ScheduledAt = order.ScheduledAt,
+                Addresses = order.OrderAddresses.Select(a => new BarbariBahar.API.Core.DTOs.Admin.AddressDetailDto
+                {
+                    Type = a.Type.ToString(),
+                    FullAddress = a.FullAddress,
+                    Latitude = a.Latitude,
+                    Longitude = a.Longitude
+                }).ToList(),
+                Items = order.OrderItems.Select(i => new BarbariBahar.API.Core.DTOs.Admin.OrderItemDetailDto
+                {
+                    ItemName = i.ItemName,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice,
+                    TotalPrice = i.TotalPrice
+                }).ToList()
+            };
+
+            return Ok(orderDetail);
+        }
     }
 }
