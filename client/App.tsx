@@ -10,6 +10,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Order from "./pages/Order";
 import Placeholder from "./pages/Placeholder";
+import DashboardCustomer from "./pages/DashboardCustomer";
+import DashboardDriver from "./pages/DashboardDriver";
+import DashboardAdmin from "./pages/DashboardAdmin";
 import { Layout } from "@/components/layout/Layout";
 
 const queryClient = new QueryClient();
