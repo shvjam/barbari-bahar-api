@@ -14,7 +14,15 @@ type Order = {
   createdAt?: string;
 };
 
-export default function OrderDetails({ id, open, onOpenChange }: { id: string | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+export default function OrderDetails({
+  id,
+  open,
+  onOpenChange,
+}: {
+  id: string | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -28,19 +36,24 @@ export default function OrderDetails({ id, open, onOpenChange }: { id: string | 
         const res = await fetch(`/api/admin/orders/${id}`);
         if (!res.ok) {
           const txt = await res.text().catch(() => "");
-          throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+          throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
         }
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json")) {
           const txt = await res.text().catch(() => "");
-          throw new Error(`Expected JSON but received: ${txt.substring(0,200)}`);
+          throw new Error(
+            `Expected JSON but received: ${txt.substring(0, 200)}`,
+          );
         }
         const data = await res.json();
         if (!mounted) return;
         setOrder(data);
       } catch (err) {
         console.error(err);
-        toast({ title: "خطا در بارگیری جزئیات سفارش", description: String(err) });
+        toast({
+          title: "خطا در بارگیری جزئیات سفارش",
+          description: String(err),
+        });
         onOpenChange(false);
       } finally {
         if (mounted) setLoading(false);
@@ -54,11 +67,15 @@ export default function OrderDetails({ id, open, onOpenChange }: { id: string | 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
-        <DialogTitle className="text-lg font-semibold">جزئیات سفارش</DialogTitle>
+        <DialogTitle className="text-lg font-semibold">
+          جزئیات سفارش
+        </DialogTitle>
         <Card>
           <CardContent>
             {loading ? (
-              <div className="py-6 text-center text-foreground/60">در حال بارگذاری...</div>
+              <div className="py-6 text-center text-foreground/60">
+                در حال بارگذاری...
+              </div>
             ) : order ? (
               <div className="grid gap-3">
                 <div className="text-sm text-foreground/70">شماره</div>
@@ -74,7 +91,9 @@ export default function OrderDetails({ id, open, onOpenChange }: { id: string | 
                 <div>{order.destination || "—"}</div>
 
                 <div className="text-sm text-foreground/70">قیمت</div>
-                <div>{order.price ? `${order.price.toLocaleString()} تومان` : "—"}</div>
+                <div>
+                  {order.price ? `${order.price.toLocaleString()} تومان` : "—"}
+                </div>
 
                 <div className="text-sm text-foreground/70">وضعیت</div>
                 <div>{order.status || "—"}</div>
@@ -84,7 +103,9 @@ export default function OrderDetails({ id, open, onOpenChange }: { id: string | 
                 </div>
               </div>
             ) : (
-              <div className="py-6 text-center text-foreground/60">سفارشی برای نمایش موجود نیست</div>
+              <div className="py-6 text-center text-foreground/60">
+                سفارشی برای نمایش موجود نیست
+              </div>
             )}
           </CardContent>
         </Card>

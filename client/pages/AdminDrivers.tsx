@@ -13,7 +13,9 @@ type Driver = {
 
 function apiFetch(path: string, opts: RequestInit = {}) {
   const token = localStorage.getItem("authToken");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return fetch(path, { ...opts, headers });
 }
@@ -58,7 +60,8 @@ export default function AdminDrivers() {
   }, []);
 
   const addDriver = async () => {
-    if (!name || name.trim() === "") return toast({ title: "نام راننده را وارد کنید" });
+    if (!name || name.trim() === "")
+      return toast({ title: "نام راننده را وارد کنید" });
     setSubmitting(true);
     try {
       const res = await apiFetch(`/api/admin/drivers`, {
@@ -67,7 +70,7 @@ export default function AdminDrivers() {
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       toast({ title: "راننده اضافه شد" });
       setName("");
@@ -89,13 +92,16 @@ export default function AdminDrivers() {
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       toast({ title: "وضعیت راننده بروزرسانی شد" });
       load();
     } catch (err) {
       console.error(err);
-      toast({ title: "خطا هنگام تغییر وضعیت راننده", description: String(err) });
+      toast({
+        title: "خطا هنگام تغییر وضعیت راننده",
+        description: String(err),
+      });
     }
   };
 
@@ -124,13 +130,19 @@ export default function AdminDrivers() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-foreground/60">
+                        <td
+                          colSpan={5}
+                          className="py-6 text-center text-foreground/60"
+                        >
                           در حال بارگذاری...
                         </td>
                       </tr>
                     ) : drivers.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-foreground/60">
+                        <td
+                          colSpan={5}
+                          className="py-6 text-center text-foreground/60"
+                        >
                           راننده‌ای یافت نشد
                         </td>
                       </tr>
@@ -142,7 +154,10 @@ export default function AdminDrivers() {
                           <td className="py-2">{d.phone || "—"}</td>
                           <td className="py-2">{d.active ? "بله" : "خیر"}</td>
                           <td className="py-2 flex gap-2">
-                            <Button size="sm" onClick={() => toggleActive(d.id, !d.active)}>
+                            <Button
+                              size="sm"
+                              onClick={() => toggleActive(d.id, !d.active)}
+                            >
                               {d.active ? "غیرفعال" : "فعال"}
                             </Button>
                           </td>
@@ -157,9 +172,19 @@ export default function AdminDrivers() {
             <div>
               <div className="font-bold mb-2">افزودن راننده</div>
               <div className="grid gap-2">
-                <Input placeholder="نام" value={name} onChange={(e) => setName(e.target.value)} />
-                <Input placeholder="شماره" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                <Button onClick={addDriver} disabled={submitting}>{submitting ? "در حال ارسال..." : "افزودن"}</Button>
+                <Input
+                  placeholder="نام"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Input
+                  placeholder="شماره"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <Button onClick={addDriver} disabled={submitting}>
+                  {submitting ? "در حال ارسال..." : "افزودن"}
+                </Button>
               </div>
             </div>
           </div>

@@ -2,8 +2,26 @@
 const isDev = import.meta.env?.DEV ?? true;
 if (isDev) {
   const orders = [
-    { id: "ord_1", customerName: "علی رضایی", origin: "تهران، نارمک", destination: "تهران، سعادت‌آباد", status: "enroute", price: 1200000, createdAt: new Date().toISOString(), driverId: "drv_1" },
-    { id: "ord_2", customerName: "زهرا موسوی", origin: "کرج، باغستان", destination: "تهران، میدان ونک", status: "confirmed", price: 2500000, createdAt: new Date().toISOString(), driverId: "drv_2" },
+    {
+      id: "ord_1",
+      customerName: "علی رضایی",
+      origin: "تهران، نارمک",
+      destination: "تهران، سعادت‌آباد",
+      status: "enroute",
+      price: 1200000,
+      createdAt: new Date().toISOString(),
+      driverId: "drv_1",
+    },
+    {
+      id: "ord_2",
+      customerName: "زهرا موسوی",
+      origin: "کرج، باغستان",
+      destination: "تهران، میدان ونک",
+      status: "confirmed",
+      price: 2500000,
+      createdAt: new Date().toISOString(),
+      driverId: "drv_2",
+    },
   ];
 
   const drivers = [
@@ -13,23 +31,54 @@ if (isDev) {
 
   // driver live positions
   const driverPositions: Record<string, { lat: number; lon: number }> = {
-    drv_1: { lat: 35.712, lon: 51.420 },
-    drv_2: { lat: 35.789, lon: 51.450 },
+    drv_1: { lat: 35.712, lon: 51.42 },
+    drv_2: { lat: 35.789, lon: 51.45 },
   };
 
   const users = [
     { id: "usr_1", name: "علی رضایی", email: "ali@example.com", active: true },
-    { id: "usr_2", name: "زهرا موسوی", email: "zahra@example.com", active: true },
+    {
+      id: "usr_2",
+      name: "زهرا موسوی",
+      email: "zahra@example.com",
+      active: true,
+    },
   ];
 
   const products = [
-    { id: "prd_1", title: "خدمت بسته‌بندی", sku: "PKG001", price: 200000, active: true, description: "خدمات حرفه‌ای بسته‌بندی اثاثیه" },
-    { id: "prd_2", title: "خاور ۶ متری", sku: "TRK001", price: 800000, active: true, description: "حمل و نقل با خاور ۶ متری" },
+    {
+      id: "prd_1",
+      title: "خدمت بسته‌بندی",
+      sku: "PKG001",
+      price: 200000,
+      active: true,
+      description: "خدمات حرفه‌ای بسته‌بندی اثاثیه",
+    },
+    {
+      id: "prd_2",
+      title: "خاور ۶ متری",
+      sku: "TRK001",
+      price: 800000,
+      active: true,
+      description: "حمل و نقل با خاور ۶ متری",
+    },
   ];
 
   const items = [
-    { id: "itm_1", productId: "prd_1", name: "پک بسته‌بندی فرش", quantity: 50, price: 50000 },
-    { id: "itm_2", productId: "prd_2", name: "خاور استاندارد", quantity: 10, price: 800000 },
+    {
+      id: "itm_1",
+      productId: "prd_1",
+      name: "پک بسته‌بندی فرش",
+      quantity: 50,
+      price: 50000,
+    },
+    {
+      id: "itm_2",
+      productId: "prd_2",
+      name: "خاور استاندارد",
+      quantity: 10,
+      price: 800000,
+    },
   ];
 
   // Simple helper to build Response
@@ -45,7 +94,12 @@ if (isDev) {
   // @ts-ignore
   window.fetch = async (input: RequestInfo, init?: RequestInit) => {
     try {
-      const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof Request
+            ? input.url
+            : String(input);
       const u = new URL(url, window.location.origin);
       if (u.pathname.startsWith("/api/admin/")) {
         // emulate network delay
@@ -55,14 +109,22 @@ if (isDev) {
           const pending = orders.filter((o) => o.status === "pending").length;
           const todayIncome = orders.reduce((s, o) => s + (o.price || 0), 0);
           const activeDrivers = drivers.filter((d) => d.active).length;
-          return jsonResponse({ pendingOrders: pending, todayIncome, activeDrivers, pendingSettlements: 0 });
+          return jsonResponse({
+            pendingOrders: pending,
+            todayIncome,
+            activeDrivers,
+            pendingSettlements: 0,
+          });
         }
 
         if (u.pathname === "/api/admin/orders") {
           const page = Number(u.searchParams.get("page") || "1");
           const perPage = Number(u.searchParams.get("perPage") || "10");
           const start = (page - 1) * perPage;
-          return jsonResponse({ orders: orders.slice(start, start + perPage), total: orders.length });
+          return jsonResponse({
+            orders: orders.slice(start, start + perPage),
+            total: orders.length,
+          });
         }
 
         const orderMatch = u.pathname.match(/^\/api\/admin\/orders\/(.+)$/);
@@ -84,8 +146,14 @@ if (isDev) {
         if (u.pathname === "/api/admin/drivers") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
-            if (!body.name) return jsonResponse({ error: "name required" }, 400);
-            const newDriver = { id: `drv_${Date.now()}`, name: body.name, phone: body.phone || null, active: true };
+            if (!body.name)
+              return jsonResponse({ error: "name required" }, 400);
+            const newDriver = {
+              id: `drv_${Date.now()}`,
+              name: body.name,
+              phone: body.phone || null,
+              active: true,
+            };
             drivers.push(newDriver);
             return jsonResponse(newDriver, 201);
           }
@@ -95,10 +163,14 @@ if (isDev) {
         const driverMatch = u.pathname.match(/^\/api\/admin\/drivers\/(.+)$/);
         if (driverMatch) {
           const id = driverMatch[1];
-          if ((init?.method || "GET").toUpperCase() === "PATCH" || (init?.method || "GET").toUpperCase() === "POST") {
+          if (
+            (init?.method || "GET").toUpperCase() === "PATCH" ||
+            (init?.method || "GET").toUpperCase() === "POST"
+          ) {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
             const driver = drivers.find((d) => d.id === id);
-            if (!driver) return jsonResponse({ error: "Driver not found" }, 404);
+            if (!driver)
+              return jsonResponse({ error: "Driver not found" }, 404);
             if (body.active !== undefined) driver.active = Boolean(body.active);
             if (body.name !== undefined) driver.name = body.name;
             if (body.phone !== undefined) driver.phone = body.phone;
@@ -109,7 +181,11 @@ if (isDev) {
         if (u.pathname === "/api/admin/users") {
           const search = u.searchParams.get("search") || "";
           if (search) {
-            const filtered = users.filter((u2) => u2.name.toLowerCase().includes(search.toLowerCase()) || (u2.email || "").toLowerCase().includes(search.toLowerCase()));
+            const filtered = users.filter(
+              (u2) =>
+                u2.name.toLowerCase().includes(search.toLowerCase()) ||
+                (u2.email || "").toLowerCase().includes(search.toLowerCase()),
+            );
             return jsonResponse({ users: filtered });
           }
           return jsonResponse({ users });
@@ -133,8 +209,16 @@ if (isDev) {
         if (u.pathname === "/api/admin/products") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
-            if (!body.title) return jsonResponse({ error: "title required" }, 400);
-            const newProd = { id: `prd_${Date.now()}`, title: body.title, sku: body.sku || null, price: Number(body.price) || 0, active: body.active !== undefined ? Boolean(body.active) : true, description: body.description || "" };
+            if (!body.title)
+              return jsonResponse({ error: "title required" }, 400);
+            const newProd = {
+              id: `prd_${Date.now()}`,
+              title: body.title,
+              sku: body.sku || null,
+              price: Number(body.price) || 0,
+              active: body.active !== undefined ? Boolean(body.active) : true,
+              description: body.description || "",
+            };
             products.unshift(newProd);
             return jsonResponse(newProd, 201);
           }
@@ -152,12 +236,14 @@ if (isDev) {
             if (body.sku !== undefined) prod.sku = body.sku;
             if (body.price !== undefined) prod.price = Number(body.price);
             if (body.active !== undefined) prod.active = Boolean(body.active);
-            if (body.description !== undefined) prod.description = body.description;
+            if (body.description !== undefined)
+              prod.description = body.description;
             return jsonResponse(prod);
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
             const idx = products.findIndex((p) => p.id === id);
-            if (idx === -1) return jsonResponse({ error: "Product not found" }, 404);
+            if (idx === -1)
+              return jsonResponse({ error: "Product not found" }, 404);
             const removed = products.splice(idx, 1)[0];
             return jsonResponse({ success: true, removed });
           }
@@ -170,8 +256,15 @@ if (isDev) {
         if (u.pathname === "/api/admin/items") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
-            if (!body.name) return jsonResponse({ error: "name required" }, 400);
-            const newItem = { id: `itm_${Date.now()}`, productId: body.productId || null, name: body.name, quantity: Number(body.quantity) || 0, price: Number(body.price) || 0 };
+            if (!body.name)
+              return jsonResponse({ error: "name required" }, 400);
+            const newItem = {
+              id: `itm_${Date.now()}`,
+              productId: body.productId || null,
+              name: body.name,
+              quantity: Number(body.quantity) || 0,
+              price: Number(body.price) || 0,
+            };
             items.unshift(newItem);
             return jsonResponse(newItem, 201);
           }
@@ -187,13 +280,15 @@ if (isDev) {
             if (!it) return jsonResponse({ error: "Item not found" }, 404);
             if (body.name !== undefined) it.name = body.name;
             if (body.productId !== undefined) it.productId = body.productId;
-            if (body.quantity !== undefined) it.quantity = Number(body.quantity);
+            if (body.quantity !== undefined)
+              it.quantity = Number(body.quantity);
             if (body.price !== undefined) it.price = Number(body.price);
             return jsonResponse(it);
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
             const idx = items.findIndex((i) => i.id === id);
-            if (idx === -1) return jsonResponse({ error: "Item not found" }, 404);
+            if (idx === -1)
+              return jsonResponse({ error: "Item not found" }, 404);
             const removed = items.splice(idx, 1)[0];
             return jsonResponse({ success: true, removed });
           }
@@ -203,7 +298,9 @@ if (isDev) {
         }
 
         // driver live location
-        const drvLocMatch = u.pathname.match(/^\/api\/admin\/driver-location\/(.+)$/);
+        const drvLocMatch = u.pathname.match(
+          /^\/api\/admin\/driver-location\/(.+)$/,
+        );
         if (drvLocMatch) {
           const id = drvLocMatch[1];
           const pos = driverPositions[id];

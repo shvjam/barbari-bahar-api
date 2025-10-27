@@ -15,7 +15,9 @@ type Product = {
 
 function apiFetch(path: string, opts: RequestInit = {}) {
   const token = localStorage.getItem("authToken");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return fetch(path, { ...opts, headers });
 }
@@ -41,7 +43,7 @@ export default function AdminProducts() {
         setProducts(data.products || data);
       } else {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Expected JSON but received: ${txt.substring(0,200)}`);
+        throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
       }
     } catch (err) {
       console.error(err);
@@ -56,16 +58,22 @@ export default function AdminProducts() {
   }, []);
 
   const addProduct = async () => {
-    if (!title || title.trim() === "") return toast({ title: "عنوان را وارد کنید" });
+    if (!title || title.trim() === "")
+      return toast({ title: "عنوان را وارد کنید" });
     setSubmitting(true);
     try {
       const res = await apiFetch(`/api/admin/products`, {
         method: "POST",
-        body: JSON.stringify({ title, sku: sku || null, price: Number(price) || 0, description }),
+        body: JSON.stringify({
+          title,
+          sku: sku || null,
+          price: Number(price) || 0,
+          description,
+        }),
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       toast({ title: "محصول افزوده شد" });
       setTitle("");
@@ -84,10 +92,12 @@ export default function AdminProducts() {
   const deleteProduct = async (id: string) => {
     if (!confirm("آیا مطمئن هستید؟")) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       toast({ title: "محصول حذف شد" });
       await load();
@@ -99,7 +109,10 @@ export default function AdminProducts() {
 
   const toggleActive = async (id: string, active: boolean) => {
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, { method: "PATCH", body: JSON.stringify({ active }) });
+      const res = await apiFetch(`/api/admin/products/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ active }),
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "وضعیت محصول بروزرسانی شد" });
       await load();
@@ -126,7 +139,15 @@ export default function AdminProducts() {
   const saveEdit = async () => {
     if (!editingId) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: editTitle, sku: editSku || null, price: Number(editPrice) || 0, description: editDesc }) });
+      const res = await apiFetch(`/api/admin/products/${editingId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: editTitle,
+          sku: editSku || null,
+          price: Number(editPrice) || 0,
+          description: editDesc,
+        }),
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "محصول بروز شد" });
       setEditingId(null);
@@ -162,11 +183,21 @@ export default function AdminProducts() {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-foreground/60">در حال بارگذاری...</td>
+                        <td
+                          colSpan={5}
+                          className="py-6 text-center text-foreground/60"
+                        >
+                          در حال بارگذاری...
+                        </td>
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-foreground/60">محصولی یافت نشد</td>
+                        <td
+                          colSpan={5}
+                          className="py-6 text-center text-foreground/60"
+                        >
+                          محصولی یافت نشد
+                        </td>
                       </tr>
                     ) : (
                       products.map((p) => (
@@ -174,30 +205,59 @@ export default function AdminProducts() {
                           <td className="py-2">{p.id}</td>
                           <td className="py-2">
                             {editingId === p.id ? (
-                              <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                              <Input
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                              />
                             ) : (
                               p.title
                             )}
                           </td>
                           <td className="py-2">
                             {editingId === p.id ? (
-                              <Input value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
+                              <Input
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(e.target.value)}
+                              />
+                            ) : p.price ? (
+                              `${p.price.toLocaleString()} تومان`
                             ) : (
-                              p.price ? `${p.price.toLocaleString()} تومان` : "—"
+                              "—"
                             )}
                           </td>
                           <td className="py-2">{p.active ? "بله" : "خیر"}</td>
                           <td className="py-2 flex gap-2">
                             {editingId === p.id ? (
                               <>
-                                <Button size="sm" onClick={saveEdit}>ذخیره</Button>
-                                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>لغو</Button>
+                                <Button size="sm" onClick={saveEdit}>
+                                  ذخیره
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setEditingId(null)}
+                                >
+                                  لغو
+                                </Button>
                               </>
                             ) : (
                               <>
-                                <Button size="sm" onClick={() => startEdit(p)}>ویرایش</Button>
-                                <Button size="sm" onClick={() => toggleActive(p.id, !p.active)}>{p.active ? "غیرفعال" : "فعال"}</Button>
-                                <Button size="sm" variant="destructive" onClick={() => deleteProduct(p.id)}>حذف</Button>
+                                <Button size="sm" onClick={() => startEdit(p)}>
+                                  ویرایش
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => toggleActive(p.id, !p.active)}
+                                >
+                                  {p.active ? "غیرفعال" : "فعال"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteProduct(p.id)}
+                                >
+                                  حذف
+                                </Button>
                               </>
                             )}
                           </td>
@@ -212,11 +272,29 @@ export default function AdminProducts() {
             <div>
               <div className="font-bold mb-2">افزودن محصول</div>
               <div className="grid gap-2">
-                <Input placeholder="عنوان" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <Input placeholder="SKU" value={sku} onChange={(e) => setSku(e.target.value)} />
-                <Input placeholder="قیمت" value={price} onChange={(e) => setPrice(e.target.value)} />
-                <Input placeholder="توضیحات" value={description} onChange={(e) => setDescription(e.target.value)} />
-                <Button onClick={addProduct} disabled={submitting}>{submitting ? "در حال ارسال..." : "افزودن"}</Button>
+                <Input
+                  placeholder="عنوان"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Input
+                  placeholder="SKU"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                />
+                <Input
+                  placeholder="قیمت"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+                <Input
+                  placeholder="توضیحات"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <Button onClick={addProduct} disabled={submitting}>
+                  {submitting ? "در حال ارسال..." : "افزودن"}
+                </Button>
               </div>
             </div>
           </div>

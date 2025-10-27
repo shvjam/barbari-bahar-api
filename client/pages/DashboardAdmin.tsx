@@ -1,4 +1,7 @@
-import { Card as AdminCard, CardContent as AdminCardContent } from "@/components/ui/card";
+import {
+  Card as AdminCard,
+  CardContent as AdminCardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
@@ -9,11 +12,21 @@ import AdminProducts from "./AdminProducts";
 import AdminItems from "./AdminItems";
 
 export default function DashboardAdmin() {
-  const [tab, setTab] = useState<"overview" | "orders" | "drivers" | "users" | "products" | "items">("overview");
-  const [stats, setStats] = useState<{ pendingOrders?: number; todayIncome?: number; activeDrivers?: number; pendingSettlements?: number }>({});
+  const [tab, setTab] = useState<
+    "overview" | "orders" | "drivers" | "users" | "products" | "items"
+  >("overview");
+  const [stats, setStats] = useState<{
+    pendingOrders?: number;
+    todayIncome?: number;
+    activeDrivers?: number;
+    pendingSettlements?: number;
+  }>({});
 
   async function apiFetch(path: string, opts: RequestInit = {}) {
-    const res = await fetch(path, { ...opts, headers: { "Content-Type": "application/json" } });
+    const res = await fetch(path, {
+      ...opts,
+      headers: { "Content-Type": "application/json" },
+    });
     if (!res.ok) {
       const txt = await res.text().catch(() => "");
       throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
@@ -21,7 +34,7 @@ export default function DashboardAdmin() {
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("application/json")) {
       const txt = await res.text().catch(() => "");
-      throw new Error(`Expected JSON but received: ${txt.substring(0,200)}`);
+      throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
     }
     return res.json();
   }
@@ -36,7 +49,8 @@ export default function DashboardAdmin() {
           pendingOrders: data.pendingOrders ?? data.pending_orders ?? 0,
           todayIncome: data.todayIncome ?? data.today_income ?? 0,
           activeDrivers: data.activeDrivers ?? data.active_drivers ?? 0,
-          pendingSettlements: data.pendingSettlements ?? data.pending_settlements ?? 0,
+          pendingSettlements:
+            data.pendingSettlements ?? data.pending_settlements ?? 0,
         });
       } catch (e) {
         // silent - stats are optional; show zeros
@@ -60,12 +74,42 @@ export default function DashboardAdmin() {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <Button variant={tab === "overview" ? undefined : "ghost"} onClick={() => setTab("overview")}>��مای کلی</Button>
-        <Button variant={tab === "orders" ? undefined : "ghost"} onClick={() => setTab("orders")}>سفارش‌ها</Button>
-        <Button variant={tab === "drivers" ? undefined : "ghost"} onClick={() => setTab("drivers")}>رانندگان</Button>
-        <Button variant={tab === "users" ? undefined : "ghost"} onClick={() => setTab("users")}>کاربران</Button>
-        <Button variant={tab === "products" ? undefined : "ghost"} onClick={() => setTab("products")}>محصولات</Button>
-        <Button variant={tab === "items" ? undefined : "ghost"} onClick={() => setTab("items")}>آیتم‌ها</Button>
+        <Button
+          variant={tab === "overview" ? undefined : "ghost"}
+          onClick={() => setTab("overview")}
+        >
+          ��مای کلی
+        </Button>
+        <Button
+          variant={tab === "orders" ? undefined : "ghost"}
+          onClick={() => setTab("orders")}
+        >
+          سفارش‌ها
+        </Button>
+        <Button
+          variant={tab === "drivers" ? undefined : "ghost"}
+          onClick={() => setTab("drivers")}
+        >
+          رانندگان
+        </Button>
+        <Button
+          variant={tab === "users" ? undefined : "ghost"}
+          onClick={() => setTab("users")}
+        >
+          کاربران
+        </Button>
+        <Button
+          variant={tab === "products" ? undefined : "ghost"}
+          onClick={() => setTab("products")}
+        >
+          محصولات
+        </Button>
+        <Button
+          variant={tab === "items" ? undefined : "ghost"}
+          onClick={() => setTab("items")}
+        >
+          آیتم‌ها
+        </Button>
         <div className="ms-auto">
           <Button asChild>
             <Link to="/admin/settings">تنظیمات</Link>
@@ -77,26 +121,38 @@ export default function DashboardAdmin() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <AdminCard>
             <AdminCardContent>
-              <div className="text-sm text-foreground/70">سفارش‌های در انتظار</div>
-              <div className="text-2xl font-bold mt-2">{stats.pendingOrders ?? 0}</div>
+              <div className="text-sm text-foreground/70">
+                سفارش‌های در انتظار
+              </div>
+              <div className="text-2xl font-bold mt-2">
+                {stats.pendingOrders ?? 0}
+              </div>
             </AdminCardContent>
           </AdminCard>
           <AdminCard>
             <AdminCardContent>
               <div className="text-sm text-foreground/70">درآمد امروز</div>
-              <div className="text-2xl font-bold mt-2">{(stats.todayIncome ?? 0).toLocaleString()} تومان</div>
+              <div className="text-2xl font-bold mt-2">
+                {(stats.todayIncome ?? 0).toLocaleString()} تومان
+              </div>
             </AdminCardContent>
           </AdminCard>
           <AdminCard>
             <AdminCardContent>
               <div className="text-sm text-foreground/70">رانندگان فعال</div>
-              <div className="text-2xl font-bold mt-2">{stats.activeDrivers ?? 0}</div>
+              <div className="text-2xl font-bold mt-2">
+                {stats.activeDrivers ?? 0}
+              </div>
             </AdminCardContent>
           </AdminCard>
           <AdminCard>
             <AdminCardContent>
-              <div className="text-sm text-foreground/70">تسویه‌های در انتظار</div>
-              <div className="text-2xl font-bold mt-2">{stats.pendingSettlements ?? 0}</div>
+              <div className="text-sm text-foreground/70">
+                تسویه‌های در انتظار
+              </div>
+              <div className="text-2xl font-bold mt-2">
+                {stats.pendingSettlements ?? 0}
+              </div>
             </AdminCardContent>
           </AdminCard>
         </div>

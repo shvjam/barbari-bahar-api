@@ -16,7 +16,9 @@ type Order = {
 
 function apiFetch(path: string, opts: RequestInit = {}) {
   const token = localStorage.getItem("authToken");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return fetch(path, { ...opts, headers });
 }
@@ -31,7 +33,9 @@ export default function AdminOrders() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/api/admin/orders?page=${page}&perPage=${perPage}`);
+      const res = await apiFetch(
+        `/api/admin/orders?page=${page}&perPage=${perPage}`,
+      );
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
@@ -81,8 +85,22 @@ export default function AdminOrders() {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const exportCSV = () => {
-    const rows = orders.map((o) => ({ id: o.id, customer: o.customerName || "", origin: o.origin || "", destination: o.destination || "", price: o.price || 0, status: o.status || "" }));
-    const csv = [Object.keys(rows[0] || {}).join(","), ...rows.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const rows = orders.map((o) => ({
+      id: o.id,
+      customer: o.customerName || "",
+      origin: o.origin || "",
+      destination: o.destination || "",
+      price: o.price || 0,
+      status: o.status || "",
+    }));
+    const csv = [
+      Object.keys(rows[0] || {}).join(","),
+      ...rows.map((r) =>
+        Object.values(r)
+          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(","),
+      ),
+    ].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -98,7 +116,9 @@ export default function AdminOrders() {
         <h3 className="text-lg font-bold">سفارش‌ها</h3>
         <div className="flex items-center gap-2">
           <div className="text-sm text-foreground/60">صفحه {page}</div>
-          <Button size="sm" onClick={exportCSV}>صادر کردن CSV</Button>
+          <Button size="sm" onClick={exportCSV}>
+            صادر کردن CSV
+          </Button>
         </div>
       </div>
       <Card>
@@ -119,13 +139,19 @@ export default function AdminOrders() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-foreground/60">
+                    <td
+                      colSpan={7}
+                      className="py-6 text-center text-foreground/60"
+                    >
                       در حال بارگذاری...
                     </td>
                   </tr>
                 ) : orders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-foreground/60">
+                    <td
+                      colSpan={7}
+                      className="py-6 text-center text-foreground/60"
+                    >
                       سفارش یافت نشد
                     </td>
                   </tr>
@@ -136,12 +162,34 @@ export default function AdminOrders() {
                       <td className="py-2">{o.customerName || "—"}</td>
                       <td className="py-2">{o.origin || "—"}</td>
                       <td className="py-2">{o.destination || "—"}</td>
-                      <td className="py-2">{o.price ? `${o.price.toLocaleString()} تومان` : "��"}</td>
+                      <td className="py-2">
+                        {o.price ? `${o.price.toLocaleString()} تومان` : "��"}
+                      </td>
                       <td className="py-2">{o.status || "—"}</td>
                       <td className="py-2 flex gap-2">
-                        <Button size="sm" onClick={() => changeStatus(o.id, "confirmed")}>تایید</Button>
-                        <Button size="sm" variant="destructive" onClick={() => changeStatus(o.id, "cancelled")}>کنسل</Button>
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedOrder(o.id); setDetailsOpen(true); }}>جزئیات</Button>
+                        <Button
+                          size="sm"
+                          onClick={() => changeStatus(o.id, "confirmed")}
+                        >
+                          تایید
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => changeStatus(o.id, "cancelled")}
+                        >
+                          کنسل
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedOrder(o.id);
+                            setDetailsOpen(true);
+                          }}
+                        >
+                          جزئیات
+                        </Button>
                       </td>
                     </tr>
                   ))
@@ -151,9 +199,14 @@ export default function AdminOrders() {
           </div>
 
           <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-foreground/60">نمایش {orders.length} سفارش</div>
+            <div className="text-sm text-foreground/60">
+              نمایش {orders.length} سفارش
+            </div>
             <div className="flex items-center gap-2">
-              <Button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+              <Button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
                 قبلی
               </Button>
               <Button onClick={() => setPage((p) => p + 1)}>بعدی</Button>
@@ -162,7 +215,14 @@ export default function AdminOrders() {
         </CardContent>
       </Card>
 
-      <OrderDetails id={selectedOrder} open={detailsOpen} onOpenChange={(v) => { setDetailsOpen(v); if (!v) setSelectedOrder(null); }} />
+      <OrderDetails
+        id={selectedOrder}
+        open={detailsOpen}
+        onOpenChange={(v) => {
+          setDetailsOpen(v);
+          if (!v) setSelectedOrder(null);
+        }}
+      />
     </div>
   );
 }

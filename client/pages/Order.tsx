@@ -34,14 +34,34 @@ const PACKING_SMALLS = [
   { id: "other", title: "سایر" },
 ];
 
-function Counter({ value, onChange, min = 0, max = 99 }: { value: number; onChange: (v: number) => void; min?: number; max?: number }) {
+function Counter({
+  value,
+  onChange,
+  min = 0,
+  max = 99,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+}) {
   return (
     <div className="inline-flex items-center rounded-md border bg-background">
-      <button type="button" className="px-2 py-1 text-lg" onClick={() => onChange(Math.max(min, value - 1))} aria-label="کم کردن">
+      <button
+        type="button"
+        className="px-2 py-1 text-lg"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        aria-label="کم کردن"
+      >
         −
       </button>
       <span className="w-8 text-center text-sm">{value}</span>
-      <button type="button" className="px-2 py-1 text-lg" onClick={() => onChange(Math.min(max, value + 1))} aria-label="زیاد کردن">
+      <button
+        type="button"
+        className="px-2 py-1 text-lg"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        aria-label="زیاد کردن"
+      >
         +
       </button>
     </div>
@@ -65,7 +85,9 @@ export default function Order() {
   const [city, setCity] = useState("tehran");
   const [packNeeded, setPackNeeded] = useState<"yes" | "no" | "">("");
   const [packType, setPackType] = useState<PackagingType>("none");
-  const [packSmalls, setPackSmalls] = useState<Record<string, { checked: boolean; qty?: number }>>({});
+  const [packSmalls, setPackSmalls] = useState<
+    Record<string, { checked: boolean; qty?: number }>
+  >({});
   const [packMen, setPackMen] = useState(0);
   const [packWomen, setPackWomen] = useState(0);
   const [packHours, setPackHours] = useState<number | null>(null);
@@ -81,51 +103,142 @@ export default function Order() {
   const [workers, setWorkers] = useState(4);
 
   // Addresses chosen via map/search
-  const [originAddress, setOriginAddress] = useState<{ label: string; lat: number; lon: number } | null>(null);
-  const [destAddress, setDestAddress] = useState<{ label: string; lat: number; lon: number } | null>(null);
+  const [originAddress, setOriginAddress] = useState<{
+    label: string;
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [destAddress, setDestAddress] = useState<{
+    label: string;
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   const selectedService = sp.get("service") || "moving-truck";
 
   const totalSteps = 10;
 
   const estimate = useMemo(() => {
-    const breakdown: { code: string; title: string; unitPrice: number; quantity: number; total: number }[] = [];
+    const breakdown: {
+      code: string;
+      title: string;
+      unitPrice: number;
+      quantity: number;
+      total: number;
+    }[] = [];
 
     // Base vehicle cost (example heuristics – replace with backend pricing later)
-    const vehiclePrice = selectedService === "moving-pickup" ? 1_600_000 : 2_660_300;
-    breakdown.push({ code: "vehicle", title: selectedService === "moving-pickup" ? "هزینه ماشین (وانت/نیسان)" : "هزینه ماشین (خاور)", unitPrice: vehiclePrice, quantity: 1, total: vehiclePrice });
+    const vehiclePrice =
+      selectedService === "moving-pickup" ? 1_600_000 : 2_660_300;
+    breakdown.push({
+      code: "vehicle",
+      title:
+        selectedService === "moving-pickup"
+          ? "هزینه ماشین (وانت/نیسان)"
+          : "هزینه ماشین (خاور)",
+      unitPrice: vehiclePrice,
+      quantity: 1,
+      total: vehiclePrice,
+    });
 
     // Workers
     const workerUnit = 900_000;
-    breakdown.push({ code: "workers", title: "هزینه کارگر", unitPrice: workerUnit, quantity: workers, total: workerUnit * workers });
+    breakdown.push({
+      code: "workers",
+      title: "هزینه کارگر",
+      unitPrice: workerUnit,
+      quantity: workers,
+      total: workerUnit * workers,
+    });
 
     // Packaging crew
     if (packNeeded === "yes") {
-      if (packMen > 0) breakdown.push({ code: "pack_male", title: "هزینه نیروی بسته‌بندی آقا", unitPrice: 800_000, quantity: packMen, total: packMen * 800_000 });
+      if (packMen > 0)
+        breakdown.push({
+          code: "pack_male",
+          title: "هزینه نیروی بسته‌بندی آقا",
+          unitPrice: 800_000,
+          quantity: packMen,
+          total: packMen * 800_000,
+        });
       if (packWomen > 0)
-        breakdown.push({ code: "pack_female", title: "هزینه نیروی بسته‌بندی خانم", unitPrice: 800_000, quantity: packWomen, total: packWomen * 800_000 });
+        breakdown.push({
+          code: "pack_female",
+          title: "هزینه نیروی بسته‌بندی خانم",
+          unitPrice: 800_000,
+          quantity: packWomen,
+          total: packWomen * 800_000,
+        });
     }
 
     // Floors (simple example: 75k per floor over 1 per origin/destination)
-    const extraFloors = Math.max(0, originFloor - 1) + Math.max(0, destFloor - 1);
-    if (extraFloors > 0) breakdown.push({ code: "floors", title: "طبقات مبدا/مقصد", unitPrice: 75_000, quantity: extraFloors, total: extraFloors * 75_000 });
+    const extraFloors =
+      Math.max(0, originFloor - 1) + Math.max(0, destFloor - 1);
+    if (extraFloors > 0)
+      breakdown.push({
+        code: "floors",
+        title: "طبقات مبدا/مقصد",
+        unitPrice: 75_000,
+        quantity: extraFloors,
+        total: extraFloors * 75_000,
+      });
 
     // Elevator absence adds a flat effort cost
-    if (originElevator === "no") breakdown.push({ code: "no_elev_o", title: "بدون آسانسور د�� مبدا", unitPrice: 120_000, quantity: 1, total: 120_000 });
-    if (destElevator === "no") breakdown.push({ code: "no_elev_d", title: "بدون آسانسور در مقصد", unitPrice: 120_000, quantity: 1, total: 120_000 });
+    if (originElevator === "no")
+      breakdown.push({
+        code: "no_elev_o",
+        title: "بدون آسانسور د�� مبدا",
+        unitPrice: 120_000,
+        quantity: 1,
+        total: 120_000,
+      });
+    if (destElevator === "no")
+      breakdown.push({
+        code: "no_elev_d",
+        title: "بدون آسانسور در مقصد",
+        unitPrice: 120_000,
+        quantity: 1,
+        total: 120_000,
+      });
 
     // Heavy items
     Object.entries(heavy).forEach(([id, qty]) => {
       const item = HEAVY_ITEMS.find((h) => h.id === id);
-      if (item && qty > 0) breakdown.push({ code: `heavy_${id}`, title: item.title, unitPrice: item.price, quantity: qty, total: item.price * qty });
+      if (item && qty > 0)
+        breakdown.push({
+          code: `heavy_${id}`,
+          title: item.title,
+          unitPrice: item.price,
+          quantity: qty,
+          total: item.price * qty,
+        });
     });
 
     // Walking distance (2000 per meter as example -> 200 x selected meters)
-    if (walk > 0) breakdown.push({ code: "walk", title: "پیاده‌روی", unitPrice: 4_000, quantity: walk, total: walk * 4_000 });
+    if (walk > 0)
+      breakdown.push({
+        code: "walk",
+        title: "پیاده‌روی",
+        unitPrice: 4_000,
+        quantity: walk,
+        total: walk * 4_000,
+      });
 
     const amount = breakdown.reduce((s, b) => s + b.total, 0);
     return { amount, breakdown };
-  }, [selectedService, workers, packNeeded, packMen, packWomen, originFloor, destFloor, originElevator, destElevator, heavy, walk]);
+  }, [
+    selectedService,
+    workers,
+    packNeeded,
+    packMen,
+    packWomen,
+    originFloor,
+    destFloor,
+    originElevator,
+    destElevator,
+    heavy,
+    walk,
+  ]);
 
   const canNext = () => {
     if (step === 0) return Boolean(city);
@@ -142,7 +255,9 @@ export default function Order() {
   async function applyCoupon() {
     if (!coupon) return toast({ title: "کد وارد نشده" });
     try {
-      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(coupon)}`);
+      const res = await fetch(
+        `/api/coupons/validate?code=${encodeURIComponent(coupon)}`,
+      );
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         throw new Error(`Error ${res.status}: ${txt}`);
@@ -150,7 +265,10 @@ export default function Order() {
       const data = await res.json();
       if (data && data.amountOff) {
         setCouponApplied(data.amountOff);
-        toast({ title: "کد اعمال شد", description: `${data.amountOff.toLocaleString()} تومان تخفیف` });
+        toast({
+          title: "کد اعمال شد",
+          description: `${data.amountOff.toLocaleString()} تومان تخفیف`,
+        });
       } else {
         toast({ title: "کد نامعتبر" });
       }
@@ -161,7 +279,8 @@ export default function Order() {
   }
 
   async function submitOrder() {
-    if (!originAddress || !destAddress) return toast({ title: "آدرس مبدا و مقصد را انتخاب کنید" });
+    if (!originAddress || !destAddress)
+      return toast({ title: "آدرس مبدا و مقصد را انتخاب کنید" });
     if (!customerPhone) return toast({ title: "شماره تماس وارد نشده" });
     setSubmitting(true);
     try {
@@ -189,7 +308,11 @@ export default function Order() {
         notes,
         coupon,
       };
-      const res = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         throw new Error(`Error ${res.status}: ${txt}`);
@@ -209,13 +332,32 @@ export default function Order() {
     <div className="container py-6">
       <div className="mb-5">
         <div className="text-xs text-foreground/60">سرویس انتخابی</div>
-        <div className="font-bold">{selectedService === "moving-pickup" ? "حمل با وانت/نیسان" : "اسباب‌کشی با خاور/کامیون"}</div>
+        <div className="font-bold">
+          {selectedService === "moving-pickup"
+            ? "حمل با وانت/نیسان"
+            : "اسباب‌کشی با خاور/کامیون"}
+        </div>
       </div>
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بن��ی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
-          <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
+        {[
+          "شهر",
+          "بسته‌بندی",
+          "نوع بسته‌بن��ی",
+          "جزئیات بسته‌بندی",
+          "نیروی بسته‌بندی",
+          "طبقات/آسانسور",
+          "آدرس‌ها",
+          "اقلام سنگین",
+          "پیاده‌روی",
+          "کارگر",
+          "جمع‌بندی",
+        ].map((t, i) => (
+          <div
+            key={i}
+            className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}
+          >
             {t}
           </div>
         ))}
@@ -226,12 +368,26 @@ export default function Order() {
           <CardContent className="p-4 md:p-6">
             <AnimatePresence mode="popLayout">
               {step === 0 && (
-                <motion.div key="step-0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">شهر خود ر�� انتخاب کنید</div>
-                  <p className="text-sm text-foreground/70 mt-1">فعلاً تهران فعال است.</p>
+                <motion.div
+                  key="step-0"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
+                  <div className="font-bold text-lg">
+                    شهر خود ر�� انتخاب کنید
+                  </div>
+                  <p className="text-sm text-foreground/70 mt-1">
+                    فعلاً تهران فعال است.
+                  </p>
                   <div className="grid gap-3 mt-4 max-w-xs">
                     <Label htmlFor="city">شهر</Label>
-                    <select id="city" value={city} onChange={(e) => setCity(e.target.value)} className="h-10 rounded-md border bg-background px-3">
+                    <select
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="h-10 rounded-md border bg-background px-3"
+                    >
                       <option value="tehran">ته��ان</option>
                       <option value="karaj">کرج</option>
                       <option value="isfahan">اصفهان</option>
@@ -243,21 +399,46 @@ export default function Order() {
               )}
 
               {step === 1 && (
-                <motion.div key="step-1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">آیا به سرویس بسته‌بندی ��یاز دارید؟</div>
+                <motion.div
+                  key="step-1"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
+                  <div className="font-bold text-lg">
+                    آیا به سرویس بسته‌بندی ��یاز دارید؟
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-3 mt-4 max-w-2xl">
-                    <label className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "yes" ? "ring-2 ring-primary" : ""}`}>
+                    <label
+                      className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "yes" ? "ring-2 ring-primary" : ""}`}
+                    >
                       <div className="font-bold">بله</div>
-                      <div className="text-sm text-foreground/70">نیروی متخصص + امکانات</div>
+                      <div className="text-sm text-foreground/70">
+                        نیروی متخصص + امکانات
+                      </div>
                       <div className="mt-2 flex items-center gap-2">
-                        <input type="radio" name="packNeed" checked={packNeeded === "yes"} onChange={() => setPackNeeded("yes")} />
+                        <input
+                          type="radio"
+                          name="packNeed"
+                          checked={packNeeded === "yes"}
+                          onChange={() => setPackNeeded("yes")}
+                        />
                       </div>
                     </label>
-                    <label className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "no" ? "ring-2 ring-primary" : ""}`}>
+                    <label
+                      className={`border rounded-xl p-4 cursor-pointer ${packNeeded === "no" ? "ring-2 ring-primary" : ""}`}
+                    >
                       <div className="font-bold">خیر</div>
-                      <div className="text-sm text-foreground/70">بدون ب��ته‌بندی ادامه می‌دهم</div>
+                      <div className="text-sm text-foreground/70">
+                        بدون ب��ته‌بندی ادامه می‌دهم
+                      </div>
                       <div className="mt-2 flex items-center gap-2">
-                        <input type="radio" name="packNeed" checked={packNeeded === "no"} onChange={() => setPackNeeded("no")} />
+                        <input
+                          type="radio"
+                          name="packNeed"
+                          checked={packNeeded === "no"}
+                          onChange={() => setPackNeeded("no")}
+                        />
                       </div>
                     </label>
                   </div>
@@ -265,28 +446,47 @@ export default function Order() {
               )}
 
               {step === 2 && packNeeded === "yes" && (
-                <motion.div key="step-2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">سرویس بسته‌بندی موردنظر شما</div>
-                  <RadioGroup className="mt-4 grid gap-3 max-w-xl" value={packType} onValueChange={(v) => setPackType(v as PackagingType)}>
+                <motion.div
+                  key="step-2"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
+                  <div className="font-bold text-lg">
+                    سرویس بسته‌بندی موردنظر شما
+                  </div>
+                  <RadioGroup
+                    className="mt-4 grid gap-3 max-w-xl"
+                    value={packType}
+                    onValueChange={(v) => setPackType(v as PackagingType)}
+                  >
                     <label className="flex items-center gap-3 border rounded-xl p-3 cursor-pointer">
                       <RadioGroupItem value="all" id="pack_all" />
                       <div>
-                        <div className="font-bold">بسته‌بندی تمام لوازم منزل</div>
-                        <div className="text-sm text-foreground/70">ریز و درشت</div>
+                        <div className="font-bold">
+                          بسته‌بندی تمام لوازم منزل
+                        </div>
+                        <div className="text-sm text-foreground/70">
+                          ریز و درشت
+                        </div>
                       </div>
                     </label>
                     <label className="flex items-center gap-3 border rounded-xl p-3 cursor-pointer">
                       <RadioGroupItem value="large" id="pack_large" />
                       <div>
                         <div className="font-bold">بسته‌بندی لوازم بزرگ</div>
-                        <div className="text-sm text-foreground/70">مبلمان، کمد، یخچال و …</div>
+                        <div className="text-sm text-foreground/70">
+                          مبلمان، کمد، یخچال و …
+                        </div>
                       </div>
                     </label>
                     <label className="flex items-center gap-3 border rounded-xl p-3 cursor-pointer">
                       <RadioGroupItem value="small" id="pack_small" />
                       <div>
                         <div className="font-bold">بسته‌بندی خرده‌ریزها</div>
-                        <div className="text-sm text-foreground/70">ظروف، کتاب، لباس و …</div>
+                        <div className="text-sm text-foreground/70">
+                          ظروف، کتاب، لباس و …
+                        </div>
                       </div>
                     </label>
                   </RadioGroup>
@@ -294,27 +494,55 @@ export default function Order() {
               )}
 
               {step === 3 && packNeeded === "yes" && (
-                <motion.div key="step-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">قصد بسته‌بندی کدام موارد را دارید؟</div>
+                <motion.div
+                  key="step-3"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
+                  <div className="font-bold text-lg">
+                    قصد بسته‌بندی کدام موارد را دارید؟
+                  </div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {PACKING_SMALLS.map((it) => {
                       const item = packSmalls[it.id] || { checked: false };
-                      const showQty = packType === "all" || packType === "large" ? true : it.id === "other";
+                      const showQty =
+                        packType === "all" || packType === "large"
+                          ? true
+                          : it.id === "other";
                       return (
-                        <div key={it.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
+                        <div
+                          key={it.id}
+                          className="flex items-center justify-between gap-3 border rounded-xl p-3"
+                        >
                           <label className="flex items-center gap-2">
                             <Checkbox
                               checked={item.checked}
                               onCheckedChange={(v) =>
-                                setPackSmalls((s) => ({ ...s, [it.id]: { ...(s[it.id] || {}), checked: Boolean(v) } }))
+                                setPackSmalls((s) => ({
+                                  ...s,
+                                  [it.id]: {
+                                    ...(s[it.id] || {}),
+                                    checked: Boolean(v),
+                                  },
+                                }))
                               }
                             />
                             <span>{it.title}</span>
                           </label>
-                          {(item.checked && showQty) && (
+                          {item.checked && showQty && (
                             <Counter
                               value={item.qty || 1}
-                              onChange={(q) => setPackSmalls((s) => ({ ...s, [it.id]: { ...(s[it.id] || {}), checked: true, qty: q } }))}
+                              onChange={(q) =>
+                                setPackSmalls((s) => ({
+                                  ...s,
+                                  [it.id]: {
+                                    ...(s[it.id] || {}),
+                                    checked: true,
+                                    qty: q,
+                                  },
+                                }))
+                              }
                               min={1}
                             />
                           )}
@@ -326,8 +554,15 @@ export default function Order() {
               )}
 
               {step === 4 && packNeeded === "yes" && (
-                <motion.div key="step-4" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">نیروی بسته‌بندی موردنیاز</div>
+                <motion.div
+                  key="step-4"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
+                  <div className="font-bold text-lg">
+                    نیروی بسته‌بندی موردنیاز
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4 mt-4 max-w-xl">
                     <div className="border rounded-xl p-3">
                       <div className="text-sm mb-2">تعداد آقا</div>
@@ -342,20 +577,42 @@ export default function Order() {
                     <div className="text-sm mb-2">مدت زمان مورد انتظار</div>
                     <div className="flex flex-wrap gap-2">
                       {[2, 3, 4, 5, 6].map((h) => (
-                        <Button key={h} variant={packHours === h ? "default" : "outline"} onClick={() => setPackHours(h)}>
+                        <Button
+                          key={h}
+                          variant={packHours === h ? "default" : "outline"}
+                          onClick={() => setPackHours(h)}
+                        >
                           {h} ساعت
                         </Button>
                       ))}
                     </div>
                   </div>
                   <div className="mt-4 max-w-xl">
-                    <div className="text-sm mb-2">آیا به لوازم بسته‌بندی نیاز دارید؟</div>
+                    <div className="text-sm mb-2">
+                      آیا به لوازم بسته‌بندی نیاز دارید؟
+                    </div>
                     <div className="flex gap-3">
-                      <label className={`border rounded-xl p-3 cursor-pointer ${packMaterials === "yes" ? "ring-2 ring-primary" : ""}`}>
-                        <input type="radio" name="pm" checked={packMaterials === "yes"} onChange={() => setPackMaterials("yes")} /> بله
+                      <label
+                        className={`border rounded-xl p-3 cursor-pointer ${packMaterials === "yes" ? "ring-2 ring-primary" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="pm"
+                          checked={packMaterials === "yes"}
+                          onChange={() => setPackMaterials("yes")}
+                        />{" "}
+                        بله
                       </label>
-                      <label className={`border rounded-xl p-3 cursor-pointer ${packMaterials === "no" ? "ring-2 ring-primary" : ""}`}>
-                        <input type="radio" name="pm" checked={packMaterials === "no"} onChange={() => setPackMaterials("no")} /> خیر
+                      <label
+                        className={`border rounded-xl p-3 cursor-pointer ${packMaterials === "no" ? "ring-2 ring-primary" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="pm"
+                          checked={packMaterials === "no"}
+                          onChange={() => setPackMaterials("no")}
+                        />{" "}
+                        خیر
                       </label>
                     </div>
                   </div>
@@ -363,32 +620,85 @@ export default function Order() {
               )}
 
               {step === 5 && (
-                <motion.div key="step-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-5"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">طبقات و آسانسور</div>
                   <div className="grid sm:grid-cols-2 gap-4 mt-4 max-w-2xl">
                     <div className="border rounded-xl p-3">
                       <div className="text-sm mb-2">طبقه مبدا</div>
-                      <Input type="number" min={1} max={12} value={originFloor} onChange={(e) => setOriginFloor(parseInt(e.target.value || "1"))} />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={12}
+                        value={originFloor}
+                        onChange={(e) =>
+                          setOriginFloor(parseInt(e.target.value || "1"))
+                        }
+                      />
                       <div className="mt-3 text-sm mb-2">آسانسور در مبدا</div>
                       <div className="flex gap-3">
-                        <label className={`border rounded-xl p-2 cursor-pointer ${originElevator === "yes" ? "ring-2 ring-primary" : ""}`}>
-                          <input type="radio" name="oe" checked={originElevator === "yes"} onChange={() => setOriginElevator("yes")} /> بله
+                        <label
+                          className={`border rounded-xl p-2 cursor-pointer ${originElevator === "yes" ? "ring-2 ring-primary" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="oe"
+                            checked={originElevator === "yes"}
+                            onChange={() => setOriginElevator("yes")}
+                          />{" "}
+                          بله
                         </label>
-                        <label className={`border rounded-xl p-2 cursor-pointer ${originElevator === "no" ? "ring-2 ring-primary" : ""}`}>
-                          <input type="radio" name="oe" checked={originElevator === "no"} onChange={() => setOriginElevator("no")} /> خیر
+                        <label
+                          className={`border rounded-xl p-2 cursor-pointer ${originElevator === "no" ? "ring-2 ring-primary" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="oe"
+                            checked={originElevator === "no"}
+                            onChange={() => setOriginElevator("no")}
+                          />{" "}
+                          خیر
                         </label>
                       </div>
                     </div>
                     <div className="border rounded-xl p-3">
                       <div className="text-sm mb-2">طبقه مقص��</div>
-                      <Input type="number" min={1} max={12} value={destFloor} onChange={(e) => setDestFloor(parseInt(e.target.value || "1"))} />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={12}
+                        value={destFloor}
+                        onChange={(e) =>
+                          setDestFloor(parseInt(e.target.value || "1"))
+                        }
+                      />
                       <div className="mt-3 text-sm mb-2">آسانسور در مقصد</div>
                       <div className="flex gap-3">
-                        <label className={`border rounded-xl p-2 cursor-pointer ${destElevator === "yes" ? "ring-2 ring-primary" : ""}`}>
-                          <input type="radio" name="de" checked={destElevator === "yes"} onChange={() => setDestElevator("yes")} /> بله
+                        <label
+                          className={`border rounded-xl p-2 cursor-pointer ${destElevator === "yes" ? "ring-2 ring-primary" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="de"
+                            checked={destElevator === "yes"}
+                            onChange={() => setDestElevator("yes")}
+                          />{" "}
+                          بله
                         </label>
-                        <label className={`border rounded-xl p-2 cursor-pointer ${destElevator === "no" ? "ring-2 ring-primary" : ""}`}>
-                          <input type="radio" name="de" checked={destElevator === "no"} onChange={() => setDestElevator("no")} /> خیر
+                        <label
+                          className={`border rounded-xl p-2 cursor-pointer ${destElevator === "no" ? "ring-2 ring-primary" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="de"
+                            checked={destElevator === "no"}
+                            onChange={() => setDestElevator("no")}
+                          />{" "}
+                          خیر
                         </label>
                       </div>
                     </div>
@@ -397,13 +707,22 @@ export default function Order() {
               )}
 
               {step === 6 && (
-                <motion.div key="step-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-6"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">آدرس مبدا و مقصد</div>
                   <div className="mt-3 grid gap-3">
                     <div className="border rounded-xl p-3">
                       <div className="text-sm mb-2">آدرس مبدا</div>
                       <div className="flex items-center gap-2">
-                        <Input value={originAddress?.label || ""} placeholder="آدرس مبدا انتخاب نشده" readOnly />
+                        <Input
+                          value={originAddress?.label || ""}
+                          placeholder="آدرس مبدا انتخاب نشده"
+                          readOnly
+                        />
                         <div>
                           <AddressPicker
                             buttonLabel={originAddress ? "ویرایش" : "انتخاب"}
@@ -416,7 +735,11 @@ export default function Order() {
                     <div className="border rounded-xl p-3">
                       <div className="text-sm mb-2">آدرس مقصد</div>
                       <div className="flex items-center gap-2">
-                        <Input value={destAddress?.label || ""} placeholder="آدرس مقصد انتخاب نشده" readOnly />
+                        <Input
+                          value={destAddress?.label || ""}
+                          placeholder="آدرس مقصد انتخاب نشده"
+                          readOnly
+                        />
                         <div>
                           <AddressPicker
                             buttonLabel={destAddress ? "ویرایش" : "انتخاب"}
@@ -430,17 +753,32 @@ export default function Order() {
               )}
 
               {step === 7 && (
-                <motion.div key="step-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-7"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">اقلام سنگین یا حجیم</div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {HEAVY_ITEMS.map((h) => {
                       const qty = heavy[h.id] || 0;
                       return (
-                        <div key={h.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
+                        <div
+                          key={h.id}
+                          className="flex items-center justify-between gap-3 border rounded-xl p-3"
+                        >
                           <div className="text-sm">{h.title}</div>
                           <div className="flex items-center gap-3">
-                            <Counter value={qty} onChange={(q) => setHeavy((s) => ({ ...s, [h.id]: q }))} />
-                            <div className="text-xs text-foreground/70">{h.price.toLocaleString()} تومان</div>
+                            <Counter
+                              value={qty}
+                              onChange={(q) =>
+                                setHeavy((s) => ({ ...s, [h.id]: q }))
+                              }
+                            />
+                            <div className="text-xs text-foreground/70">
+                              {h.price.toLocaleString()} تومان
+                            </div>
                           </div>
                         </div>
                       );
@@ -450,11 +788,20 @@ export default function Order() {
               )}
 
               {step === 8 && (
-                <motion.div key="step-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-8"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">پیاده‌روی مورد نیاز</div>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {[0, 20, 35, 40, 50, 65, 200].map((m) => (
-                      <Button key={m} variant={walk === m ? "default" : "outline"} onClick={() => setWalk(m as any)}>
+                      <Button
+                        key={m}
+                        variant={walk === m ? "default" : "outline"}
+                        onClick={() => setWalk(m as any)}
+                      >
                         {m === 0 ? "ندا��م" : m}
                       </Button>
                     ))}
@@ -463,26 +810,49 @@ export default function Order() {
               )}
 
               {step === 9 && (
-                <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-9"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">تعداد کارگر</div>
                   <p className="text-sm text-foreground/70">حداقل �� نفر</p>
                   <div className="mt-3">
-                    <Counter value={workers} onChange={setWorkers} min={4} max={12} />
+                    <Counter
+                      value={workers}
+                      onChange={setWorkers}
+                      min={4}
+                      max={12}
+                    />
                   </div>
                 </motion.div>
               )}
 
               {step === 10 && (
-                <motion.div key="step-10" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+                <motion.div
+                  key="step-10"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                >
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
-                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص م��‌شود.</p>
+                  <p className="text-sm text-foreground/70 mt-1">
+                    قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ
+                    نهایی پس از تایید ادمین مشخص م��‌شود.
+                  </p>
                   <div className="mt-4 space-y-2">
                     {estimate.breakdown.map((b) => (
-                      <div key={b.code} className="flex items-center justify-between text-sm border rounded-lg p-2">
+                      <div
+                        key={b.code}
+                        className="flex items-center justify-between text-sm border rounded-lg p-2"
+                      >
                         <div className="text-foreground/80">
                           {b.title} × {b.quantity.toLocaleString("fa-IR")}
                         </div>
-                        <div className="font-bold">{b.total.toLocaleString()} تومان</div>
+                        <div className="font-bold">
+                          {b.total.toLocaleString()} تومان
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -492,11 +862,17 @@ export default function Order() {
 
             {/* Nav */}
             <div className="mt-6 flex items-center justify-between">
-              <Button variant="outline" onClick={prev} disabled={step === 0}>مرحله قبل</Button>
+              <Button variant="outline" onClick={prev} disabled={step === 0}>
+                مرحله قبل
+              </Button>
               {step < totalSteps ? (
-                <Button onClick={next} disabled={!canNext()}>ادامه</Button>
+                <Button onClick={next} disabled={!canNext()}>
+                  ادامه
+                </Button>
               ) : (
-                <Button onClick={submitOrder} disabled={submitting}>{submitting ? "در حال ارسال..." : "تایید و ادامه"}</Button>
+                <Button onClick={submitOrder} disabled={submitting}>
+                  {submitting ? "در حال ارسال..." : "تایید و ادامه"}
+                </Button>
               )}
             </div>
           </CardContent>
@@ -506,15 +882,27 @@ export default function Order() {
           <CardContent className="p-4 md:p-6">
             <div className="font-extrabold text-lg">جمع کل حدودی</div>
             <div className="mt-2 text-3xl font-black bg-gradient-to-tr from-primary to-accent text-transparent bg-clip-text">
-              {estimate.amount.toLocaleString()} <span className="text-base font-bold text-foreground/70">تومان</span>
+              {estimate.amount.toLocaleString()}{" "}
+              <span className="text-base font-bold text-foreground/70">
+                تومان
+              </span>
             </div>
-            <div className="mt-3 text-xs text-foreground/60">کد تخفیف دارید؟</div>
+            <div className="mt-3 text-xs text-foreground/60">
+              کد تخفیف دارید؟
+            </div>
             <div className="mt-2 flex gap-2">
-              <Input placeholder="کد تخفیف" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
-              <Button variant="outline" onClick={applyCoupon}>اعمال</Button>
+              <Input
+                placeholder="کد تخفیف"
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value)}
+              />
+              <Button variant="outline" onClick={applyCoupon}>
+                اعمال
+              </Button>
             </div>
             <div className="mt-4 text-xs text-foreground/60">
-              درصورت مراجعه ��تخصص و عدم انجام کار بنا به نظر مشتری، ۲۵۰٬۰۰۰ تومان هزینه کارشناسی دریافت می‌شود.
+              درصورت مراجعه ��تخصص و عدم انجام کار بنا به نظر مشتری، ۲۵۰٬۰۰۰
+              تومان هزینه کارشناسی دریافت می‌شود.
             </div>
           </CardContent>
         </Card>
