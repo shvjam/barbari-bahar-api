@@ -1,7 +1,7 @@
 // src/components/admin/AdminSidebar.tsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, DollarSign, LogOut, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, Package, DollarSign, LogOut, ShoppingCart, Users } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
   const linkClasses = "flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg transition-colors";
@@ -24,6 +24,12 @@ const AdminSidebar: React.FC = () => {
             <NavLink to="/admin/orders" className={({ isActive }) => `${linkClasses} ${isActive ? activeLinkClasses : ''}`}>
               <ShoppingCart className="ml-3" />
               <span>سفارشات</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin/drivers" className={({ isActive }) => `${linkClasses} ${isActive ? activeLinkClasses : ''}`}>
+              <Users className="ml-3" />
+              <span>رانندگان</span>
             </NavLink>
           </li>
           <li>
