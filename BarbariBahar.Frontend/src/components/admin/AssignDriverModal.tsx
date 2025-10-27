@@ -1,7 +1,7 @@
 // src/components/admin/AssignDriverModal.tsx
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Loader, AlertTriangle } from 'lucide-react';
+import { X, Loader2, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 
 interface Driver {
@@ -30,20 +30,15 @@ const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, onClose, 
         setLoading(true);
         setError(null);
         try {
-          // TODO: Replace this with a real API call to '/api/drivers' when the endpoint is available.
-          // const response = await api.get<Driver[]>('/drivers');
-          // setDrivers(response.data);
-
-          // Using MOCK DATA as the backend endpoint is not yet implemented.
-          const mockDrivers: Driver[] = [
-            { id: 101, firstName: 'علی', lastName: 'رضایی', mobile: '09123456789' },
-            { id: 102, firstName: 'محمد', lastName: 'حسینی', mobile: '09129876543' },
-            { id: 103, firstName: 'سارا', lastName: 'احمدی', mobile: '09121112233' },
-          ];
-          setDrivers(mockDrivers);
-
+          // Fetch only active drivers from the real API endpoint
+          const response = await api.get<Driver[]>('/admin/drivers', {
+            params: { status: 'Active' }
+          });
+          setDrivers(response.data);
+          if (response.data.length === 0) {
+            setError('هیچ راننده فعالی یافت نشد.');
+          }
         } catch (err) {
-          // This will be triggered once the real API call is in place and fails.
           setError('خطا در دریافت لیست رانندگان.');
         } finally {
           setLoading(false);
@@ -71,10 +66,10 @@ const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, onClose, 
         <button onClick={onClose} className="absolute top-4 left-4 text-gray-500 hover:text-gray-800">
           <X size={24} />
         </button>
-        <h2 className="text-2xl font-bold mb-6">اختصاص راننده به سفارش</h2>
+        <h2 className="text-2xl font-bold mb-6">اختصاص راننده به سفارش #{orderId}</h2>
 
         {loading ? (
-          <div className="flex justify-center items-center h-48"><Loader className="animate-spin" /></div>
+          <div className="flex justify-center items-center h-48"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
         ) : error ? (
           <div className="text-red-600 bg-red-50 p-4 rounded-lg text-center"><AlertTriangle className="inline ml-2" />{error}</div>
         ) : (
@@ -92,15 +87,15 @@ const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, onClose, 
           </div>
         )}
 
-        <div className="flex justify-end pt-6">
+        <div className="flex justify-end pt-6 mt-4 border-t">
           <button type="button" onClick={onClose} className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg mr-2 hover:bg-gray-300">لغو</button>
           <button
             type="button"
             onClick={handleAssign}
-            disabled={!selectedDriver || loading || error}
+            disabled={!selectedDriver || loading}
             className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
           >
-            تخصیص
+            تخصیص راننده
           </button>
         </div>
       </motion.div>

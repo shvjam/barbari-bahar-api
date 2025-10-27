@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MessageSquare, ArrowLeft, MapPin, ShoppingCart } from 'lucide-react';
-import { DatePicker } from 'noa-jalali-datepicker';
-// import 'noa-jalali-datepicker/dist/style.css';
+import { PersianCalendar } from '../../components/ui/persian-calendar';
 import { useOrder, ScheduleDetails } from '../context/OrderContext';
 
 const ServiceDetailsPage: React.FC = () => {
@@ -13,8 +12,22 @@ const ServiceDetailsPage: React.FC = () => {
 
   const [schedule, setSchedule] = useState<ScheduleDetails>(initialSchedule);
 
+  // The new calendar returns a Date object. We need to handle it.
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    initialSchedule.date ? new Date(initialSchedule.date) : new Date()
+  );
+
   useEffect(() => {
-    // Update context whenever local state changes
+    // Update the main schedule state when the date picker's state changes
+    if (selectedDate) {
+      // Format date as YYYY-MM-DD string or any format you prefer
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setSchedule(prev => ({ ...prev, date: formattedDate }));
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    // Update context whenever local schedule state changes
     setScheduleDetails(schedule);
   }, [schedule, setScheduleDetails]);
 
@@ -78,10 +91,11 @@ const ServiceDetailsPage: React.FC = () => {
                 <Calendar className="ml-2 text-[#FF8B06]" />
                 تاریخ را انتخاب کنید
               </label>
-              <DatePicker
-                value={schedule.date}
-                onChange={(date) => setSchedule(prev => ({ ...prev, date }))}
-                className="w-full max-w-sm"
+              <PersianCalendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border"
               />
             </div>
 
