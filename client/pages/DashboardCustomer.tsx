@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import LiveDriverLocation from "@/components/LiveDriverLocation";
 
+// Provide aliases in case HMR left stale references to Card/CardContent
+const Card = UiCard as typeof UiCard;
+const CardContent = UiCardContent as typeof UiCardContent;
+
 export default function DashboardCustomer() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
