@@ -129,6 +129,79 @@ if (isDev) {
           }
         }
 
+        // products CRUD
+        if (u.pathname === "/api/admin/products") {
+          if ((init?.method || "GET").toUpperCase() === "POST") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            if (!body.title) return jsonResponse({ error: "title required" }, 400);
+            const newProd = { id: `prd_${Date.now()}`, title: body.title, sku: body.sku || null, price: Number(body.price) || 0, active: body.active !== undefined ? Boolean(body.active) : true, description: body.description || "" };
+            products.unshift(newProd);
+            return jsonResponse(newProd, 201);
+          }
+          return jsonResponse({ products });
+        }
+
+        const prodMatch = u.pathname.match(/^\/api\/admin\/products\/(.+)$/);
+        if (prodMatch) {
+          const id = prodMatch[1];
+          if ((init?.method || "GET").toUpperCase() === "PATCH") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            const prod = products.find((p) => p.id === id);
+            if (!prod) return jsonResponse({ error: "Product not found" }, 404);
+            if (body.title !== undefined) prod.title = body.title;
+            if (body.sku !== undefined) prod.sku = body.sku;
+            if (body.price !== undefined) prod.price = Number(body.price);
+            if (body.active !== undefined) prod.active = Boolean(body.active);
+            if (body.description !== undefined) prod.description = body.description;
+            return jsonResponse(prod);
+          }
+          if ((init?.method || "GET").toUpperCase() === "DELETE") {
+            const idx = products.findIndex((p) => p.id === id);
+            if (idx === -1) return jsonResponse({ error: "Product not found" }, 404);
+            const removed = products.splice(idx, 1)[0];
+            return jsonResponse({ success: true, removed });
+          }
+          const prod = products.find((p) => p.id === id);
+          if (!prod) return jsonResponse({ error: "Product not found" }, 404);
+          return jsonResponse(prod);
+        }
+
+        // items CRUD
+        if (u.pathname === "/api/admin/items") {
+          if ((init?.method || "GET").toUpperCase() === "POST") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            if (!body.name) return jsonResponse({ error: "name required" }, 400);
+            const newItem = { id: `itm_${Date.now()}`, productId: body.productId || null, name: body.name, quantity: Number(body.quantity) || 0, price: Number(body.price) || 0 };
+            items.unshift(newItem);
+            return jsonResponse(newItem, 201);
+          }
+          return jsonResponse({ items });
+        }
+
+        const itemMatch = u.pathname.match(/^\/api\/admin\/items\/(.+)$/);
+        if (itemMatch) {
+          const id = itemMatch[1];
+          if ((init?.method || "GET").toUpperCase() === "PATCH") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            const it = items.find((i) => i.id === id);
+            if (!it) return jsonResponse({ error: "Item not found" }, 404);
+            if (body.name !== undefined) it.name = body.name;
+            if (body.productId !== undefined) it.productId = body.productId;
+            if (body.quantity !== undefined) it.quantity = Number(body.quantity);
+            if (body.price !== undefined) it.price = Number(body.price);
+            return jsonResponse(it);
+          }
+          if ((init?.method || "GET").toUpperCase() === "DELETE") {
+            const idx = items.findIndex((i) => i.id === id);
+            if (idx === -1) return jsonResponse({ error: "Item not found" }, 404);
+            const removed = items.splice(idx, 1)[0];
+            return jsonResponse({ success: true, removed });
+          }
+          const it = items.find((i) => i.id === id);
+          if (!it) return jsonResponse({ error: "Item not found" }, 404);
+          return jsonResponse(it);
+        }
+
         // driver live location
         const drvLocMatch = u.pathname.match(/^\/api\/admin\/driver-location\/(.+)$/);
         if (drvLocMatch) {
