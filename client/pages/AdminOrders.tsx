@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import React, { useState } from "react";
 import OrderDetails from "@/components/admin/OrderDetails";
 
 type Order = {
