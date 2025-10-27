@@ -1,7 +1,7 @@
 // src/components/admin/AdminSidebar.tsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, DollarSign, LogOut, ShoppingCart, Users } from 'lucide-react';
+import { LayoutDashboard, Package, DollarSign, LogOut, ShoppingCart, Users, MessageSquare } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
   const linkClasses = "flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 rounded-lg transition-colors";
@@ -10,7 +10,7 @@ const AdminSidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-gray-800 text-white h-screen p-4 flex flex-col fixed">
       <div className="text-2xl font-bold mb-10 text-center">
-        <span className="text-[#FF8B06]">Bahar</span> Admin
+        <span className="text-accent">Bahar</span> Admin
       </div>
       <nav className="flex-grow">
         <ul className="space-y-3">
@@ -30,6 +30,12 @@ const AdminSidebar: React.FC = () => {
             <NavLink to="/admin/drivers" className={({ isActive }) => `${linkClasses} ${isActive ? activeLinkClasses : ''}`}>
               <Users className="ml-3" />
               <span>رانندگان</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/admin/tickets" className={({ isActive }) => `${linkClasses} ${isActive ? activeLinkClasses : ''}`}>
+              <MessageSquare className="ml-3" />
+              <span>تیکت‌ها</span>
             </NavLink>
           </li>
           <li>

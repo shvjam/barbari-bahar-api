@@ -25,6 +25,8 @@ import AdminPricingPage from './pages/admin/AdminPricingPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import AdminDriversPage from './pages/admin/AdminDriversPage';
+import AdminTicketsPage from './pages/admin/AdminTicketsPage';
+import AdminTicketDetailPage from './pages/admin/AdminTicketDetailPage';
 
 // --- Driver Pages ---
 import DriverLoginPage from './pages/driver/DriverLoginPage';
@@ -58,6 +60,8 @@ function App() {
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="orders/:id" element={<AdminOrderDetailPage />} />
             <Route path="drivers" element={<AdminDriversPage />} />
+            <Route path="tickets" element={<AdminTicketsPage />} />
+            <Route path="tickets/:id" element={<AdminTicketDetailPage />} />
           </Route>
 
           {/* --- Driver Panel --- */}
