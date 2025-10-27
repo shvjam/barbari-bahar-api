@@ -11,6 +11,7 @@ import AdminUsers from "./AdminUsers";
 import AdminProducts from "./AdminProducts";
 import AdminItems from "./AdminItems";
 import AdminServiceCategories from "./AdminServiceCategories";
+import AdminTickets from "./AdminTickets";
 
 export default function DashboardAdmin() {
   const [tab, setTab] = useState<
@@ -21,13 +22,31 @@ export default function DashboardAdmin() {
     | "products"
     | "items"
     | "service-categories"
+    | "tickets"
   >("overview");
-  const [stats] = useState({
+  const [stats, setStats] = useState({
     pendingOrders: 0,
     todayIncome: 0,
     activeDrivers: 0,
-    pendingSettlements: 0,
   });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const res = await fetch("/api/admin/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div className="container py-8">
@@ -82,6 +101,12 @@ export default function DashboardAdmin() {
           onClick={() => setTab("service-categories")}
         >
           دسته‌بندی خدمات
+        </Button>
+        <Button
+          variant={tab === "tickets" ? undefined : "ghost"}
+          onClick={() => setTab("tickets")}
+        >
+          پشتیبانی
         </Button>
         <div className="ms-auto">
           <Button asChild>
@@ -164,6 +189,12 @@ export default function DashboardAdmin() {
       {tab === "service-categories" && (
         <div className="mt-4">
           <AdminServiceCategories />
+        </div>
+      )}
+
+      {tab === "tickets" && (
+        <div className="mt-4">
+          <AdminTickets />
         </div>
       )}
     </div>

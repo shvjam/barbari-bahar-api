@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 import AuthDialog from "../AuthDialog";
+import { useSignalR } from "@/hooks/useSignalR";
 
 type User = {
   firstName: string;
@@ -24,6 +25,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  useSignalR();
 
   const fetchUser = async () => {
     const token = localStorage.getItem("authToken");

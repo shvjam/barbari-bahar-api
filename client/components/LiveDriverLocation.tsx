@@ -1,9 +1,31 @@
-import React, { useEffect, useState } from "react";
-import React, { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for default marker icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+});
+
+type Position = { lat: number; lng: number };
+
+function apiFetch(path: string) {
+  const token = localStorage.getItem("authToken");
+  const headers: HeadersInit = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return fetch(path, { headers });
+}
 
 export default function LiveDriverLocation({
   driverId,
@@ -12,168 +34,65 @@ export default function LiveDriverLocation({
 }: {
   driverId: string | null;
   open: boolean;
-  onOpenChange: (v: boolean) => void;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const [pos, setPos] = useState<{ lat: number; lon: number } | null>(null);
-  const [driverName, setDriverName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
-  const [autoFollow, setAutoFollow] = useState(true);
-  const timerRef = useRef<number | null>(null);
-  const { toast } = useToast();
+  const [position, setPosition] = useState<Position | null>(null);
+  const [history, setHistory] = useState<Position[]>([]);
+  const mapRef = useRef<L.Map>(null);
 
   useEffect(() => {
-    if (!open || !driverId) return;
-    let mounted = true;
+    if (!open || !driverId) {
+      return;
+    }
 
-    const loadDriver = async () => {
+    const fetchLocation = async () => {
       try {
-        const res = await fetch(`/api/admin/drivers`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!mounted) return;
-        const drv = (data.drivers || data || []).find(
-          (d: any) => d.id === driverId,
-        );
-        setDriverName(drv ? drv.name : `ID: ${driverId}`);
-      } catch (e) {
-        console.debug("Failed to load driver list", e);
+        const res = await apiFetch(`/api/drivers/${driverId}/location`);
+        if (res.ok) {
+          const data = await res.json();
+          const newPos = { lat: data.latitude, lng: data.longitude };
+          setPosition(newPos);
+          setHistory((prev) => [...prev, newPos]);
+          mapRef.current?.panTo(newPos);
+        }
+      } catch (error) {
+        console.error("Failed to fetch driver location:", error);
       }
     };
 
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/admin/driver-location/${driverId}`);
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
-        }
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.includes("application/json")) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(
-            `Expected JSON but received: ${txt.substring(0, 200)}`,
-          );
-        }
-        const data = await res.json();
-        if (!mounted) return;
-        setPos({ lat: data.lat, lon: data.lon });
-        setLastUpdated(Date.now());
-      } catch (err) {
-        console.error(err);
-        toast({
-          title: "خطا در بارگیری مکان راننده",
-          description: String(err),
-        });
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
+    fetchLocation(); // Initial fetch
+    const interval = setInterval(fetchLocation, 5000); // Poll every 5 seconds
 
-    loadDriver();
-    load();
-    timerRef.current = window.setInterval(load, 3000);
-    return () => {
-      mounted = false;
-      if (timerRef.current) window.clearInterval(timerRef.current);
-    };
-  }, [driverId, open]);
-
-  const iframeSrc = pos
-    ? `https://www.openstreetmap.org/export/embed.html?marker=${pos.lat}%2C${pos.lon}&layer=mapnik&bbox=${pos.lon - 0.01}%2C${pos.lat - 0.01}%2C${pos.lon + 0.01}%2C${pos.lat + 0.01}`
-    : undefined;
+    return () => clearInterval(interval);
+  }, [open, driverId]);
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v && timerRef.current) {
-          window.clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-        onOpenChange(v);
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
-        <DialogTitle className="text-lg font-semibold">
-          مکان زنده راننده
-        </DialogTitle>
-        <Card>
-          <CardContent>
-            <div className="flex items-center justify-between gap-4 mb-3">
-              <div>
-                <div className="text-sm text-foreground/70">راننده</div>
-                <div className="font-semibold">
-                  {driverName || (driverId ? `ID: ${driverId}` : "—")}
-                </div>
-              </div>
-              <div className="text-sm text-foreground/60">
-                به‌روز شده:{" "}
-                {lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—"}
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-sm">دنبال کردن خودکار</label>
-                <button
-                  className={`px-2 py-1 rounded border ${autoFollow ? "bg-primary text-white" : ""}`}
-                  onClick={() => setAutoFollow((s) => !s)}
-                >
-                  {autoFollow ? "روشن" : "خاموش"}
-                </button>
-              </div>
+        <DialogHeader>
+          <DialogTitle>موقعیت زنده راننده</DialogTitle>
+        </DialogHeader>
+        <div style={{ height: "500px", width: "100%" }}>
+          {position ? (
+            <MapContainer
+              center={position}
+              zoom={15}
+              style={{ height: "100%", width: "100%" }}
+              ref={mapRef}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={position} />
+              <Polyline positions={history} color="blue" />
+            </MapContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              در حال دریافت موقعیت...
             </div>
-
-            {loading && !pos ? (
-              <div className="py-6 text-center text-foreground/60">
-                در حال بارگذاری...
-              </div>
-            ) : pos ? (
-              <div className="grid gap-3">
-                <div className="text-sm text-foreground/70">مختصات</div>
-                <div className="font-mono">
-                  {pos.lat.toFixed(6)}, {pos.lon.toFixed(6)}
-                </div>
-                <div className="border rounded overflow-hidden">
-                  <iframe
-                    title="driver-map"
-                    src={iframeSrc}
-                    className="w-full h-[400px]"
-                  />
-                </div>
-
-                <div className="pt-3 flex gap-2">
-                  <Button
-                    onClick={() =>
-                      window.open(
-                        `https://www.openstreetmap.org/?mlat=${pos.lat}&mlon=${pos.lon}#map=15/${pos.lat}/${pos.lon}`,
-                        "_blank",
-                      )
-                    }
-                  >
-                    باز کردن در OSM
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setPos(null);
-                      setLastUpdated(null);
-                      if (timerRef.current) {
-                        window.clearInterval(timerRef.current);
-                        timerRef.current = null;
-                      }
-                      onOpenChange(false);
-                    }}
-                  >
-                    بستن
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="py-6 text-center text-foreground/60">
-                مکان موجود نیست
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

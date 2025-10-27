@@ -35,17 +35,25 @@ export default function DashboardCustomer() {
   const [locOpen, setLocOpen] = useState(false);
   const { toast } = useToast();
   const [tab, setTab] = useState<"orders" | "tickets">("orders");
+  const [walletBalance, setWalletBalance] = useState(0);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await apiFetch(`/api/Order/my-orders`);
-        if (!res.ok) {
-          throw new Error(`Error ${res.status}`);
+        const [ordersRes, walletRes] = await Promise.all([
+          apiFetch(`/api/Order/my-orders`),
+          apiFetch(`/api/users/me/wallet`),
+        ]);
+
+        if (!ordersRes.ok) throw new Error(`Orders fetch failed: ${ordersRes.status}`);
+        if (walletRes.ok) {
+          const walletData = await walletRes.json();
+          setWalletBalance(walletData.balance || 0);
         }
-        const data = await res.json();
-        setOrders(data || []);
+
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData || []);
       } catch (err) {
         console.error(err);
         toast({
@@ -113,6 +121,14 @@ export default function DashboardCustomer() {
                 </div>
                 <div className="text-2xl font-bold mt-2">
                   {orders.length - activeOrders.length}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                <div className="text-sm text-foreground/70">موجودی کیف پول</div>
+                <div className="text-2xl font-bold mt-2">
+                  {walletBalance.toLocaleString()} تومان
                 </div>
               </CardContent>
             </Card>
