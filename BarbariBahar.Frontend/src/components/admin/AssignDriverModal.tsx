@@ -30,13 +30,21 @@ const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, onClose, 
         setLoading(true);
         setError(null);
         try {
-          // This endpoint does not exist yet, so it will trigger the catch block.
-          // This is intentional until the backend API is implemented.
-          const response = await api.get<Driver[]>('/drivers');
-          setDrivers(response.data);
+          // TODO: Replace this with a real API call to '/api/drivers' when the endpoint is available.
+          // const response = await api.get<Driver[]>('/drivers');
+          // setDrivers(response.data);
+
+          // Using MOCK DATA as the backend endpoint is not yet implemented.
+          const mockDrivers: Driver[] = [
+            { id: 101, firstName: 'علی', lastName: 'رضایی', mobile: '09123456789' },
+            { id: 102, firstName: 'محمد', lastName: 'حسینی', mobile: '09129876543' },
+            { id: 103, firstName: 'سارا', lastName: 'احمدی', mobile: '09121112233' },
+          ];
+          setDrivers(mockDrivers);
 
         } catch (err) {
-          setError('خطا: API برای دریافت لیست رانندگان یافت نشد.');
+          // This will be triggered once the real API call is in place and fails.
+          setError('خطا در دریافت لیست رانندگان.');
         } finally {
           setLoading(false);
         }
