@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import AddressPicker from "@/components/AddressPicker";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 type PackagingType = "none" | "all" | "large" | "small";
 
@@ -146,7 +148,7 @@ export default function Order() {
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm overflow-x-auto scrollbar-thin py-2">
-        {["شهر", "بسته‌بندی", "نوع بسته‌بندی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
+        {["شهر", "بسته‌بندی", "نوع بسته‌بن��ی", "جزئیات بسته‌بندی", "نیروی بسته‌بندی", "طبقات/آسانسور", "آدرس‌ها", "اقلام سنگین", "پیاده‌روی", "کارگر", "جمع‌بندی"].map((t, i) => (
           <div key={i} className={`px-3 py-1 rounded-full border ${i === step ? "bg-primary text-primary-foreground" : "bg-background"}`}>
             {t}
           </div>
@@ -164,7 +166,7 @@ export default function Order() {
                   <div className="grid gap-3 mt-4 max-w-xs">
                     <Label htmlFor="city">شهر</Label>
                     <select id="city" value={city} onChange={(e) => setCity(e.target.value)} className="h-10 rounded-md border bg-background px-3">
-                      <option value="tehran">تهران</option>
+                      <option value="tehran">ته��ان</option>
                       <option value="karaj">کرج</option>
                       <option value="isfahan">اصفهان</option>
                       <option value="mashhad">مشهد</option>
@@ -227,7 +229,7 @@ export default function Order() {
 
               {step === 3 && packNeeded === "yes" && (
                 <motion.div key="step-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">قصد بسته‌بندی کدام م��ارد را دارید؟</div>
+                  <div className="font-bold text-lg">قصد بسته‌بندی کدام موارد را دارید؟</div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {PACKING_SMALLS.map((it) => {
                       const item = packSmalls[it.id] || { checked: false };
@@ -397,7 +399,7 @@ export default function Order() {
               {step === 9 && (
                 <motion.div key="step-9" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">تعداد کارگر</div>
-                  <p className="text-sm text-foreground/70">حداقل ۴ نفر</p>
+                  <p className="text-sm text-foreground/70">حداقل �� نفر</p>
                   <div className="mt-3">
                     <Counter value={workers} onChange={setWorkers} min={4} max={12} />
                   </div>
