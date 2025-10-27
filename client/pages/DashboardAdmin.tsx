@@ -1,5 +1,4 @@
 import { Card as AdminCard, CardContent as AdminCardContent } from "@/components/ui/card";
-import { Card as AdminCard, CardContent as AdminCardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
