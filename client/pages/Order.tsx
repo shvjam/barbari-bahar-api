@@ -49,6 +49,16 @@ function Counter({ value, onChange, min = 0, max = 99 }: { value: number; onChan
 export default function Order() {
   const [sp] = useSearchParams();
   const [step, setStep] = useState(0);
+  const navigate = (await import("react-router-dom")).useNavigate();
+  const { toast } = (await import("@/hooks/use-toast")).useToast();
+
+  // Contact / submission fields
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [coupon, setCoupon] = useState("");
+  const [couponApplied, setCouponApplied] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [city, setCity] = useState("tehran");
   const [packNeeded, setPackNeeded] = useState<"yes" | "no" | "">("");
@@ -217,7 +227,7 @@ export default function Order() {
 
               {step === 3 && packNeeded === "yes" && (
                 <motion.div key="step-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">قصد بسته‌بندی کدام موارد را دارید؟</div>
+                  <div className="font-bold text-lg">قصد بسته‌بندی کدام م��ارد را دارید؟</div>
                   <div className="grid gap-3 mt-3 max-w-2xl">
                     {PACKING_SMALLS.map((it) => {
                       const item = packSmalls[it.id] || { checked: false };
