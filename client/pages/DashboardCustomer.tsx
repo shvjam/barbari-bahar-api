@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card as UiCard, CardContent as UiCardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import LiveDriverLocation from "@/components/LiveDriverLocation";
@@ -43,7 +43,7 @@ export default function DashboardCustomer() {
         <h2 className="text-2xl font-extrabold">داشبورد مشتری</h2>
         <div>
           <Button asChild>
-            <Link to="/order">ثبت سفارش جدید</Link>
+            <Link to="/order">��بت سفارش جدید</Link>
           </Button>
         </div>
       </div>
