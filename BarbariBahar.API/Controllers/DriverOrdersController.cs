@@ -136,12 +136,18 @@ namespace BarbariBahar.API.Controllers
             }
 
             // Business logic validation for status transition
-            if (order.Status == OrderStatus.InProgress && newStatus == OrderStatus.Completed)
+            var validTransitions = new Dictionary<OrderStatus, OrderStatus[]>
+            {
+                { OrderStatus.InProgress, new[] { OrderStatus.HeadingToOrigin, OrderStatus.Completed } },
+                { OrderStatus.HeadingToOrigin, new[] { OrderStatus.InProgress } } // e.g., driver has arrived at origin
+            };
+
+            if (validTransitions.ContainsKey(order.Status) && validTransitions[order.Status].Contains(newStatus))
             {
                 order.Status = newStatus;
                 order.LastUpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "وضعیت سفارش با موفقیت به 'تکمیل شده' تغییر یافت." });
+                return Ok(new { message = $"وضعیت سفارش با موفقیت به '{newStatus}' تغییر یافت." });
             }
             // Add other valid transitions here if needed in the future
 

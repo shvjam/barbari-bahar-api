@@ -8,6 +8,7 @@ import DriverLayout from './components/driver/DriverLayout';
 
 // --- Customer Pages ---
 import ServiceSelectionPage from './pages/ServiceSelectionPage';
+import CustomerOrderDetailPage from './pages/CustomerOrderDetailPage';
 import ProductSelectionPage from './pages/ProductSelectionPage';
 import MovingDetailsPage from './pages/MovingDetailsPage';
 import AddressSelectionPage from './pages/AddressSelectionPage';
@@ -39,6 +40,7 @@ function App() {
             <Route path="/" element={<ServiceSelectionPage />} />
             <Route path="/my-orders" element={<MyOrdersPage />} />
             <Route path="/order/products" element={<ProductSelectionPage />} />
+            <Route path="/order/:id" element={<CustomerOrderDetailPage />} />
             <Route path="/order/moving-details" element={<MovingDetailsPage />} />
             <Route path="/order/address" element={<AddressSelectionPage />} />
             <Route path="/order/details" element={<ServiceDetailsPage />} />

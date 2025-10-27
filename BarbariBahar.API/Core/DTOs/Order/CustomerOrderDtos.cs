@@ -13,6 +13,14 @@ namespace BarbariBahar.API.Core.DTOs.Order
         public DateTime CreatedAt { get; set; }
     }
 
+    // DTO for driver info to be shown to the customer
+    public class DriverInfoDto
+    {
+        public string FullName { get; set; }
+        public string CarModel { get; set; }
+        public string CarPlateNumber { get; set; }
+    }
+
     // DTO for the detailed view of an order for a customer
     public class CustomerOrderDetailDto
     {
@@ -23,6 +31,7 @@ namespace BarbariBahar.API.Core.DTOs.Order
         public DateTime CreatedAt { get; set; }
         public DateTime? ScheduledAt { get; set; }
 
+        public DriverInfoDto DriverInfo { get; set; } // Added Driver Info
         public List<BarbariBahar.API.Core.DTOs.Admin.AddressDetailDto> Addresses { get; set; }
         public List<BarbariBahar.API.Core.DTOs.Admin.OrderItemDetailDto> Items { get; set; }
     }

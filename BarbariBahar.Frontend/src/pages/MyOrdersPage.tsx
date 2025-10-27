@@ -1,7 +1,8 @@
 // src/pages/MyOrdersPage.tsx
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader, AlertTriangle, ShoppingCart } from 'lucide-react';
+import { Loader, AlertTriangle, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 
 interface OrderSummary {
@@ -33,9 +34,22 @@ const MyOrdersPage: React.FC = () => {
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('fa-IR');
 
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'InProgress':
+      case 'HeadingToOrigin':
+        return 'text-blue-600';
+      case 'Completed':
+        return 'text-green-600';
+      case 'Cancelled':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 font-['Vazirmatn']">
-      {/* A simple header */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto p-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[#221896]">سفارشات من</h1>
@@ -53,20 +67,24 @@ const MyOrdersPage: React.FC = () => {
             <p>شما هنوز هیچ سفارشی ثبت نکرده‌اید.</p>
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-6 rounded-xl shadow-md">
-            <table className="w-full text-right">
-              {/* Table Head */}
-              <tbody>
-                {orders.map(order => (
-                  <tr key={order.id} className="border-b">
-                    <td className="py-3 px-4">{order.trackingCode}</td>
-                    <td className="py-3 px-4">{formatDate(order.createdAt)}</td>
-                    <td className="py-3 px-4">{order.finalPrice.toLocaleString('fa-IR')} تومان</td>
-                    <td className="py-3 px-4">{order.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+            {orders.map(order => (
+              <Link to={`/order/${order.id}`} key={order.id} className="block bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="font-bold text-lg text-gray-800">سفارش #{order.trackingCode}</span>
+                    <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <span className={`font-semibold ${getStatusClass(order.status)}`}>{order.status}</span>
+                    <ArrowLeft className="mr-2 text-gray-400" />
+                  </div>
+                </div>
+                <div className="mt-2 border-t pt-2 text-left">
+                  <span className="font-bold">{order.finalPrice.toLocaleString('fa-IR')} تومان</span>
+                </div>
+              </Link>
+            ))}
           </motion.div>
         )}
       </main>

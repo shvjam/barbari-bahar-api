@@ -167,6 +167,7 @@ namespace BarbariBahar.API.Controllers
             var order = await _context.Orders
                 .Include(o => o.OrderAddresses)
                 .Include(o => o.OrderItems)
+                .Include(o => o.Driver) // Include driver information
                 .FirstOrDefaultAsync(o => o.Id == id && o.CustomerId == customerId);
 
             if (order == null)
@@ -182,6 +183,12 @@ namespace BarbariBahar.API.Controllers
                 FinalPrice = order.FinalPrice,
                 CreatedAt = order.CreatedAt,
                 ScheduledAt = order.ScheduledAt,
+                DriverInfo = order.Driver != null ? new BarbariBahar.API.Core.DTOs.Order.DriverInfoDto
+                {
+                    FullName = order.Driver.FirstName + " " + order.Driver.LastName,
+                    CarModel = order.Driver.CarModel,
+                    CarPlateNumber = order.Driver.CarPlateNumber
+                } : null,
                 Addresses = order.OrderAddresses.Select(a => new BarbariBahar.API.Core.DTOs.Admin.AddressDetailDto
                 {
                     Type = a.Type.ToString(),

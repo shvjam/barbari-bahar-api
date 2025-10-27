@@ -5,6 +5,7 @@ namespace BarbariBahar.API.Data.Entities
         PendingPayment,
         PendingCustomerConfirmation,
         PendingAdminApproval,
+        HeadingToOrigin,
         InProgress,
         Completed,
         Cancelled

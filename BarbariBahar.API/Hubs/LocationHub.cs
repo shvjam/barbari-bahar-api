@@ -36,7 +36,8 @@ namespace BarbariBahar.API.Hubs
 
             // Find the active order for this driver
             var activeOrder = await _context.Orders
-                .Where(o => o.DriverId == driverId && o.Status == Data.Entities.OrderStatus.InProgress)
+                .Where(o => o.DriverId == driverId &&
+                            (o.Status == Data.Entities.OrderStatus.InProgress || o.Status == Data.Entities.OrderStatus.HeadingToOrigin))
                 .OrderByDescending(o => o.CreatedAt)
                 .FirstOrDefaultAsync();
 

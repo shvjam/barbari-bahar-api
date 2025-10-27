@@ -5,6 +5,7 @@
 export enum OrderStatus {
   PendingPayment = 'PendingPayment',
   PendingAdminApproval = 'PendingAdminApproval',
+  HeadingToOrigin = 'HeadingToOrigin', // New status
   InProgress = 'InProgress',
   Completed = 'Completed',
   Cancelled = 'Cancelled',
