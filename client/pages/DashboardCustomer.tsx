@@ -6,37 +6,56 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import LiveDriverLocation from "@/components/LiveDriverLocation";
+import { useToast } from "@/hooks/use-toast";
 
-// Provide aliases in case HMR left stale references to Card/CardContent
 const Card = UiCard as typeof UiCard;
 const CardContent = UiCardContent as typeof UiCardContent;
 
+type Order = {
+  id: number;
+  status: string;
+  driverId?: string | null;
+  customerName?: string;
+};
+
+function apiFetch(path: string, opts: RequestInit = {}) {
+  const token = localStorage.getItem("authToken");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return fetch(path, { ...opts, headers });
+}
+
 export default function DashboardCustomer() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [selDriver, setSelDriver] = useState<string | null>(null);
   const [locOpen, setLocOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
+    const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/admin/orders`);
-        if (!res.ok) return;
+        const res = await apiFetch(`/api/Order/my-orders`);
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}`);
+        }
         const data = await res.json();
-        if (!mounted) return;
-        setOrders(Array.isArray(data.orders) ? data.orders : data);
-      } catch (e) {
-        console.debug(e);
+        setOrders(data || []);
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: "خطا در بارگیری سفارش‌ها",
+          description: String(err),
+        });
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false);
       }
-    })();
-    return () => {
-      mounted = false;
     };
-  }, []);
+    load();
+  }, [toast]);
 
   const openLocation = (driverId?: string | null) => {
     if (!driverId) return;

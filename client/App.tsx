@@ -1,8 +1,4 @@
 import "./global.css";
-
-// Load mock admin API to avoid missing backend in preview environments
-import("./lib/mockAdmin");
-
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -21,6 +17,8 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminDrivers from "./pages/AdminDrivers";
 import AdminUsers from "./pages/AdminUsers";
 import { Layout } from "@/components/layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProducts from "./pages/AdminProducts";
 
 const queryClient = new QueryClient();
 
@@ -37,13 +35,70 @@ const App = () => (
             <Route path="/shop" element={<Placeholder title="فروشگاه کارتن" />} />
             <Route path="/about" element={<Placeholder title="درباره ما" />} />
             <Route path="/contact" element={<Placeholder title="تماس با ما" />} />
-            <Route path="/dashboard/customer" element={<DashboardCustomer />} />
-            <Route path="/dashboard/driver" element={<DashboardDriver />} />
-            <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/drivers" element={<AdminDrivers />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route
+              path="/dashboard/customer"
+              element={
+                <ProtectedRoute>
+                  <DashboardCustomer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/driver"
+              element={
+                <ProtectedRoute>
+                  <DashboardDriver />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin"
+              element={
+                <ProtectedRoute>
+                  <DashboardAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute>
+                  <AdminSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute>
+                  <AdminOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/drivers"
+              element={
+                <ProtectedRoute>
+                  <AdminDrivers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <ProtectedRoute>
+                  <AdminProducts />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

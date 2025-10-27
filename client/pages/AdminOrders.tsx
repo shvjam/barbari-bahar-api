@@ -5,12 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 import OrderDetails from "@/components/admin/OrderDetails";
 
 type Order = {
-  id: string;
+  id: number;
   customerName?: string;
-  origin?: string;
-  destination?: string;
+  origin: { fullAddress: string };
+  destination: { fullAddress: string };
   status?: string;
-  price?: number;
+  finalPrice?: number;
   createdAt?: string;
 };
 
@@ -33,9 +33,7 @@ export default function AdminOrders() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(
-        `/api/admin/orders?page=${page}&perPage=${perPage}`,
-      );
+      const res = await apiFetch(`/api/admin/orders`);
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
@@ -43,12 +41,8 @@ export default function AdminOrders() {
 
       const ct = res.headers.get("content-type") || "";
       if (ct.includes("application/json")) {
-        const data = await res.json().catch(async (e) => {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`Invalid JSON response: ${txt.substring(0, 200)}`);
-        });
-        // Expecting { orders: Order[], total: number }
-        setOrders(data.orders || data);
+        const data = await res.json();
+        setOrders(data || []);
       } else {
         const txt = await res.text().catch(() => "");
         throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
@@ -66,11 +60,11 @@ export default function AdminOrders() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const changeStatus = async (id: string, status: string) => {
+  const changeStatus = async (id: number, status: string) => {
     try {
-      const res = await apiFetch(`/api/admin/orders/${id}`, {
+      const res = await apiFetch(`/api/orders/admin/${id}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ newStatus: status }),
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "وضعیت بروز شد" });
@@ -81,16 +75,16 @@ export default function AdminOrders() {
     }
   };
 
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const exportCSV = () => {
     const rows = orders.map((o) => ({
       id: o.id,
       customer: o.customerName || "",
-      origin: o.origin || "",
-      destination: o.destination || "",
-      price: o.price || 0,
+      origin: o.origin?.fullAddress || "",
+      destination: o.destination?.fullAddress || "",
+      price: o.finalPrice || 0,
       status: o.status || "",
     }));
     const csv = [
@@ -160,23 +154,29 @@ export default function AdminOrders() {
                     <tr key={o.id} className="border-t">
                       <td className="py-2">{o.id}</td>
                       <td className="py-2">{o.customerName || "—"}</td>
-                      <td className="py-2">{o.origin || "—"}</td>
-                      <td className="py-2">{o.destination || "—"}</td>
+                      <td className="py-2">{o.origin?.fullAddress || "—"}</td>
                       <td className="py-2">
-                        {o.price ? `${o.price.toLocaleString()} تومان` : "��"}
+                        {o.destination?.fullAddress || "—"}
+                      </td>
+                      <td className="py-2">
+                        {o.finalPrice
+                          ? `${o.finalPrice.toLocaleString()} تومان`
+                          : "—"}
                       </td>
                       <td className="py-2">{o.status || "—"}</td>
                       <td className="py-2 flex gap-2">
                         <Button
                           size="sm"
-                          onClick={() => changeStatus(o.id, "confirmed")}
+                          onClick={() =>
+                            changeStatus(o.id, "PendingCustomerConfirmation")
+                          }
                         >
                           تایید
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => changeStatus(o.id, "cancelled")}
+                          onClick={() => changeStatus(o.id, "Cancelled")}
                         >
                           کنسل
                         </Button>

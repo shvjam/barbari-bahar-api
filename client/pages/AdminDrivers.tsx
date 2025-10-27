@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 type Driver = {
-  id: string;
-  name: string;
-  phone?: string;
-  active?: boolean;
+  id: number;
+  firstName: string;
+  lastName: string;
+  nationalCode: string;
+  status?: "PendingApproval" | "Active" | "Inactive" | "Suspended";
 };
 
 function apiFetch(path: string, opts: RequestInit = {}) {
@@ -23,26 +24,20 @@ function apiFetch(path: string, opts: RequestInit = {}) {
 export default function AdminDrivers() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/api/admin/drivers`);
+      const res = await apiFetch(`/api/admin/Drivers`);
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       const ct = res.headers.get("content-type") || "";
       if (ct.includes("application/json")) {
-        const data = await res.json().catch(async () => {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`Invalid JSON response: ${txt.substring(0, 200)}`);
-        });
-        setDrivers(data.drivers || data);
+        const data = await res.json();
+        setDrivers(data || []);
       } else {
         const txt = await res.text().catch(() => "");
         throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
@@ -59,36 +54,14 @@ export default function AdminDrivers() {
     load();
   }, []);
 
-  const addDriver = async () => {
-    if (!name || name.trim() === "")
-      return toast({ title: "نام راننده را وارد کنید" });
-    setSubmitting(true);
+  const updateStatus = async (
+    id: number,
+    status: "PendingApproval" | "Active" | "Inactive" | "Suspended",
+  ) => {
     try {
-      const res = await apiFetch(`/api/admin/drivers`, {
-        method: "POST",
-        body: JSON.stringify({ name, phone }),
-      });
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
-      }
-      toast({ title: "راننده اضافه شد" });
-      setName("");
-      setPhone("");
-      await load();
-    } catch (err) {
-      console.error(err);
-      toast({ title: "خطا هنگام افزودن راننده", description: String(err) });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const toggleActive = async (id: string, active: boolean) => {
-    try {
-      const res = await apiFetch(`/api/admin/drivers/${id}`, {
+      const res = await apiFetch(`/api/admin/Drivers/${id}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ active }),
+        body: JSON.stringify({ status }),
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
@@ -122,8 +95,8 @@ export default function AdminDrivers() {
                     <tr className="text-foreground/70 text-left">
                       <th className="pb-2">#</th>
                       <th className="pb-2">نام</th>
-                      <th className="pb-2">شماره</th>
-                      <th className="pb-2">فعال</th>
+                      <th className="pb-2">کد ملی</th>
+                      <th className="pb-2">وضعیت</th>
                       <th className="pb-2">عملیات</th>
                     </tr>
                   </thead>
@@ -150,16 +123,32 @@ export default function AdminDrivers() {
                       drivers.map((d) => (
                         <tr key={d.id} className="border-t">
                           <td className="py-2">{d.id}</td>
-                          <td className="py-2">{d.name}</td>
-                          <td className="py-2">{d.phone || "—"}</td>
-                          <td className="py-2">{d.active ? "بله" : "خیر"}</td>
+                          <td className="py-2">
+                            {d.firstName} {d.lastName}
+                          </td>
+                          <td className="py-2">{d.nationalCode || "—"}</td>
+                          <td className="py-2">{d.status || "—"}</td>
                           <td className="py-2 flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => toggleActive(d.id, !d.active)}
+                            <select
+                              value={d.status}
+                              onChange={(e) =>
+                                updateStatus(
+                                  d.id,
+                                  e.target.value as
+                                    | "PendingApproval"
+                                    | "Active"
+                                    | "Inactive"
+                                    | "Suspended",
+                                )
+                              }
                             >
-                              {d.active ? "غیرفعال" : "فعال"}
-                            </Button>
+                              <option value="PendingApproval">
+                                در انتظار تایید
+                              </option>
+                              <option value="Active">فعال</option>
+                              <option value="Inactive">غیرفعال</option>
+                              <option value="Suspended">معلق</option>
+                            </select>
                           </td>
                         </tr>
                       ))
@@ -169,24 +158,7 @@ export default function AdminDrivers() {
               </div>
             </div>
 
-            <div>
-              <div className="font-bold mb-2">افزودن راننده</div>
-              <div className="grid gap-2">
-                <Input
-                  placeholder="نام"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <Input
-                  placeholder="شماره"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-                <Button onClick={addDriver} disabled={submitting}>
-                  {submitting ? "در حال ارسال..." : "افزودن"}
-                </Button>
-              </div>
-            </div>
+            <div />
           </div>
         </CardContent>
       </Card>

@@ -15,52 +15,12 @@ export default function DashboardAdmin() {
   const [tab, setTab] = useState<
     "overview" | "orders" | "drivers" | "users" | "products" | "items"
   >("overview");
-  const [stats, setStats] = useState<{
-    pendingOrders?: number;
-    todayIncome?: number;
-    activeDrivers?: number;
-    pendingSettlements?: number;
-  }>({});
-
-  async function apiFetch(path: string, opts: RequestInit = {}) {
-    const res = await fetch(path, {
-      ...opts,
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
-    }
-    const ct = res.headers.get("content-type") || "";
-    if (!ct.includes("application/json")) {
-      const txt = await res.text().catch(() => "");
-      throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
-    }
-    return res.json();
-  }
-
-  React.useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const data = await apiFetch("/api/admin/stats");
-        if (!mounted) return;
-        setStats({
-          pendingOrders: data.pendingOrders ?? data.pending_orders ?? 0,
-          todayIncome: data.todayIncome ?? data.today_income ?? 0,
-          activeDrivers: data.activeDrivers ?? data.active_drivers ?? 0,
-          pendingSettlements:
-            data.pendingSettlements ?? data.pending_settlements ?? 0,
-        });
-      } catch (e) {
-        // silent - stats are optional; show zeros
-        console.debug("Failed to load admin stats:", e);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const [stats] = useState({
+    pendingOrders: 0,
+    todayIncome: 0,
+    activeDrivers: 0,
+    pendingSettlements: 0,
+  });
 
   return (
     <div className="container py-8">

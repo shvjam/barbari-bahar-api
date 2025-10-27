@@ -1,8 +1,9 @@
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AuthDialog from "../AuthDialog";
 
 const nav = [
   { to: "/", label: "صفحه اصلی" },
@@ -15,6 +16,23 @@ const nav = [
 export function Layout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("authToken"));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+  const authSuccess = () => {
+    setIsLoggedIn(true);
+    // You might want to navigate to a dashboard or refresh data here
+  };
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -44,9 +62,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-2">
-            <Button asChild>
-              <Link to="/order">شروع ثبت سفارش</Link>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Button onClick={() => navigate("/dashboard/customer")}>
+                  داشبورد
+                </Button>
+                <Button variant="outline" onClick={handleLogout}>
+                  خروج
+                </Button>
+              </>
+            ) : (
+              <AuthDialog
+                trigger={<Button>ورود / ثبت‌نام</Button>}
+                onAuthSuccess={authSuccess}
+              />
+            )}
           </div>
           <div className="md:hidden ms-auto">
             <Sheet open={open} onOpenChange={setOpen}>
@@ -73,11 +103,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       {n.label}
                     </NavLink>
                   ))}
-                  <Button asChild className="mt-2">
-                    <Link to="/order" onClick={() => setOpen(false)}>
-                      شروع ثبت سفارش
-                    </Link>
-                  </Button>
+                  {isLoggedIn ? (
+                    <Button
+                      onClick={() => {
+                        handleLogout();
+                        setOpen(false);
+                      }}
+                      className="mt-2"
+                    >
+                      خروج
+                    </Button>
+                  ) : (
+                    <AuthDialog
+                      trigger={
+                        <Button className="mt-2 w-full">ورود / ثبت‌نام</Button>
+                      }
+                      onAuthSuccess={() => {
+                        authSuccess();
+                        setOpen(false);
+                      }}
+                    />
+                  )}
                 </div>
               </SheetContent>
             </Sheet>

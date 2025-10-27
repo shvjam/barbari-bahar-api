@@ -5,17 +5,18 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 type Product = {
-  id: string;
-  title: string;
+  id: number;
+  name: string;
   sku?: string | null;
   price?: number;
-  active?: boolean;
+  isActive?: boolean;
+  isAvailable?: boolean;
   description?: string;
-  categoryId?: string | null;
-  image?: string | null; // data URL or remote URL
+  categoryId?: number | null;
+  imageUrl?: string | null; // data URL or remote URL
 };
 
-type Category = { id: string; title: string };
+type Category = { id: number; name: string };
 
 function apiFetch(path: string, opts: RequestInit = {}) {
   const token = localStorage.getItem("authToken");
@@ -34,7 +35,7 @@ export default function AdminProducts() {
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -45,8 +46,8 @@ export default function AdminProducts() {
     setLoading(true);
     try {
       const [resP, resC] = await Promise.all([
-        apiFetch(`/api/admin/products`),
-        apiFetch(`/api/admin/product-categories`),
+        apiFetch(`/api/admin/PackagingProducts`),
+        apiFetch(`/api/admin/PackagingProductCategories`),
       ]);
       if (!resP.ok) throw new Error(`Error ${resP.status}`);
       if (!resC.ok) throw new Error(`Error ${resC.status}`);
@@ -59,13 +60,8 @@ export default function AdminProducts() {
         throw new Error("Expected JSON responses");
       const dataP = await resP.json();
       const dataC = await resC.json();
-      setProducts(dataP.products || dataP);
-      setCategories(
-        (dataC.categories || dataC).map((c: any) => ({
-          id: c.id,
-          title: c.title,
-        })),
-      );
+      setProducts(dataP || []);
+      setCategories(dataC || []);
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری محصولات", description: String(err) });
@@ -93,9 +89,9 @@ export default function AdminProducts() {
   const addCategory = async () => {
     if (!catTitle.trim()) return toast({ title: "عنوان دسته را وارد کنید" });
     try {
-      const res = await apiFetch(`/api/admin/product-categories`, {
+      const res = await apiFetch(`/api/admin/PackagingProductCategories`, {
         method: "POST",
-        body: JSON.stringify({ title: catTitle }),
+        body: JSON.stringify({ name: catTitle }),
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "دسته اضافه شد" });
@@ -121,15 +117,14 @@ export default function AdminProducts() {
           r.readAsDataURL(imageFile as File);
         });
       }
-      const res = await apiFetch(`/api/admin/products`, {
+      const res = await apiFetch(`/api/admin/PackagingProducts`, {
         method: "POST",
         body: JSON.stringify({
-          title,
-          sku: sku || null,
+          name: title,
           price: Number(price) || 0,
           description,
-          categoryId,
-          image: imageData,
+          categoryId: categoryId ? Number(categoryId) : undefined,
+          imageUrl: imageData,
         }),
       });
       if (!res.ok) {
@@ -152,10 +147,10 @@ export default function AdminProducts() {
     }
   };
 
-  const deleteProduct = async (id: string) => {
+  const deleteProduct = async (id: number) => {
     if (!confirm("آیا مطمئن هستید؟")) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, {
+      const res = await apiFetch(`/api/admin/PackagingProducts/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -170,11 +165,14 @@ export default function AdminProducts() {
     }
   };
 
-  const toggleActive = async (id: string, active: boolean) => {
+  const toggleActive = async (product: Product) => {
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ active }),
+      const res = await apiFetch(`/api/admin/PackagingProducts/${product.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          ...product,
+          isActive: !product.isActive,
+        }),
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "وضعیت محصول بروزرسانی شد" });
@@ -185,36 +183,35 @@ export default function AdminProducts() {
     }
   };
 
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editSku, setEditSku] = useState("");
   const [editDesc, setEditDesc] = useState("");
-  const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
+  const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
 
   const startEdit = (p: Product) => {
     setEditingId(p.id);
-    setEditTitle(p.title);
+    setEditTitle(p.name);
     setEditPrice(String(p.price || 0));
     setEditSku(p.sku || "");
     setEditDesc(p.description || "");
     setEditCategoryId(p.categoryId || null);
-    setEditImagePreview(p.image || null);
+    setEditImagePreview(p.imageUrl || null);
   };
 
   const saveEdit = async () => {
     if (!editingId) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${editingId}`, {
-        method: "PATCH",
+      const res = await apiFetch(`/api/admin/PackagingProducts/${editingId}`, {
+        method: "PUT",
         body: JSON.stringify({
-          title: editTitle,
-          sku: editSku || null,
+          name: editTitle,
           price: Number(editPrice) || 0,
           description: editDesc,
-          categoryId: editCategoryId,
-          image: editImagePreview || null,
+          categoryId: editCategoryId ? Number(editCategoryId) : undefined,
+          imageUrl: editImagePreview || null,
         }),
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -244,7 +241,7 @@ export default function AdminProducts() {
                     <tr className="text-foreground/70 text-left">
                       <th className="pb-2">#</th>
                       <th className="pb-2">تصویر</th>
-                      <th className="pb-2">عنوان</th>
+                      <th className="pb-2">نام</th>
                       <th className="pb-2">قیمت</th>
                       <th className="pb-2">دسته</th>
                       <th className="pb-2">فعال</th>
@@ -275,10 +272,10 @@ export default function AdminProducts() {
                         <tr key={p.id} className="border-t">
                           <td className="py-2">{p.id}</td>
                           <td className="py-2 w-24">
-                            {p.image ? (
+                            {p.imageUrl ? (
                               <img
-                                src={p.image}
-                                alt={p.title}
+                                src={p.imageUrl}
+                                alt={p.name}
                                 className="h-12 w-12 object-cover rounded"
                               />
                             ) : (
@@ -292,7 +289,7 @@ export default function AdminProducts() {
                                 onChange={(e) => setEditTitle(e.target.value)}
                               />
                             ) : (
-                              p.title
+                              p.name
                             )}
                           </td>
                           <td className="py-2">
@@ -309,9 +306,9 @@ export default function AdminProducts() {
                           </td>
                           <td className="py-2">
                             {categories.find((c) => c.id === p.categoryId)
-                              ?.title || "—"}
+                              ?.name || "—"}
                           </td>
-                          <td className="py-2">{p.active ? "بله" : "خیر"}</td>
+                          <td className="py-2">{p.isActive ? "بله" : "خیر"}</td>
                           <td className="py-2 flex gap-2">
                             {editingId === p.id ? (
                               <>
@@ -331,11 +328,8 @@ export default function AdminProducts() {
                                 <Button size="sm" onClick={() => startEdit(p)}>
                                   ویرایش
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() => toggleActive(p.id, !p.active)}
-                                >
-                                  {p.active ? "غیرفعال" : "فعال"}
+                                <Button size="sm" onClick={() => toggleActive(p)}>
+                                  {p.isActive ? "غیرفعال" : "فعال"}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -381,12 +375,14 @@ export default function AdminProducts() {
                 <select
                   className="px-3 py-2 border rounded"
                   value={categoryId || ""}
-                  onChange={(e) => setCategoryId(e.target.value || null)}
+                  onChange={(e) =>
+                    setCategoryId(e.target.value ? Number(e.target.value) : null)
+                  }
                 >
                   <option value="">انتخاب دسته (اختیاری)</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.title}
+                      {c.name}
                     </option>
                   ))}
                 </select>
@@ -424,7 +420,7 @@ export default function AdminProducts() {
                 <div className="mt-2 text-sm text-foreground/60">
                   {categories.map((c) => (
                     <div key={c.id} className="py-1">
-                      {c.title}
+                      {c.name}
                     </div>
                   ))}
                 </div>
