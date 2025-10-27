@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -114,131 +114,54 @@ export default function Order() {
     lon: number;
   } | null>(null);
 
+  const [priceDetails, setPriceDetails] = useState<{
+    amount: number;
+    breakdown: any[];
+  } | null>(null);
+
   const selectedService = sp.get("service") || "moving-truck";
 
   const totalSteps = 10;
 
-  const estimate = useMemo(() => {
-    const breakdown: {
-      code: string;
-      title: string;
-      unitPrice: number;
-      quantity: number;
-      total: number;
-    }[] = [];
+  const calculatePrice = useCallback(async () => {
+    if (!originAddress || !destAddress) return;
 
-    // Base vehicle cost (example heuristics – replace with backend pricing later)
-    const vehiclePrice =
-      selectedService === "moving-pickup" ? 1_600_000 : 2_660_300;
-    breakdown.push({
-      code: "vehicle",
-      title:
-        selectedService === "moving-pickup"
-          ? "هزینه ماشین (وانت/نیسان)"
-          : "هزینه ماشین (خاور)",
-      unitPrice: vehiclePrice,
-      quantity: 1,
-      total: vehiclePrice,
-    });
-
-    // Workers
-    const workerUnit = 900_000;
-    breakdown.push({
-      code: "workers",
-      title: "هزینه کارگر",
-      unitPrice: workerUnit,
-      quantity: workers,
-      total: workerUnit * workers,
-    });
-
-    // Packaging crew
-    if (packNeeded === "yes") {
-      if (packMen > 0)
-        breakdown.push({
-          code: "pack_male",
-          title: "هزینه نیروی بسته‌بندی آقا",
-          unitPrice: 800_000,
-          quantity: packMen,
-          total: packMen * 800_000,
-        });
-      if (packWomen > 0)
-        breakdown.push({
-          code: "pack_female",
-          title: "هزینه نیروی بسته‌بندی خانم",
-          unitPrice: 800_000,
-          quantity: packWomen,
-          total: packWomen * 800_000,
-        });
+    try {
+      const res = await fetch("/api/Order/calculate-price", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          origin: {
+            latitude: originAddress.lat,
+            longitude: originAddress.lon,
+            fullAddress: originAddress.label,
+          },
+          destination: {
+            latitude: destAddress.lat,
+            longitude: destAddress.lon,
+            fullAddress: destAddress.label,
+          },
+          // You can add other factors like heavy items here
+        }),
+      });
+      if (!res.ok) throw new Error("Network response was not ok");
+      const data = await res.json();
+      setPriceDetails({
+        amount: data.totalPrice,
+        breakdown: data.priceFactors,
+      });
+    } catch (error) {
+      console.error("Failed to calculate price:", error);
+      toast({
+        title: "خطا در محاسبه قیمت",
+        description: "لطفا دوباره تلاش کنید.",
+      });
     }
+  }, [originAddress, destAddress, toast]);
 
-    // Floors (simple example: 75k per floor over 1 per origin/destination)
-    const extraFloors =
-      Math.max(0, originFloor - 1) + Math.max(0, destFloor - 1);
-    if (extraFloors > 0)
-      breakdown.push({
-        code: "floors",
-        title: "طبقات مبدا/مقصد",
-        unitPrice: 75_000,
-        quantity: extraFloors,
-        total: extraFloors * 75_000,
-      });
-
-    // Elevator absence adds a flat effort cost
-    if (originElevator === "no")
-      breakdown.push({
-        code: "no_elev_o",
-        title: "بدون آسانسور د�� مبدا",
-        unitPrice: 120_000,
-        quantity: 1,
-        total: 120_000,
-      });
-    if (destElevator === "no")
-      breakdown.push({
-        code: "no_elev_d",
-        title: "بدون آسانسور در مقصد",
-        unitPrice: 120_000,
-        quantity: 1,
-        total: 120_000,
-      });
-
-    // Heavy items
-    Object.entries(heavy).forEach(([id, qty]) => {
-      const item = HEAVY_ITEMS.find((h) => h.id === id);
-      if (item && qty > 0)
-        breakdown.push({
-          code: `heavy_${id}`,
-          title: item.title,
-          unitPrice: item.price,
-          quantity: qty,
-          total: item.price * qty,
-        });
-    });
-
-    // Walking distance (2000 per meter as example -> 200 x selected meters)
-    if (walk > 0)
-      breakdown.push({
-        code: "walk",
-        title: "پیاده‌روی",
-        unitPrice: 4_000,
-        quantity: walk,
-        total: walk * 4_000,
-      });
-
-    const amount = breakdown.reduce((s, b) => s + b.total, 0);
-    return { amount, breakdown };
-  }, [
-    selectedService,
-    workers,
-    packNeeded,
-    packMen,
-    packWomen,
-    originFloor,
-    destFloor,
-    originElevator,
-    destElevator,
-    heavy,
-    walk,
-  ]);
+  useEffect(() => {
+    calculatePrice();
+  }, [calculatePrice]);
 
   const canNext = () => {
     if (step === 0) return Boolean(city);
@@ -842,16 +765,14 @@ export default function Order() {
                     نهایی پس از تایید ادمین مشخص م��‌شود.
                   </p>
                   <div className="mt-4 space-y-2">
-                    {estimate.breakdown.map((b) => (
+                    {priceDetails?.breakdown?.map((b: any, i: number) => (
                       <div
-                        key={b.code}
+                        key={i}
                         className="flex items-center justify-between text-sm border rounded-lg p-2"
                       >
-                        <div className="text-foreground/80">
-                          {b.title} × {b.quantity.toLocaleString("fa-IR")}
-                        </div>
+                        <div className="text-foreground/80">{b.name}</div>
                         <div className="font-bold">
-                          {b.total.toLocaleString()} تومان
+                          {b.price.toLocaleString()} تومان
                         </div>
                       </div>
                     ))}
@@ -882,7 +803,7 @@ export default function Order() {
           <CardContent className="p-4 md:p-6">
             <div className="font-extrabold text-lg">جمع کل حدودی</div>
             <div className="mt-2 text-3xl font-black bg-gradient-to-tr from-primary to-accent text-transparent bg-clip-text">
-              {estimate.amount.toLocaleString()}{" "}
+              {(priceDetails?.amount || 0).toLocaleString()}{" "}
               <span className="text-base font-bold text-foreground/70">
                 تومان
               </span>

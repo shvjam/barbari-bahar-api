@@ -1,130 +1,107 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "./ui/button";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-export type SelectedAddress = { label: string; lat: number; lon: number };
+// Fix for default marker icon issue with webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+});
 
-export default function AddressPicker({
-  onSelect,
-  buttonLabel = "انتخاب از نقشه",
-}: {
-  onSelect: (a: SelectedAddress) => void;
-  buttonLabel?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SelectedAddress[]>([]);
-  const [loading, setLoading] = useState(false);
+type Position = { lat: number; lng: number };
 
-  const search = async (q: string) => {
-    if (!q) return setResults([]);
-    setLoading(true);
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        q,
-      )}&addressdetails=1&limit=6&accept-language=fa`;
-      const res = await fetch(url, { headers: { "User-Agent": "barbari-bahar-frontend" } });
-      const data = (await res.json()) as any[];
-      const mapped = data.map((d) => ({ label: d.display_name, lat: parseFloat(d.lat), lon: parseFloat(d.lon) }));
-      setResults(mapped);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+function LocationPicker({ onSelect }: { onSelect: (pos: Position) => void }) {
+  const [position, setPosition] = useState<Position | null>(null);
 
-  const useCurrentLocation = () => {
-    if (!navigator.geolocation) return alert("مرورگر شما از Geolocation پشتیبانی نمی‌کند.");
-    setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude: lat, longitude: lon } = pos.coords;
-          const rev = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&accept-language=fa`,
-            { headers: { "User-Agent": "barbari-bahar-frontend" } },
-          );
-          const data = await rev.json();
-          const label = data.display_name || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-          const sel = { label, lat, lon };
-          onSelect(sel);
-          setOpen(false);
-        } catch (e) {
-          console.error(e);
-          alert("خطا در دریافت آدرس از موقعیت فعلی");
-        } finally {
-          setLoading(false);
-        }
+  const MapEvents = () => {
+    useMapEvents({
+      click(e) {
+        setPosition(e.latlng);
+        onSelect(e.latlng);
       },
-      (err) => {
-        setLoading(false);
-        alert("دسترسی موقعیت برقرار نشد: " + err.message);
-      },
-    );
+    });
+    return null;
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-2xl">
-        <DialogTitle className="text-lg font-semibold">انتخاب آدرس</DialogTitle>
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex gap-2">
-              <Input value={query} placeholder="جستجوی آدرس یا محله" onChange={(e) => setQuery(e.target.value)} />
-              <Button
-                onClick={() => {
-                  search(query);
-                }}
-                disabled={!query || loading}
-              >
-                جستجو
-              </Button>
-            </div>
+    <div style={{ height: "400px", width: "100%" }}>
+      <MapContainer
+        center={[35.6892, 51.389]}
+        zoom={13}
+        style={{ height: "100%", width: "100%" }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <MapEvents />
+        {position && <Marker position={position} />}
+      </MapContainer>
+    </div>
+  );
+}
 
-            <div className="mt-3 flex gap-2">
-              <Button variant="outline" onClick={useCurrentLocation} disabled={loading}>
-                استفاده از موقعیت فعلی
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setResults([]);
-                  setQuery("");
-                }}
-              >
-                پاک‌سازی
-              </Button>
-            </div>
+export default function AddressPicker({
+  buttonLabel,
+  onSelect,
+}: {
+  buttonLabel: string;
+  onSelect: (address: {
+    label: string;
+    lat: number;
+    lon: number;
+  }) => void;
+}) {
+  const [selectedPos, setSelectedPos] = useState<Position | null>(null);
 
-            <div className="mt-4 grid gap-2">
-              {loading && <div className="text-sm text-foreground/60">در حال بارگذاری...</div>}
-              {!loading && results.length === 0 && <div className="text-sm text-foreground/60">نتیجه‌ای یافت نشد</div>}
-              {results.map((r, idx) => (
-                <div key={idx} className="border rounded p-2 flex items-center justify-between">
-                  <div className="text-sm">{r.label}</div>
-                  <div>
-                    <Button
-                      onClick={() => {
-                        onSelect(r);
-                        setOpen(false);
-                      }}
-                    >
-                      انتخاب
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+  const handleConfirm = () => {
+    if (selectedPos) {
+      onSelect({
+        label: `مختصات: ${selectedPos.lat.toFixed(4)}, ${selectedPos.lng.toFixed(
+          4,
+        )}`,
+        lat: selectedPos.lat,
+        lon: selectedPos.lng,
+      });
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">{buttonLabel}</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>انتخاب آدرس از روی نقشه</DialogTitle>
+        </DialogHeader>
+        <LocationPicker onSelect={setSelectedPos} />
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              type="button"
+              onClick={handleConfirm}
+              disabled={!selectedPos}
+            >
+              تایید
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
-
-      <div className="inline-flex">
-        <Button onClick={() => setOpen(true)}>{buttonLabel}</Button>
-      </div>
     </Dialog>
   );
 }
