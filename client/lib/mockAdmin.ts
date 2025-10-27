@@ -2,14 +2,20 @@
 const isDev = import.meta.env?.DEV ?? true;
 if (isDev) {
   const orders = [
-    { id: "ord_1", customerName: "علی رضایی", origin: "تهران، نارمک", destination: "تهران، سعادت‌آباد", status: "pending", price: 1200000, createdAt: new Date().toISOString() },
-    { id: "ord_2", customerName: "زهرا موسوی", origin: "کرج، باغستان", destination: "تهران، میدان ونک", status: "confirmed", price: 2500000, createdAt: new Date().toISOString() },
+    { id: "ord_1", customerName: "علی رضایی", origin: "تهران، نارمک", destination: "تهران، سعادت‌آباد", status: "enroute", price: 1200000, createdAt: new Date().toISOString(), driverId: "drv_1" },
+    { id: "ord_2", customerName: "زهرا موسوی", origin: "کرج، باغستان", destination: "تهران، میدان ونک", status: "confirmed", price: 2500000, createdAt: new Date().toISOString(), driverId: "drv_2" },
   ];
 
   const drivers = [
     { id: "drv_1", name: "حسن حسینی", phone: "09120000001", active: true },
     { id: "drv_2", name: "مهدی محمدی", phone: "09120000002", active: false },
   ];
+
+  // driver live positions
+  const driverPositions: Record<string, { lat: number; lon: number }> = {
+    drv_1: { lat: 35.712, lon: 51.420 },
+    drv_2: { lat: 35.789, lon: 51.450 },
+  };
 
   const users = [
     { id: "usr_1", name: "علی رضایی", email: "ali@example.com", active: true },
