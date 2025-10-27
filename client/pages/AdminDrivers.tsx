@@ -159,7 +159,7 @@ export default function AdminDrivers() {
               <div className="grid gap-2">
                 <Input placeholder="نام" value={name} onChange={(e) => setName(e.target.value)} />
                 <Input placeholder="شماره" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                <Button onClick={addDriver}>افزودن</Button>
+                <Button onClick={addDriver} disabled={submitting}>{submitting ? "در حال ارسال..." : "افزودن"}</Button>
               </div>
             </div>
           </div>
