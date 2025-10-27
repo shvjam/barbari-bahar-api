@@ -2,21 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
-
-// Enum for order statuses to ensure type safety
-export enum OrderStatus {
-  PendingPayment = 'PendingPayment',
-  PendingAdminApproval = 'PendingAdminApproval',
-  InProgress = 'InProgress',
-  Completed = 'Completed',
-  Cancelled = 'Cancelled'
-}
-
-const statusOptions = [
-  { value: OrderStatus.InProgress, label: 'در حال انجام' },
-  { value: OrderStatus.Completed, label: 'تکمیل شده' },
-  { value: OrderStatus.Cancelled, label: 'لغو شده' },
-];
+import { OrderStatus } from '../../types'; // Import from the central types file
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
@@ -26,6 +12,15 @@ interface UpdateStatusModalProps {
 }
 
 const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({ isOpen, onClose, onSave, currentStatus }) => {
+  // Move statusOptions inside the component
+  const statusOptions = [
+    { value: OrderStatus.InProgress, label: 'در حال انجام' },
+    { value: OrderStatus.Completed, label: 'تکمیل شده' },
+    { value: OrderStatus.Cancelled, label: 'لغو شده' },
+    { value: OrderStatus.HeadingToOrigin, label: 'در مسیر مبدا' },
+    { value: OrderStatus.PendingAdminApproval, label: 'در انتظار تایید' },
+  ];
+
   const [newStatus, setNewStatus] = useState<OrderStatus>(currentStatus);
 
   useEffect(() => {

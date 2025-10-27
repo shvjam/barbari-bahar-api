@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader, ArrowLeft, Plus } from 'lucide-react';
 import api from '../services/api';
-import { useOrder, Product, Category } from '../context/OrderContext';
+import { useOrder, type Product, type Category } from '../context/OrderContext';
 
 const ServiceSelectionPage: React.FC = () => {
   const navigate = useNavigate();

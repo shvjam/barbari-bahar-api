@@ -1,25 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useOrder } from '../../context/OrderContext';
+import { useOrder, type ServiceType } from '../../context/OrderContext';
 
 interface ServiceCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
-  serviceType: 'shipping' | 'packing' | 'labor';
+  serviceType: ServiceType;
+  path: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, icon, serviceType }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, icon, serviceType, path }) => {
   const navigate = useNavigate();
   const { setServiceType } = useOrder();
 
   const handleClick = () => {
     setServiceType(serviceType);
-    if (serviceType === 'shipping') {
-      navigate('/order/address');
-    } else {
-      alert(`خدمات '${title}' به زودی اضافه خواهد شد.`);
-    }
+    navigate(path);
   };
 
   return (

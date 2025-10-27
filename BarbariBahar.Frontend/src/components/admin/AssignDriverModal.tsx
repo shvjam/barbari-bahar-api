@@ -38,7 +38,7 @@ const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, onClose, 
           if (response.data.length === 0) {
             setError('هیچ راننده فعالی یافت نشد.');
           }
-        } catch (err) {
+        } catch {
           setError('خطا در دریافت لیست رانندگان.');
         } finally {
           setLoading(false);

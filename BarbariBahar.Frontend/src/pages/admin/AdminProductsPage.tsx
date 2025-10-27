@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { PlusCircle, Edit, Trash2, Loader, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
-import { Product, Category } from '../../context/OrderContext';
+import type { Product, Category } from '../../context/OrderContext';
 import ProductFormModal from '../../components/admin/ProductFormModal';
 
 const AdminProductsPage: React.FC = () => {
@@ -23,7 +23,7 @@ const AdminProductsPage: React.FC = () => {
       ]);
       setProducts(prodResponse.data);
       setCategories(catResponse.data);
-    } catch (err) {
+    } catch {
       setError('خطا در دریافت اطلاعات.');
     } finally {
       setLoading(false);
@@ -53,7 +53,7 @@ const AdminProductsPage: React.FC = () => {
       }
       handleCloseModal();
       fetchProductsAndCategories(); // Refresh data
-    } catch (err) {
+    } catch {
       alert('خطا در ذخیره سازی محصول.');
     }
   };
@@ -63,7 +63,7 @@ const AdminProductsPage: React.FC = () => {
       try {
         await api.delete(`/products/${productId}`);
         fetchProductsAndCategories(); // Refresh data
-      } catch (err) {
+      } catch {
         alert('خطا در حذف محصول.');
       }
     }

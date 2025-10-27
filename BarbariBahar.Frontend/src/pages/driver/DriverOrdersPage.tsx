@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Truck, CheckCircle, Info, Loader2 } from 'lucide-react';
+import { Info, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import { OrderStatus } from '../../types'; // Assuming you have a types file
 
@@ -29,7 +29,7 @@ const DriverOrdersPage: React.FC = () => {
         const params = filter === 'All' ? {} : { status: filter };
         const response = await api.get<DriverOrder[]>('/driver/orders', { params });
         setOrders(response.data);
-      } catch (err) {
+      } catch {
         setError("خطا در دریافت سفارش‌ها. لطفاً دوباره تلاش کنید.");
       } finally {
         setLoading(false);
@@ -82,8 +82,8 @@ const DriverOrdersPage: React.FC = () => {
       <header className="mb-4">
         <h1 className="text-3xl font-bold text-gray-800">سفارش‌های من</h1>
         <div className="flex justify-center gap-2 my-4">
-          <StatusButton value="InProgress" label="در حال انجام" />
-          <StatusButton value="Completed" label="تکمیل شده" />
+          <StatusButton value={OrderStatus.InProgress} label="در حال انجام" />
+          <StatusButton value={OrderStatus.Completed} label="تکمیل شده" />
           <StatusButton value="All" label="همه" />
         </div>
       </header>

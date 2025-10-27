@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { LatLngExpression, LatLng } from 'leaflet';
+import type { LatLngExpression } from 'leaflet';
+import { LatLng } from 'leaflet';
 import { motion } from 'framer-motion';
 import { Pin, ArrowLeft, MapPin } from 'lucide-react';
-import { useOrder, OrderAddress } from '../context/OrderContext';
+import { useOrder, type OrderAddress } from '../context/OrderContext';
 
 const AddressSelectionPage: React.FC = () => {
   const navigate = useNavigate();

@@ -23,7 +23,7 @@ const MyOrdersPage: React.FC = () => {
       try {
         const response = await api.get<OrderSummary[]>('/order/my-orders');
         setOrders(response.data);
-      } catch (err) {
+      } catch {
         setError('برای مشاهده سفارشات، ابتدا باید وارد حساب کاربری خود شوید.');
       } finally {
         setLoading(false);

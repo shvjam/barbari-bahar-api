@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MessageSquare, ArrowLeft, MapPin, ShoppingCart } from 'lucide-react';
-import { PersianCalendar } from '../../components/ui/persian-calendar';
-import { useOrder, ScheduleDetails } from '../context/OrderContext';
+import { Calendar as PersianCalendar } from '../components/ui/persian-calendar';
+import { useOrder, type ScheduleDetails } from '../context/OrderContext';
 
 const ServiceDetailsPage: React.FC = () => {
   const navigate = useNavigate();

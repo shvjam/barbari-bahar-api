@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader, AlertTriangle, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
-import { useOrder, PricingFactor } from '../context/OrderContext';
+import { useOrder, type PricingFactor } from '../context/OrderContext';
 
 interface ServiceCategory {
   id: number;
@@ -28,7 +28,7 @@ const MovingDetailsPage: React.FC = () => {
         ]);
         setFactors(factorsRes.data);
         setCategories(categoriesRes.data);
-      } catch (err) {
+      } catch {
         setError('خطا در دریافت اطلاعات خدمات.');
       } finally {
         setLoading(false);

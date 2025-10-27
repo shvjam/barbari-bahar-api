@@ -1,7 +1,6 @@
 // src/pages/CustomerOrderDetailPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Loader2, AlertTriangle, ArrowLeft, Package, User, MapPin } from 'lucide-react';
 import api from '../services/api';
 import { OrderStatus } from '../types';
@@ -29,7 +28,7 @@ const CustomerOrderDetailPage: React.FC = () => {
         // Assuming an endpoint like this exists for customer order details
         const response = await api.get<OrderDetail>(`/order/${id}`);
         setOrder(response.data);
-      } catch (err) {
+      } catch {
         setError("خطا در دریافت جزئیات سفارش.");
       } finally {
         setLoading(false);

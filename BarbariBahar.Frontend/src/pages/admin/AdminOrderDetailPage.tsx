@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 // ... other imports
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
+import type { LatLngExpression } from 'leaflet';
 import AssignDriverModal from '../../components/admin/AssignDriverModal';
-import UpdateStatusModal, { OrderStatus } from '../../components/admin/UpdateStatusModal';
+import UpdateStatusModal, { type OrderStatus } from '../../components/admin/UpdateStatusModal';
 
 // ... (interface definitions remain the same)
 

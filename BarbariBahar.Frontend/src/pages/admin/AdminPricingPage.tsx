@@ -37,7 +37,7 @@ const AdminPricingPage: React.FC = () => {
       } else if (catResponse.data.length === 0) {
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('خطا در دریافت دسته‌بندی‌ها.');
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const AdminPricingPage: React.FC = () => {
         params: { serviceCategoryId: activeCategory }
       });
       setFactors(response.data);
-    } catch (err) {
+    } catch {
       setError('خطا در دریافت عوامل قیمت‌گذاری.');
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ const AdminPricingPage: React.FC = () => {
     setFactorToEdit(null);
   };
 
-  const handleSaveFactor = async (factorData: any) => {
+  const handleSaveFactor = async (factorData: Partial<PricingFactor>) => {
     try {
       if (factorData.id) {
         await api.put(`/pricingfactors/${factorData.id}`, factorData);
@@ -85,7 +85,7 @@ const AdminPricingPage: React.FC = () => {
       }
       handleCloseModal();
       fetchFactors();
-    } catch (err) {
+    } catch {
       alert('خطا در ذخیره سازی.');
     }
   };
@@ -95,7 +95,7 @@ const AdminPricingPage: React.FC = () => {
       try {
         await api.delete(`/pricingfactors/${factorId}`);
         fetchFactors();
-      } catch (err) {
+      } catch {
         alert('خطا در حذف.');
       }
     }

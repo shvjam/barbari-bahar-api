@@ -43,7 +43,7 @@ const AdminOrdersPage: React.FC = () => {
       try {
         const response = await api.get<OrderSummary[]>('/admin/orders');
         setOrders(response.data);
-      } catch (err) {
+      } catch {
         setError('خطا در دریافت لیست سفارشات.');
       } finally {
         setLoading(false);

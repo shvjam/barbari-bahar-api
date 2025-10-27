@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
+import type { LatLngExpression } from 'leaflet';
 import { ArrowRight, User, MapPin, Package, Phone, Loader2, Info, CheckCircle, Navigation } from 'lucide-react';
 import * as signalR from "@microsoft/signalr";
 import api from '../../services/api';
@@ -49,7 +49,7 @@ const DriverOrderDetailsPage: React.FC = () => {
       try {
         const response = await api.get<OrderDetail>(`/driver/orders/${id}`);
         setOrder(response.data);
-      } catch (err) {
+      } catch {
         setError("خطا در دریافت جزئیات سفارش.");
       } finally {
         setLoading(false);
@@ -119,7 +119,7 @@ const DriverOrderDetailsPage: React.FC = () => {
       if (order) {
         setOrder({ ...order, status: newStatus });
       }
-    } catch (err) {
+    } catch {
       alert('خطا در به‌روزرسانی وضعیت.');
     } finally {
       setIsUpdating(false);

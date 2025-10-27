@@ -1,9 +1,9 @@
 // src/components/admin/ProductFormModal.tsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Package, DollarSign, FileText } from 'lucide-react';
-import { Product } from '../../context/OrderContext';
-import { Category } from '../../context/OrderContext'; // Assuming Category is exported
+import { X } from 'lucide-react';
+import type { Product } from '../../context/OrderContext';
+import type { Category } from '../../context/OrderContext'; // Assuming Category is exported
 
 interface ProductFormModalProps {
   isOpen: boolean;

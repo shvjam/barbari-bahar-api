@@ -1,7 +1,7 @@
 // src/components/shared/LiveLocationTracker.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LatLngExpression, LatLng } from 'leaflet';
+import { LatLng } from 'leaflet';
 import * as signalR from "@microsoft/signalr";
 import { Truck } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -36,7 +36,7 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({ orderId }) =>
       })
       .catch(err => console.error("Customer SignalR Connection Error: ", err));
 
-    connection.on("ReceiveLocationUpdate", (receivedDriverId, location) => {
+    connection.on("ReceiveLocationUpdate", (_receivedDriverId, location) => {
       console.log("Location update received:", location);
       setDriverLocation(new LatLng(location.latitude, location.longitude));
     });

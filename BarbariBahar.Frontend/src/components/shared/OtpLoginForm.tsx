@@ -3,32 +3,46 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Smartphone, Key, LogIn, Loader } from 'lucide-react';
 import api from '../../services/api';
+import type { User } from '../../context/OrderContext'; // Import the User type
 
 interface OtpLoginFormProps {
-  onLoginSuccess: (token: string, user: any) => void;
-  roleToCheck?: 'Admin' | 'Customer' | 'Driver';
-  title: string;
-  subtitle: string;
+  onSuccess: (token: string, user: User) => void;
+  mode: 'login' | 'register';
+  apiEndpoints: {
+    sendOtp: string;
+    verifyOtp: string;
+  };
 }
 
-const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onLoginSuccess, roleToCheck, title, subtitle }) => {
+const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onSuccess, mode, apiEndpoints }) => {
   const [step, setStep] = useState<'send-otp' | 'verify-otp'>('send-otp');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [requestId, setRequestId] = useState<number | null>(null);
+  const [requestId, setRequestId] = useState(''); // Request ID can be a string
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formState, setFormState] = useState({
+    firstName: '',
+    lastName: '',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post('/auth/login-send-otp', { phone });
-      setRequestId(response.data.requestId);
+      const payload = mode === 'register' ? { ...formState, phone } : { phone };
+      const response = await api.post(apiEndpoints.sendOtp, payload);
+      setRequestId(response.data.requestId); // Assuming API returns requestId
       setStep('verify-otp');
-    } catch (err: any) {
-      setError(err.response?.data?.message || "خطا در ارسال کد");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? (err as any).response?.data?.message : 'خطا در ارسال کد';
+      setError(errorMsg || "خطا در ارسال کد");
     } finally {
       setLoading(false);
     }
@@ -39,17 +53,12 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onLoginSuccess, roleToCheck
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post('/auth/login-verify-otp', { phone, code, requestId });
+      const response = await api.post(apiEndpoints.verifyOtp, { phone, code, requestId });
       const { token, user } = response.data;
-
-      if (roleToCheck && user.role !== roleToCheck) {
-        setError(`شما دسترسی '${roleToCheck}' ندارید.`);
-        return;
-      }
-
-      onLoginSuccess(token, user);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "کد وارد شده صحیح نیست.");
+      onSuccess(token, user);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? (err as any).response?.data?.message : 'کد وارد شده صحیح نیست.';
+      setError(errorMsg || "کد وارد شده صحیح نیست.");
     } finally {
       setLoading(false);
     }
@@ -57,29 +66,30 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onLoginSuccess, roleToCheck
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="w-full"
     >
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-[#221896]">{title}</h1>
-        <p className="text-gray-500 mt-2">{subtitle}</p>
-      </div>
-
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-lg mb-6 text-center">
+        <div className="bg-red-50 text-red-700 p-3 rounded-lg mb-4 text-center text-sm">
           {error}
         </div>
       )}
 
       {step === 'send-otp' ? (
-        <form onSubmit={handleSendOtp}>
-          <div className="relative mb-6">
-            <Smartphone className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-400" />
+        <form onSubmit={handleSendOtp} className="space-y-4">
+          {mode === 'register' && (
+            <>
+              <input name="firstName" placeholder="نام" onChange={handleInputChange} className="w-full p-3 border rounded-lg" required />
+              <input name="lastName" placeholder="نام خانوادگی" onChange={handleInputChange} className="w-full p-3 border rounded-lg" required />
+            </>
+          )}
+          <div className="relative">
+            <Smartphone className="absolute top-1/2 -translate-y-1/2 right-3 text-gray-400" />
             <input
               type="tel"
               placeholder="شماره موبایل"
-              className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#FF8B06]"
+              className="w-full pr-10 p-3 border rounded-lg"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
@@ -88,21 +98,20 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onLoginSuccess, roleToCheck
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#221896] text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-[#001AA8] transition-all disabled:bg-gray-400"
+            className="w-full bg-[#221896] text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2"
           >
-            {loading ? <Loader className="animate-spin" /> : <LogIn />}
-            <span>{loading ? 'درحال ارسال...' : 'ارسال کد تایید'}</span>
+            {loading ? <Loader className="animate-spin"/> : 'ارسال کد'}
           </button>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOtp}>
-          <p className="text-center mb-4 text-gray-600">کد تایید به شماره {phone} ارسال شد.</p>
-          <div className="relative mb-6">
-            <Key className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-400" />
+        <form onSubmit={handleVerifyOtp} className="space-y-4">
+          <p className="text-center text-sm text-gray-600">کد تایید به شماره {phone} ارسال شد.</p>
+          <div className="relative">
+            <Key className="absolute top-1/2 -translate-y-1/2 right-3 text-gray-400" />
             <input
               type="text"
               placeholder="کد تایید"
-              className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg text-lg text-center tracking-[0.5em] focus:ring-2 focus:ring-[#FF8B06]"
+              className="w-full pr-10 p-3 border rounded-lg text-center tracking-[0.3em]"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               required
@@ -111,17 +120,9 @@ const OtpLoginForm: React.FC<OtpLoginFormProps> = ({ onLoginSuccess, roleToCheck
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-all disabled:bg-gray-400"
+            className="w-full bg-green-600 text-white font-bold py-3 rounded-lg flex justify-center items-center"
           >
-            {loading ? <Loader className="animate-spin" /> : <LogIn />}
-            <span>{loading ? 'درحال بررسی...' : 'ورود و تایید کد'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setStep('send-otp'); setError(null); }}
-            className="mt-4 text-sm text-gray-500 hover:text-black w-full"
-          >
-            ویرایش شماره موبایل
+            {loading ? <Loader className="animate-spin"/> : 'تایید و ورود'}
           </button>
         </form>
       )}

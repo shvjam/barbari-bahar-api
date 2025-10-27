@@ -1,22 +1,42 @@
 // src/pages/QuotePage.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useOrder } from '../context/OrderContext';
 import api from '../services/api';
-import { Loader, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader, CheckCircle } from 'lucide-react';
 import AuthModal from '../components/shared/AuthModal'; // Import the modal
 
 const QuotePage: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, origin, destination, schedule, pricingFactorIds, isAuthenticated } = useOrder();
-  const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const { cart, origin, destination, schedule, pricingFactorIds, isAuthenticated, setTotalPrice: setGlobalTotalPrice, totalPrice } = useOrder();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // ... (useEffect for calculatePrice remains the same)
+  useEffect(() => {
+    const calculatePrice = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const requestBody = {
+          cart,
+          origin,
+          destination,
+          schedule,
+          pricingFactorIds,
+        };
+        const response = await api.post('/order/calculate-price', requestBody);
+        setGlobalTotalPrice(response.data.finalPrice);
+      } catch {
+        setError("خطا در محاسبه قیمت.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    calculatePrice();
+  }, [cart, origin, destination, schedule, pricingFactorIds, setGlobalTotalPrice]);
+
 
   const handleFinalSubmit = async () => {
     if (!isAuthenticated) {
@@ -25,12 +45,17 @@ const QuotePage: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    // ... (submission logic remains the same)
     try {
-        const requestBody = { /* ... */ };
+        const requestBody = {
+            cart,
+            origin,
+            destination,
+            schedule,
+            pricingFactorIds,
+        };
         await api.post('/order', requestBody);
         navigate('/order/confirmation');
-      } catch (err) {
+      } catch {
         setError("خطا در ثبت سفارش.");
       } finally {
         setIsSubmitting(false);
