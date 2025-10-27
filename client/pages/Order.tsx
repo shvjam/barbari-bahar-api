@@ -17,7 +17,7 @@ const HEAVY_ITEMS = [
   { id: "fridge", title: "یخچال ساید/دوقلو/قد > 175cm", price: 750_000 },
   { id: "sofa", title: "مبل/کاناپه تختخواب‌شو یا سه‌نفره", price: 350_000 },
   { id: "dining", title: "میز ناهارخوری ۶ نفره به بالا", price: 300_000 },
-  { id: "closet", title: "کمد/بوفه/کتابخانه قد > 185cm", price: 375_000 },
+  { id: "closet", title: "کمد/بوف��/کتابخانه قد > 185cm", price: 375_000 },
   { id: "treadmill", title: "تردمیل/دوچرخه/الپتیکال", price: 500_000 },
   { id: "glass", title: "شیشه ۴ میل به بالا و > ۱m", price: 280_000 },
   { id: "aquarium", title: "آکواریوم/صندلی ماساژ/…", price: 450_000 },
@@ -51,8 +51,8 @@ function Counter({ value, onChange, min = 0, max = 99 }: { value: number; onChan
 export default function Order() {
   const [sp] = useSearchParams();
   const [step, setStep] = useState(0);
-  const navigate = (await import("react-router-dom")).useNavigate();
-  const { toast } = (await import("@/hooks/use-toast")).useToast();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Contact / submission fields
   const [customerName, setCustomerName] = useState("");
@@ -409,7 +409,7 @@ export default function Order() {
               {step === 10 && (
                 <motion.div key="step-10" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
                   <div className="font-bold text-lg">پیش‌فاکتور و تأیید</div>
-                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص می‌شود.</p>
+                  <p className="text-sm text-foreground/70 mt-1">قیمت حدودی ب�� اساس انتخاب‌های شما محاسبه شده است. مبلغ نهایی پس از تایید ادمین مشخص م��‌شود.</p>
                   <div className="mt-4 space-y-2">
                     {estimate.breakdown.map((b) => (
                       <div key={b.code} className="flex items-center justify-between text-sm border rounded-lg p-2">
