@@ -11,12 +11,14 @@ const api = axios.create({
 // Add a request interceptor to include the token in headers
 api.interceptors.request.use(
   (config) => {
-    // Prioritize admin token, but fall back to customer token if it exists.
-    // This makes the interceptor role-agnostic.
+    // Prioritize tokens based on the current context of the app if possible,
+    // but for simplicity, we check for them in a specific order.
+    // Admin > Driver > Customer
     const adminToken = localStorage.getItem('admin_token');
+    const driverToken = localStorage.getItem('driver_token');
     const customerToken = localStorage.getItem('customer_token');
 
-    const token = adminToken || customerToken;
+    const token = adminToken || driverToken || customerToken;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MessageSquare, ArrowLeft, MapPin, ShoppingCart } from 'lucide-react';
 import { DatePicker } from 'noa-jalali-datepicker';
-import 'noa-jalali-datepicker/dist/style.css';
+// import 'noa-jalali-datepicker/dist/style.css';
 import { useOrder, ScheduleDetails } from '../context/OrderContext';
 
 const ServiceDetailsPage: React.FC = () => {

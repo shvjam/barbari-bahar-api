@@ -4,6 +4,7 @@ import { OrderProvider } from './context/OrderContext';
 // --- Layouts ---
 import MainLayout from './components/shared/MainLayout';
 import AdminLayout from './components/admin/AdminLayout';
+import DriverLayout from './components/driver/DriverLayout';
 
 // --- Customer Pages ---
 import ServiceSelectionPage from './pages/ServiceSelectionPage';
@@ -22,6 +23,11 @@ import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminPricingPage from './pages/admin/AdminPricingPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
+
+// --- Driver Pages ---
+import DriverLoginPage from './pages/driver/DriverLoginPage';
+import DriverOrdersPage from './pages/driver/DriverOrdersPage';
+import DriverOrderDetailsPage from './pages/driver/DriverOrderDetailsPage';
 
 function App() {
   return (
@@ -48,6 +54,13 @@ function App() {
             <Route path="pricing" element={<AdminPricingPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+          </Route>
+
+          {/* --- Driver Panel --- */}
+          <Route path="/driver/login" element={<DriverLoginPage />} />
+          <Route path="/driver" element={<DriverLayout />}>
+            <Route path="orders" element={<DriverOrdersPage />} />
+            <Route path="orders/:id" element={<DriverOrderDetailsPage />} />
           </Route>
         </Routes>
       </Router>
