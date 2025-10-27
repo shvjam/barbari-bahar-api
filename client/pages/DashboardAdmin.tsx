@@ -61,7 +61,7 @@ export default function DashboardAdmin() {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <Button variant={tab === "overview" ? undefined : "ghost"} onClick={() => setTab("overview")}>نمای کلی</Button>
+        <Button variant={tab === "overview" ? undefined : "ghost"} onClick={() => setTab("overview")}>��مای کلی</Button>
         <Button variant={tab === "orders" ? undefined : "ghost"} onClick={() => setTab("orders")}>سفارش‌ها</Button>
         <Button variant={tab === "drivers" ? undefined : "ghost"} onClick={() => setTab("drivers")}>رانندگان</Button>
         <Button variant={tab === "users" ? undefined : "ghost"} onClick={() => setTab("users")}>کاربران</Button>
@@ -76,30 +76,30 @@ export default function DashboardAdmin() {
 
       {tab === "overview" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardContent>
+          <AdminCard>
+            <AdminCardContent>
               <div className="text-sm text-foreground/70">سفارش‌های در انتظار</div>
               <div className="text-2xl font-bold mt-2">{stats.pendingOrders ?? 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
+            </AdminCardContent>
+          </AdminCard>
+          <AdminCard>
+            <AdminCardContent>
               <div className="text-sm text-foreground/70">درآمد امروز</div>
               <div className="text-2xl font-bold mt-2">{(stats.todayIncome ?? 0).toLocaleString()} تومان</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
+            </AdminCardContent>
+          </AdminCard>
+          <AdminCard>
+            <AdminCardContent>
               <div className="text-sm text-foreground/70">رانندگان فعال</div>
               <div className="text-2xl font-bold mt-2">{stats.activeDrivers ?? 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
+            </AdminCardContent>
+          </AdminCard>
+          <AdminCard>
+            <AdminCardContent>
               <div className="text-sm text-foreground/70">تسویه‌های در انتظار</div>
               <div className="text-2xl font-bold mt-2">{stats.pendingSettlements ?? 0}</div>
-            </CardContent>
-          </Card>
+            </AdminCardContent>
+          </AdminCard>
         </div>
       )}
 
