@@ -70,8 +70,8 @@ export default function DashboardCustomer() {
       </div>
 
       <div className="mt-6">
-        <Card>
-          <CardContent>
+        <UiCard>
+          <UiCardContent>
             <div className="font-bold">سابقه سفارش‌ها</div>
             <div className="mt-3 text-sm text-foreground/70">این بخش لیست سفارش‌های مشتری را نمایش می‌دهد.</div>
 
@@ -100,8 +100,8 @@ export default function DashboardCustomer() {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </UiCardContent>
+        </UiCard>
       </div>
 
       <LiveDriverLocation driverId={selDriver} open={locOpen} onOpenChange={setLocOpen} />
