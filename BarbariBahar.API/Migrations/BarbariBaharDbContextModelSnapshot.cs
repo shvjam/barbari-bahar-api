@@ -22,6 +22,34 @@ namespace BarbariBahar.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.DriverLocation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DriverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId")
+                        .IsUnique();
+
+                    b.ToTable("DriverLocations");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -448,11 +476,16 @@ namespace BarbariBahar.API.Migrations
                     b.Property<long>("TicketId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("TicketId1")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SenderId");
 
                     b.HasIndex("TicketId");
+
+                    b.HasIndex("TicketId1");
 
                     b.ToTable("TicketMessages");
                 });
@@ -492,6 +525,33 @@ namespace BarbariBahar.API.Migrations
                     b.HasDiscriminator<string>("Role");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Wallet", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18, 2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Admin", b =>
@@ -535,6 +595,17 @@ namespace BarbariBahar.API.Migrations
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("Driver");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.DriverLocation", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.Driver", "Driver")
+                        .WithOne("DriverLocation")
+                        .HasForeignKey("BarbariBahar.API.Data.Entities.DriverLocation", "DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
@@ -658,9 +729,24 @@ namespace BarbariBahar.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BarbariBahar.API.Data.Entities.Ticket", null)
+                        .WithMany("TicketMessages")
+                        .HasForeignKey("TicketId1");
+
                     b.Navigation("Sender");
 
                     b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Wallet", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.User", "User")
+                        .WithOne("Wallet")
+                        .HasForeignKey("BarbariBahar.API.Data.Entities.Wallet", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
@@ -682,9 +768,17 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("PricingFactors");
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Ticket", b =>
+                {
+                    b.Navigation("TicketMessages");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
                 {
                     b.Navigation("OtpRequests");
+
+                    b.Navigation("Wallet")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Customer", b =>
@@ -694,6 +788,9 @@ namespace BarbariBahar.API.Migrations
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Driver", b =>
                 {
+                    b.Navigation("DriverLocation")
+                        .IsRequired();
+
                     b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618

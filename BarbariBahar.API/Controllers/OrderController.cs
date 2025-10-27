@@ -1,3 +1,4 @@
+using BarbariBahar.API.Core.DTOs;
 using BarbariBahar.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -183,9 +184,11 @@ namespace BarbariBahar.API.Controllers
                 FinalPrice = order.FinalPrice,
                 CreatedAt = order.CreatedAt,
                 ScheduledAt = order.ScheduledAt,
-                DriverInfo = order.Driver != null ? new BarbariBahar.API.Core.DTOs.Order.DriverInfoDto
+                DriverInfo = order.Driver != null ? new DriverInfoDto
                 {
-                    FullName = order.Driver.FirstName + " " + order.Driver.LastName,
+                    FirstName = order.Driver.FirstName,
+                    LastName = order.Driver.LastName,
+                    Mobile = order.Driver.Mobile,
                     CarModel = order.Driver.CarModel,
                     CarPlateNumber = order.Driver.CarPlateNumber
                 } : null,

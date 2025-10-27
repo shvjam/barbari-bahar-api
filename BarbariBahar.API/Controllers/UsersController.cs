@@ -68,5 +68,28 @@ namespace BarbariBahar.API.Controllers
             // مرحله ۵: بازگرداندن DTO به عنوان پاسخ
             return Ok(profileDto);
         }
+
+        [HttpGet("me/wallet")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetWallet()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out long userId))
+            {
+                return Unauthorized(new { Message = "توکن نامعتبر یا فاقد ID کاربر است." });
+            }
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+
+            if (wallet == null)
+            {
+                // If wallet doesn't exist, create one with 0 balance
+                wallet = new Wallet { UserId = userId, Balance = 0 };
+                _context.Wallets.Add(wallet);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new Core.DTOs.WalletDto { Balance = wallet.Balance });
+        }
     }
 }

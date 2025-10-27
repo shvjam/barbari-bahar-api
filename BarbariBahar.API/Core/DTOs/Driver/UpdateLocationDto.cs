@@ -1,4 +1,3 @@
-// BarbariBahar.API/Core/DTOs/Driver/UpdateLocationDto.cs
 namespace BarbariBahar.API.Core.DTOs.Driver
 {
     public class UpdateLocationDto

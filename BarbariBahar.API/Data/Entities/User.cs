@@ -26,5 +26,6 @@ namespace BarbariBahar.API.Data.Entities
         // --- ارتباط با OTP ---
         // یک کاربر می‌تواند چندین درخواست OTP داشته باشد.
         public virtual ICollection<OtpRequest> OtpRequests { get; set; } = new List<OtpRequest>();
+        public virtual Wallet Wallet { get; set; }
     }
 }

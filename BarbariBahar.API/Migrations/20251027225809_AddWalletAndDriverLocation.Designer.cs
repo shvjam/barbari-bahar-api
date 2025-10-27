@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BarbariBahar.API.Migrations
 {
     [DbContext(typeof(BarbariBaharDbContext))]
-    [Migration("20251026075345_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251027225809_AddWalletAndDriverLocation")]
+    partial class AddWalletAndDriverLocation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,34 @@ namespace BarbariBahar.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.DriverLocation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DriverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId")
+                        .IsUnique();
+
+                    b.ToTable("DriverLocations");
+                });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
                 {
@@ -213,6 +241,38 @@ namespace BarbariBahar.API.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("PackagingProducts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            IsActive = true,
+                            IsAvailable = true,
+                            Name = "کارتن سه لایه",
+                            Price = 50000m,
+                            Stock = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoryId = 2,
+                            IsActive = true,
+                            IsAvailable = true,
+                            Name = "نایلون حباب دار (متری)",
+                            Price = 25000m,
+                            Stock = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CategoryId = 2,
+                            IsActive = true,
+                            IsAvailable = true,
+                            Name = "چسب پهن",
+                            Price = 30000m,
+                            Stock = 0
+                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackagingProductCategory", b =>
@@ -230,6 +290,18 @@ namespace BarbariBahar.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PackagingProductCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "کارتن‌ها"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "لوازم محافظتی"
+                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingServiceSubItem", b =>
@@ -255,9 +327,6 @@ namespace BarbariBahar.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -271,13 +340,81 @@ namespace BarbariBahar.API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<int>("ServiceCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ServiceCategoryId");
+
                     b.ToTable("PricingFactors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsActive = true,
+                            Name = "وانت",
+                            Price = 500000m,
+                            ServiceCategoryId = 1,
+                            Unit = "سرویس"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsActive = true,
+                            Name = "کارگر",
+                            Price = 250000m,
+                            ServiceCategoryId = 1,
+                            Unit = "نفر"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsActive = true,
+                            Name = "هزینه به ازای هر کیلومتر",
+                            Price = 10000m,
+                            ServiceCategoryId = 2,
+                            Unit = "کیلومتر"
+                        });
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.ServiceCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "جابجایی شهری"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "حمل بار بین شهری"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "بسته بندی"
+                        });
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Ticket", b =>
@@ -293,10 +430,6 @@ namespace BarbariBahar.API.Migrations
 
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("OrderId")
                         .HasColumnType("bigint");
@@ -325,6 +458,41 @@ namespace BarbariBahar.API.Migrations
                     b.ToTable("Tickets");
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.TicketMessage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("SenderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TicketId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("TicketId1")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("TicketId1");
+
+                    b.ToTable("TicketMessages");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
                 {
                     b.Property<long>("Id")
@@ -337,14 +505,12 @@ namespace BarbariBahar.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Mobile")
@@ -362,6 +528,33 @@ namespace BarbariBahar.API.Migrations
                     b.HasDiscriminator<string>("Role");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Wallet", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18, 2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Admin", b =>
@@ -397,10 +590,25 @@ namespace BarbariBahar.API.Migrations
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("WorkerCount")
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("Driver");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.DriverLocation", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.Driver", "Driver")
+                        .WithOne("DriverLocation")
+                        .HasForeignKey("BarbariBahar.API.Data.Entities.DriverLocation", "DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Order", b =>
@@ -482,6 +690,17 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("SubItem");
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.PricingFactor", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.ServiceCategory", "ServiceCategory")
+                        .WithMany("PricingFactors")
+                        .HasForeignKey("ServiceCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceCategory");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Ticket", b =>
                 {
                     b.HasOne("BarbariBahar.API.Data.Entities.Order", "Order")
@@ -495,6 +714,40 @@ namespace BarbariBahar.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.TicketMessage", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BarbariBahar.API.Data.Entities.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BarbariBahar.API.Data.Entities.Ticket", null)
+                        .WithMany("TicketMessages")
+                        .HasForeignKey("TicketId1");
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Wallet", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.User", "User")
+                        .WithOne("Wallet")
+                        .HasForeignKey("BarbariBahar.API.Data.Entities.Wallet", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -513,9 +766,22 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.ServiceCategory", b =>
+                {
+                    b.Navigation("PricingFactors");
+                });
+
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.Ticket", b =>
+                {
+                    b.Navigation("TicketMessages");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.User", b =>
                 {
                     b.Navigation("OtpRequests");
+
+                    b.Navigation("Wallet")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Customer", b =>
@@ -525,6 +791,9 @@ namespace BarbariBahar.API.Migrations
 
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.Driver", b =>
                 {
+                    b.Navigation("DriverLocation")
+                        .IsRequired();
+
                     b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618

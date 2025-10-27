@@ -2,6 +2,7 @@ using BarbariBahar.API.Data;
 using BarbariBahar.API.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -16,10 +17,12 @@ namespace BarbariBahar.API.Controllers
     public class DriverOrdersController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;
+        private readonly Microsoft.AspNetCore.SignalR.IHubContext<BarbariBahar.API.Hubs.NotificationHub> _notificationHubContext;
 
-        public DriverOrdersController(BarbariBaharDbContext context)
+        public DriverOrdersController(BarbariBaharDbContext context, Microsoft.AspNetCore.SignalR.IHubContext<BarbariBahar.API.Hubs.NotificationHub> notificationHubContext)
         {
             _context = context;
+            _notificationHubContext = notificationHubContext;
         }
 
         // GET: api/driver/orders
@@ -147,6 +150,13 @@ namespace BarbariBahar.API.Controllers
                 order.Status = newStatus;
                 order.LastUpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var connectionId = BarbariBahar.API.Hubs.NotificationHub.GetConnectionId(order.CustomerId.ToString());
+                if (connectionId != null)
+                {
+                    await _notificationHubContext.Clients.Client(connectionId).SendAsync("OrderStatusChanged", new { orderId = order.Id, newStatus = newStatus.ToString() });
+                }
+
                 return Ok(new { message = $"وضعیت سفارش با موفقیت به '{newStatus}' تغییر یافت." });
             }
             // Add other valid transitions here if needed in the future

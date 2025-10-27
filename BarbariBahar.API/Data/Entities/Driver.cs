@@ -16,5 +16,6 @@ using BarbariBahar.API.Data.Enums;
         public string CarPlateNumber { get; set; }
         public DriverStatus Status { get; set; }
         public virtual System.Collections.Generic.ICollection<Order> Orders { get; set; }
+        public virtual DriverLocation DriverLocation { get; set; }
     }
 }

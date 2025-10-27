@@ -1,6 +1,8 @@
+using BarbariBahar.API.Core.DTOs;
 using BarbariBahar.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -14,10 +16,12 @@ namespace BarbariBahar.API.Controllers.Admin
     public class AdminOrdersController : ControllerBase
     {
         private readonly BarbariBaharDbContext _context;
+        private readonly Microsoft.AspNetCore.SignalR.IHubContext<BarbariBahar.API.Hubs.NotificationHub> _notificationHubContext;
 
-        public AdminOrdersController(BarbariBaharDbContext context)
+        public AdminOrdersController(BarbariBaharDbContext context, Microsoft.AspNetCore.SignalR.IHubContext<BarbariBahar.API.Hubs.NotificationHub> notificationHubContext)
         {
             _context = context;
+            _notificationHubContext = notificationHubContext;
         }
 
         // GET: api/admin/orders
@@ -70,11 +74,12 @@ namespace BarbariBahar.API.Controllers.Admin
                     FullName = order.Customer.FirstName + " " + order.Customer.LastName,
                     PhoneNumber = order.Customer.Mobile
                 },
-                Driver = order.Driver != null ? new BarbariBahar.API.Core.DTOs.Admin.DriverInfoDto
+                Driver = order.Driver != null ? new DriverInfoDto
                 {
                     Id = order.Driver.Id,
-                    FullName = order.Driver.FirstName + " " + order.Driver.LastName,
-                    PhoneNumber = order.Driver.Mobile,
+                    FirstName = order.Driver.FirstName,
+                    LastName = order.Driver.LastName,
+                    Mobile = order.Driver.Mobile,
                     CarModel = order.Driver.CarModel,
                     CarPlateNumber = order.Driver.CarPlateNumber
                 } : null,
@@ -113,6 +118,13 @@ namespace BarbariBahar.API.Controllers.Admin
                 order.Status = newStatus;
                 order.LastUpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var connectionId = BarbariBahar.API.Hubs.NotificationHub.GetConnectionId(order.CustomerId.ToString());
+                if (connectionId != null)
+                {
+                    await _notificationHubContext.Clients.Client(connectionId).SendAsync("OrderStatusChanged", new { orderId = order.Id, newStatus = newStatus.ToString() });
+                }
+
                 return NoContent();
             }
             else
@@ -147,6 +159,18 @@ namespace BarbariBahar.API.Controllers.Admin
             order.LastUpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            var customerConnectionId = BarbariBahar.API.Hubs.NotificationHub.GetConnectionId(order.CustomerId.ToString());
+            if (customerConnectionId != null)
+            {
+                await _notificationHubContext.Clients.Client(customerConnectionId).SendAsync("DriverAssigned", new { orderId = order.Id, driverDetails = new { driver.FirstName, driver.LastName, driver.CarModel, driver.CarPlateNumber } });
+            }
+
+            var driverConnectionId = BarbariBahar.API.Hubs.NotificationHub.GetConnectionId(driver.Id.ToString());
+            if (driverConnectionId != null)
+            {
+                await _notificationHubContext.Clients.Client(driverConnectionId).SendAsync("NewOrderForDriver", new { orderId = order.Id });
+            }
 
             return Ok(new { message = "راننده با موفقیت به سفارش تخصیص داده شد." });
         }

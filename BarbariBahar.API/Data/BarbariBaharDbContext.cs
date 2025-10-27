@@ -24,6 +24,8 @@ namespace BarbariBahar.API.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketMessage> TicketMessages { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<DriverLocation> DriverLocations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -147,6 +149,20 @@ namespace BarbariBahar.API.Data
                 new PricingFactor { Id = 2, Name = "کارگر", Price = 250000, ServiceCategoryId = 1, Unit = "نفر" },
                 new PricingFactor { Id = 3, Name = "هزینه به ازای هر کیلومتر", Price = 10000, ServiceCategoryId = 2, Unit = "کیلومتر" }
             );
+
+            modelBuilder.Entity<Wallet>()
+                .Property(w => w.Balance)
+                .HasDefaultValue(0);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Wallet)
+                .WithOne(w => w.User)
+                .HasForeignKey<Wallet>(w => w.UserId);
+
+            modelBuilder.Entity<Driver>()
+                .HasOne(d => d.DriverLocation)
+                .WithOne(dl => dl.Driver)
+                .HasForeignKey<DriverLocation>(dl => dl.DriverId);
         }
     }
 }

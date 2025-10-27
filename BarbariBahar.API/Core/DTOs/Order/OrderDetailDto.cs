@@ -26,16 +26,6 @@ namespace BarbariBahar.API.Core.DTOs.Order
         public string Mobile { get; set; }
     }
 
-    public class DriverInfoDto
-    {
-        public long Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Mobile { get; set; }
-        public string CarModel { get; set; }
-        public string CarPlateNumber { get; set; }
-    }
-
     public class OrderAddressDetailDto
     {
         public string FullAddress { get; set; }

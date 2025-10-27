@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BarbariBahar.API.Data.Entities
 {
-    public enum TicketStatus { Open, InProgress, Closed }
+    public enum TicketStatus { Open, InProgress, Closed, WaitingForCustomer }
     public enum TicketPriority { Low, Medium, High }
 
     public class Ticket
@@ -34,5 +34,6 @@ namespace BarbariBahar.API.Data.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? LastUpdatedAt { get; set; }
+        public virtual System.Collections.Generic.ICollection<TicketMessage> TicketMessages { get; set; } = new System.Collections.Generic.List<TicketMessage>();
     }
 }
