@@ -22,6 +22,16 @@ if (isDev) {
     { id: "usr_2", name: "زهرا موسوی", email: "zahra@example.com", active: true },
   ];
 
+  const products = [
+    { id: "prd_1", title: "خدمت بسته‌بندی", sku: "PKG001", price: 200000, active: true, description: "خدمات حرفه‌ای بسته‌بندی اثاثیه" },
+    { id: "prd_2", title: "خاور ۶ متری", sku: "TRK001", price: 800000, active: true, description: "حمل و نقل با خاور ۶ متری" },
+  ];
+
+  const items = [
+    { id: "itm_1", productId: "prd_1", name: "پک بسته‌بندی فرش", quantity: 50, price: 50000 },
+    { id: "itm_2", productId: "prd_2", name: "خاور استاندارد", quantity: 10, price: 800000 },
+  ];
+
   // Simple helper to build Response
   function jsonResponse(data: any, code = 200) {
     return new Response(JSON.stringify(data), {
