@@ -30,7 +30,7 @@ const PACKING_SMALLS = [
   { id: "clothes", title: "لباس، کیف و کفش" },
   { id: "kitchen_small", title: "ظروف و لو��زم برقی کوچک آشپزخانه" },
   { id: "supplies", title: "مواد غذایی، شوینده و بهداشتی" },
-  { id: "books", title: "کتاب" },
+  { id: "books", title: "کتا��" },
   { id: "other", title: "سایر" },
 ];
 
@@ -138,6 +138,72 @@ export default function Order() {
 
   const next = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
+
+  async function applyCoupon() {
+    if (!coupon) return toast({ title: "کد وارد نشده" });
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(coupon)}`);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt}`);
+      }
+      const data = await res.json();
+      if (data && data.amountOff) {
+        setCouponApplied(data.amountOff);
+        toast({ title: "کد اعمال شد", description: `${data.amountOff.toLocaleString()} تومان تخفیف` });
+      } else {
+        toast({ title: "کد نامعتبر" });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا در اعمال کد", description: String(err) });
+    }
+  }
+
+  async function submitOrder() {
+    if (!originAddress || !destAddress) return toast({ title: "آدرس مبدا و مقصد را انتخاب کنید" });
+    if (!customerPhone) return toast({ title: "شماره تماس وارد نشده" });
+    setSubmitting(true);
+    try {
+      const payload = {
+        city,
+        service: selectedService,
+        packNeeded,
+        packType,
+        packSmalls,
+        packMen,
+        packWomen,
+        packHours,
+        packMaterials,
+        originFloor,
+        originElevator,
+        destFloor,
+        destElevator,
+        heavy,
+        walk,
+        workers,
+        originAddress,
+        destAddress,
+        customerName,
+        customerPhone,
+        notes,
+        coupon,
+      };
+      const res = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt}`);
+      }
+      const data = await res.json();
+      toast({ title: "سفارش ثبت شد", description: `شماره سفارش: ${data.id}` });
+      navigate("/dashboard/customer");
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا در ث��ت سفارش", description: String(err) });
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="container py-6">
