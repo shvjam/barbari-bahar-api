@@ -78,11 +78,29 @@ export default function AdminOrders() {
     }
   };
 
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const exportCSV = () => {
+    const rows = orders.map((o) => ({ id: o.id, customer: o.customerName || "", origin: o.origin || "", destination: o.destination || "", price: o.price || 0, status: o.status || "" }));
+    const csv = [Object.keys(rows[0] || {}).join(","), ...rows.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orders_page_${page}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold">سفارش‌ها</h3>
-        <div className="text-sm text-foreground/60">صفحه {page}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm text-foreground/60">صفحه {page}</div>
+          <Button size="sm" onClick={exportCSV}>صادر کردن CSV</Button>
+        </div>
       </div>
       <Card>
         <CardContent>
@@ -119,7 +137,7 @@ export default function AdminOrders() {
                       <td className="py-2">{o.customerName || "—"}</td>
                       <td className="py-2">{o.origin || "—"}</td>
                       <td className="py-2">{o.destination || "—"}</td>
-                      <td className="py-2">{o.price ? `${o.price.toLocaleString()} تومان` : "—"}</td>
+                      <td className="py-2">{o.price ? `${o.price.toLocaleString()} تومان` : "��"}</td>
                       <td className="py-2">{o.status || "—"}</td>
                       <td className="py-2 flex gap-2">
                         <Button size="sm" onClick={() => changeStatus(o.id, "confirmed")}>تایید</Button>
