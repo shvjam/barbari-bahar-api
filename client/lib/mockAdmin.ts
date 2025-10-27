@@ -118,6 +118,18 @@ if (isDev) {
             return jsonResponse(user);
           }
         }
+
+        // driver live location
+        const drvLocMatch = u.pathname.match(/^\/api\/admin\/driver-location\/(.+)$/);
+        if (drvLocMatch) {
+          const id = drvLocMatch[1];
+          const pos = driverPositions[id];
+          if (!pos) return jsonResponse({ error: "Driver not found" }, 404);
+          // simulate movement
+          pos.lat += (Math.random() - 0.5) * 0.0005;
+          pos.lon += (Math.random() - 0.5) * 0.0005;
+          return jsonResponse({ id, lat: pos.lat, lon: pos.lon });
+        }
       }
     } catch (e) {
       // ignore and fallthrough to real fetch
