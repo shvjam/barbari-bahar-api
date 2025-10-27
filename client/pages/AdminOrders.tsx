@@ -140,9 +140,8 @@ export default function AdminOrders() {
                       <td className="py-2">{o.status || "—"}</td>
                       <td className="py-2 flex gap-2">
                         <Button size="sm" onClick={() => changeStatus(o.id, "confirmed")}>تایید</Button>
-                        <Button size="sm" variant="destructive" onClick={() => changeStatus(o.id, "cancelled")}>
-                          کنسل
-                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => changeStatus(o.id, "cancelled")}>کنسل</Button>
+                        <Button size="sm" variant="outline" onClick={() => { setSelectedOrder(o.id); setDetailsOpen(true); }}>جزئیات</Button>
                       </td>
                     </tr>
                   ))
