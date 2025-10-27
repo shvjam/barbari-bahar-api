@@ -7,14 +7,23 @@ export interface OrderAddress {
   fullAddress: string;
 }
 
+// Define schedule details
+export interface ScheduleDetails {
+  date: string | null;
+  time: string;
+  description: string;
+}
+
 // Define the shape of the order state
 interface OrderState {
   serviceType: 'shipping' | 'packing' | 'labor' | null;
   origin: OrderAddress;
   destination: OrderAddress;
+  schedule: ScheduleDetails;
   setServiceType: (service: 'shipping' | 'packing' | 'labor') => void;
   setOriginAddress: (address: OrderAddress) => void;
   setDestinationAddress: (address: OrderAddress) => void;
+  setScheduleDetails: (details: ScheduleDetails) => void;
 }
 
 // Create the context with a default value
@@ -25,6 +34,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [serviceType, setServiceTypeState] = useState<'shipping' | 'packing' | 'labor' | null>(null);
   const [origin, setOrigin] = useState<OrderAddress>({ latlng: null, fullAddress: '' });
   const [destination, setDestination] = useState<OrderAddress>({ latlng: null, fullAddress: '' });
+  const [schedule, setSchedule] = useState<ScheduleDetails>({ date: null, time: '', description: '' });
 
   const setServiceType = (service: 'shipping' | 'packing' | 'labor') => {
     setServiceTypeState(service);
@@ -38,13 +48,19 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setDestination(address);
   };
 
+  const setScheduleDetails = (details: ScheduleDetails) => {
+    setSchedule(details);
+  };
+
   const value = {
     serviceType,
     origin,
     destination,
+    schedule,
     setServiceType,
     setOriginAddress,
     setDestinationAddress,
+    setScheduleDetails,
   };
 
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;
