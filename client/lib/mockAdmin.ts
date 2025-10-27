@@ -131,6 +131,39 @@ if (isDev) {
           return jsonResponse({ id, lat: pos.lat, lon: pos.lon });
         }
       }
+
+      // /api/orders - create order (public)
+      if (u.pathname === "/api/orders") {
+        if ((init?.method || "GET").toUpperCase() === "POST") {
+          const body = init?.body ? JSON.parse(String(init.body)) : {};
+          const id = `ord_${Date.now()}`;
+          const newOrder = {
+            id,
+            customerName: body.customerName || body.customer || "مشتری ناشناس",
+            origin: body.originAddress?.label || "",
+            destination: body.destAddress?.label || "",
+            status: "pending",
+            price: body.estimatedPrice || 0,
+            createdAt: new Date().toISOString(),
+            driverId: null,
+          };
+          orders.unshift(newOrder);
+          return jsonResponse(newOrder, 201);
+        }
+      }
+
+      // coupon validation
+      if (u.pathname.startsWith("/api/coupons/")) {
+        const code = u.pathname.split("/").pop();
+        // simple validation: code DISCOUNT100 gives 100k
+        if (code === "validate") {
+          const q = u.searchParams.get("code") || "";
+          if (q === "DISCOUNT100") {
+            return jsonResponse({ valid: true, amountOff: 100000 });
+          }
+          return jsonResponse({ valid: false }, 200);
+        }
+      }
     } catch (e) {
       // ignore and fallthrough to real fetch
       console.error("mockAdmin fetch error:", e);
