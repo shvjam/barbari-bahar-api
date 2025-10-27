@@ -161,7 +161,7 @@ export default function Order() {
             <AnimatePresence mode="popLayout">
               {step === 0 && (
                 <motion.div key="step-0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">شهر خود را انتخاب کنید</div>
+                  <div className="font-bold text-lg">شهر خو�� را انتخاب کنید</div>
                   <p className="text-sm text-foreground/70 mt-1">فعلاً تهران فعال است.</p>
                   <div className="grid gap-3 mt-4 max-w-xs">
                     <Label htmlFor="city">شهر</Label>
@@ -430,7 +430,7 @@ export default function Order() {
               {step < totalSteps ? (
                 <Button onClick={next} disabled={!canNext()}>ادامه</Button>
               ) : (
-                <Button>تایید و ادامه</Button>
+                <Button onClick={submitOrder} disabled={submitting}>{submitting ? "در حال ارسال..." : "تایید و ادامه"}</Button>
               )}
             </div>
           </CardContent>
