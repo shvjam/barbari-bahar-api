@@ -5,9 +5,11 @@ import React, { useState } from "react";
 import AdminOrders from "./AdminOrders";
 import AdminDrivers from "./AdminDrivers";
 import AdminUsers from "./AdminUsers";
+import AdminProducts from "./AdminProducts";
+import AdminItems from "./AdminItems";
 
 export default function DashboardAdmin() {
-  const [tab, setTab] = useState<"overview" | "orders" | "drivers" | "users">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "drivers" | "users" | "products" | "items">("overview");
   const [stats, setStats] = useState<{ pendingOrders?: number; todayIncome?: number; activeDrivers?: number; pendingSettlements?: number }>({});
 
   async function apiFetch(path: string, opts: RequestInit = {}) {
@@ -62,6 +64,8 @@ export default function DashboardAdmin() {
         <Button variant={tab === "orders" ? undefined : "ghost"} onClick={() => setTab("orders")}>سفارش‌ها</Button>
         <Button variant={tab === "drivers" ? undefined : "ghost"} onClick={() => setTab("drivers")}>رانندگان</Button>
         <Button variant={tab === "users" ? undefined : "ghost"} onClick={() => setTab("users")}>کاربران</Button>
+        <Button variant={tab === "products" ? undefined : "ghost"} onClick={() => setTab("products")}>محصولات</Button>
+        <Button variant={tab === "items" ? undefined : "ghost"} onClick={() => setTab("items")}>آیتم‌ها</Button>
         <div className="ms-auto">
           <Button asChild>
             <Link to="/admin/settings">تنظیمات</Link>
@@ -113,6 +117,18 @@ export default function DashboardAdmin() {
       {tab === "users" && (
         <div className="mt-4">
           <AdminUsers />
+        </div>
+      )}
+
+      {tab === "products" && (
+        <div className="mt-4">
+          <AdminProducts />
+        </div>
+      )}
+
+      {tab === "items" && (
+        <div className="mt-4">
+          <AdminItems />
         </div>
       )}
     </div>
