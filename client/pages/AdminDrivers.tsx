@@ -23,6 +23,7 @@ export default function AdminDrivers() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
