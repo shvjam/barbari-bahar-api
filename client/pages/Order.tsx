@@ -161,7 +161,7 @@ export default function Order() {
             <AnimatePresence mode="popLayout">
               {step === 0 && (
                 <motion.div key="step-0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-                  <div className="font-bold text-lg">شهر خو�� را انتخاب کنید</div>
+                  <div className="font-bold text-lg">شهر خود ر�� انتخاب کنید</div>
                   <p className="text-sm text-foreground/70 mt-1">فعلاً تهران فعال است.</p>
                   <div className="grid gap-3 mt-4 max-w-xs">
                     <Label htmlFor="city">شهر</Label>
@@ -389,7 +389,7 @@ export default function Order() {
                   <div className="flex flex-wrap gap-2 mt-3">
                     {[0, 20, 35, 40, 50, 65, 200].map((m) => (
                       <Button key={m} variant={walk === m ? "default" : "outline"} onClick={() => setWalk(m as any)}>
-                        {m === 0 ? "ندارم" : m}
+                        {m === 0 ? "ندا��م" : m}
                       </Button>
                     ))}
                   </div>
@@ -444,8 +444,8 @@ export default function Order() {
             </div>
             <div className="mt-3 text-xs text-foreground/60">کد تخفیف دارید؟</div>
             <div className="mt-2 flex gap-2">
-              <Input placeholder="کد تخفیف" />
-              <Button variant="outline">اعمال</Button>
+              <Input placeholder="کد تخفیف" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+              <Button variant="outline" onClick={applyCoupon}>اعمال</Button>
             </div>
             <div className="mt-4 text-xs text-foreground/60">
               درصورت مراجعه ��تخصص و عدم انجام کار بنا به نظر مشتری، ۲۵۰٬۰۰۰ تومان هزینه کارشناسی دریافت می‌شود.
