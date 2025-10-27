@@ -161,6 +161,8 @@ export default function AdminOrders() {
           </div>
         </CardContent>
       </Card>
+
+      <OrderDetails id={selectedOrder} open={detailsOpen} onOpenChange={(v) => { setDetailsOpen(v); if (!v) setSelectedOrder(null); }} />
     </div>
   );
 }
