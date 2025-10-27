@@ -37,48 +37,27 @@ if (isDev) {
 
   const users = [
     { id: "usr_1", name: "علی رضایی", email: "ali@example.com", active: true },
-    {
-      id: "usr_2",
-      name: "زهرا موسوی",
-      email: "zahra@example.com",
-      active: true,
-    },
+    { id: "usr_2", name: "زهرا موسوی", email: "zahra@example.com", active: true },
+  ];
+
+  const productCategories = [
+    { id: "pc_1", title: "خدمات" },
+    { id: "pc_2", title: "وسیله نقلیه" },
+  ];
+
+  const itemCategories = [
+    { id: "ic_1", title: "پک‌ها" },
+    { id: "ic_2", title: "ماشین‌ها" },
   ];
 
   const products = [
-    {
-      id: "prd_1",
-      title: "خدمت بسته‌بندی",
-      sku: "PKG001",
-      price: 200000,
-      active: true,
-      description: "خدمات حرفه‌ای بسته‌بندی اثاثیه",
-    },
-    {
-      id: "prd_2",
-      title: "خاور ۶ متری",
-      sku: "TRK001",
-      price: 800000,
-      active: true,
-      description: "حمل و نقل با خاور ۶ متری",
-    },
+    { id: "prd_1", title: "خدمت بسته‌بندی", sku: "PKG001", price: 200000, active: true, description: "خدمات حرفه‌ای بسته‌بندی اثاثیه", categoryId: "pc_1", image: null },
+    { id: "prd_2", title: "خاور ۶ متری", sku: "TRK001", price: 800000, active: true, description: "حمل و نقل با خاور ۶ متری", categoryId: "pc_2", image: null },
   ];
 
   const items = [
-    {
-      id: "itm_1",
-      productId: "prd_1",
-      name: "پک بسته‌بندی فرش",
-      quantity: 50,
-      price: 50000,
-    },
-    {
-      id: "itm_2",
-      productId: "prd_2",
-      name: "خاور استاندارد",
-      quantity: 10,
-      price: 800000,
-    },
+    { id: "itm_1", productId: "prd_1", name: "پک بسته‌بندی فرش", amount: 50, unit: "عدد", price: 50000, categoryId: "ic_1" },
+    { id: "itm_2", productId: "prd_2", name: "خاور استاندارد", amount: 1, unit: "دست", price: 800000, categoryId: "ic_2" },
   ];
 
   // Simple helper to build Response
