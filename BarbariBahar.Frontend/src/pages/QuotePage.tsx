@@ -34,7 +34,6 @@ const QuotePage: React.FC = () => {
           fullAddress: destination.fullAddress,
         },
         packagingProducts: cart.map(item => ({ productId: item.id, quantity: item.quantity })),
-        // Assuming no other pricing factors for now. This can be extended.
         pricingFactorIds: [],
       };
 
@@ -66,9 +65,7 @@ const QuotePage: React.FC = () => {
 
     try {
       await api.post('/order', requestBody);
-      // On success, navigate to a confirmation page (not built yet)
-      alert("سفارش شما با موفقیت ثبت شد!");
-      // navigate('/order/confirmation');
+      navigate('/order/confirmation');
     } catch (err) {
       setError("خطا در ثبت سفارش. لطفاً مجدداً تلاش کنید.");
     } finally {
@@ -88,7 +85,6 @@ const QuotePage: React.FC = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 rounded-2xl shadow-lg border">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">خلاصه سفارش</h2>
 
-          {/* Cart Items */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center"><ShoppingBag className="ml-2 text-[#FF8B06]" />محصولات</h3>
             <ul className="space-y-3">
@@ -101,14 +97,12 @@ const QuotePage: React.FC = () => {
             </ul>
           </div>
 
-          {/* Addresses */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center"><MapPin className="ml-2 text-[#FF8B06]" />آدرس‌ها</h3>
             <p><strong>مبدأ:</strong> {origin.fullAddress}</p>
             <p><strong>مقصد:</strong> {destination.fullAddress}</p>
           </div>
 
-          {/* Schedule */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center"><Calendar className="ml-2 text-[#FF8B06]" />زمان‌بندی</h3>
             <p><strong>تاریخ:</strong> {schedule.date}</p>
