@@ -184,6 +184,72 @@ if (isDev) {
           }
         }
 
+        // product categories
+        if (u.pathname === "/api/admin/product-categories") {
+          if ((init?.method || "GET").toUpperCase() === "POST") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            if (!body.title) return jsonResponse({ error: "title required" }, 400);
+            const newCat = { id: `pc_${Date.now()}`, title: body.title };
+            productCategories.unshift(newCat);
+            return jsonResponse(newCat, 201);
+          }
+          return jsonResponse({ categories: productCategories });
+        }
+
+        const prodCatMatch = u.pathname.match(/^\/api\/admin\/product-categories\/(.+)$/);
+        if (prodCatMatch) {
+          const id = prodCatMatch[1];
+          if ((init?.method || "GET").toUpperCase() === "PATCH") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            const cat = productCategories.find((c) => c.id === id);
+            if (!cat) return jsonResponse({ error: "Category not found" }, 404);
+            if (body.title !== undefined) cat.title = body.title;
+            return jsonResponse(cat);
+          }
+          if ((init?.method || "GET").toUpperCase() === "DELETE") {
+            const idx = productCategories.findIndex((c) => c.id === id);
+            if (idx === -1) return jsonResponse({ error: "Category not found" }, 404);
+            const removed = productCategories.splice(idx, 1)[0];
+            return jsonResponse({ success: true, removed });
+          }
+          const cat = productCategories.find((c) => c.id === id);
+          if (!cat) return jsonResponse({ error: "Category not found" }, 404);
+          return jsonResponse(cat);
+        }
+
+        // item categories
+        if (u.pathname === "/api/admin/item-categories") {
+          if ((init?.method || "GET").toUpperCase() === "POST") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            if (!body.title) return jsonResponse({ error: "title required" }, 400);
+            const newCat = { id: `ic_${Date.now()}`, title: body.title };
+            itemCategories.unshift(newCat);
+            return jsonResponse(newCat, 201);
+          }
+          return jsonResponse({ categories: itemCategories });
+        }
+
+        const itemCatMatch = u.pathname.match(/^\/api\/admin\/item-categories\/(.+)$/);
+        if (itemCatMatch) {
+          const id = itemCatMatch[1];
+          if ((init?.method || "GET").toUpperCase() === "PATCH") {
+            const body = init?.body ? JSON.parse(String(init.body)) : {};
+            const cat = itemCategories.find((c) => c.id === id);
+            if (!cat) return jsonResponse({ error: "Category not found" }, 404);
+            if (body.title !== undefined) cat.title = body.title;
+            return jsonResponse(cat);
+          }
+          if ((init?.method || "GET").toUpperCase() === "DELETE") {
+            const idx = itemCategories.findIndex((c) => c.id === id);
+            if (idx === -1) return jsonResponse({ error: "Category not found" }, 404);
+            const removed = itemCategories.splice(idx, 1)[0];
+            return jsonResponse({ success: true, removed });
+          }
+          const cat = itemCategories.find((c) => c.id === id);
+          if (!cat) return jsonResponse({ error: "Category not found" }, 404);
+          return jsonResponse(cat);
+        }
+
         // products CRUD
         if (u.pathname === "/api/admin/products") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
@@ -197,6 +263,8 @@ if (isDev) {
               price: Number(body.price) || 0,
               active: body.active !== undefined ? Boolean(body.active) : true,
               description: body.description || "",
+              categoryId: body.categoryId || null,
+              image: body.image || null,
             };
             products.unshift(newProd);
             return jsonResponse(newProd, 201);
@@ -217,6 +285,8 @@ if (isDev) {
             if (body.active !== undefined) prod.active = Boolean(body.active);
             if (body.description !== undefined)
               prod.description = body.description;
+            if (body.categoryId !== undefined) prod.categoryId = body.categoryId;
+            if (body.image !== undefined) prod.image = body.image;
             return jsonResponse(prod);
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
@@ -243,6 +313,9 @@ if (isDev) {
               name: body.name,
               quantity: Number(body.quantity) || 0,
               price: Number(body.price) || 0,
+              unit: body.unit || "عدد",
+              amount: Number(body.amount) || Number(body.quantity) || 0,
+              categoryId: body.categoryId || null,
             };
             items.unshift(newItem);
             return jsonResponse(newItem, 201);
@@ -262,6 +335,9 @@ if (isDev) {
             if (body.quantity !== undefined)
               it.quantity = Number(body.quantity);
             if (body.price !== undefined) it.price = Number(body.price);
+            if (body.unit !== undefined) it.unit = body.unit;
+            if (body.amount !== undefined) it.amount = Number(body.amount);
+            if (body.categoryId !== undefined) it.categoryId = body.categoryId;
             return jsonResponse(it);
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
