@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import React, { useEffect, useState } from "react";
 import {
   Card as UiCard,
   CardContent as UiCardContent,
@@ -70,7 +69,7 @@ export default function DashboardCustomer() {
         <UiCard>
           <UiCardContent>
             <div className="text-sm text-foreground/70">
-              سفارش‌های تکمیل‌شده
+              سفارش‌های تکم��ل‌شده
             </div>
             <div className="text-2xl font-bold mt-2">0</div>
           </UiCardContent>
