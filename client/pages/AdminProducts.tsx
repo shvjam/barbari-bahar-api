@@ -19,7 +19,9 @@ type Category = { id: string; title: string };
 
 function apiFetch(path: string, opts: RequestInit = {}) {
   const token = localStorage.getItem("authToken");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return fetch(path, { ...opts, headers });
 }
@@ -42,16 +44,28 @@ export default function AdminProducts() {
   const load = async () => {
     setLoading(true);
     try {
-      const [resP, resC] = await Promise.all([apiFetch(`/api/admin/products`), apiFetch(`/api/admin/product-categories`)]);
+      const [resP, resC] = await Promise.all([
+        apiFetch(`/api/admin/products`),
+        apiFetch(`/api/admin/product-categories`),
+      ]);
       if (!resP.ok) throw new Error(`Error ${resP.status}`);
       if (!resC.ok) throw new Error(`Error ${resC.status}`);
       const ct1 = resP.headers.get("content-type") || "";
       const ct2 = resC.headers.get("content-type") || "";
-      if (!ct1.includes("application/json") || !ct2.includes("application/json")) throw new Error("Expected JSON responses");
+      if (
+        !ct1.includes("application/json") ||
+        !ct2.includes("application/json")
+      )
+        throw new Error("Expected JSON responses");
       const dataP = await resP.json();
       const dataC = await resC.json();
       setProducts(dataP.products || dataP);
-      setCategories((dataC.categories || dataC).map((c: any) => ({ id: c.id, title: c.title })));
+      setCategories(
+        (dataC.categories || dataC).map((c: any) => ({
+          id: c.id,
+          title: c.title,
+        })),
+      );
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری محصولات", description: String(err) });
@@ -60,10 +74,16 @@ export default function AdminProducts() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleImageChange = (f?: File) => {
-    if (!f) { setImageFile(null); setImagePreview(null); return; }
+    if (!f) {
+      setImageFile(null);
+      setImagePreview(null);
+      return;
+    }
     setImageFile(f);
     const reader = new FileReader();
     reader.onload = () => setImagePreview(String(reader.result));
@@ -73,7 +93,10 @@ export default function AdminProducts() {
   const addCategory = async () => {
     if (!catTitle.trim()) return toast({ title: "عنوان دسته را وارد کنید" });
     try {
-      const res = await apiFetch(`/api/admin/product-categories`, { method: "POST", body: JSON.stringify({ title: catTitle }) });
+      const res = await apiFetch(`/api/admin/product-categories`, {
+        method: "POST",
+        body: JSON.stringify({ title: catTitle }),
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "دسته اضافه شد" });
       setCatTitle("");
@@ -85,7 +108,8 @@ export default function AdminProducts() {
   };
 
   const addProduct = async () => {
-    if (!title || title.trim() === "") return toast({ title: "عنوان را وارد کنید" });
+    if (!title || title.trim() === "")
+      return toast({ title: "عنوان را وارد کنید" });
     setSubmitting(true);
     try {
       let imageData: string | null = null;
@@ -99,38 +123,66 @@ export default function AdminProducts() {
       }
       const res = await apiFetch(`/api/admin/products`, {
         method: "POST",
-        body: JSON.stringify({ title, sku: sku || null, price: Number(price) || 0, description, categoryId, image: imageData }),
+        body: JSON.stringify({
+          title,
+          sku: sku || null,
+          price: Number(price) || 0,
+          description,
+          categoryId,
+          image: imageData,
+        }),
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0,200)}`);
+        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
       }
       toast({ title: "محصول افزوده شد" });
-      setTitle(""); setSku(""); setPrice(""); setDescription(""); setCategoryId(null); handleImageChange();
+      setTitle("");
+      setSku("");
+      setPrice("");
+      setDescription("");
+      setCategoryId(null);
+      handleImageChange();
       await load();
     } catch (err) {
       console.error(err);
       toast({ title: "خطا هنگام افزودن محصول", description: String(err) });
-    } finally { setSubmitting(false); }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const deleteProduct = async (id: string) => {
     if (!confirm("آیا مطمئن هستید؟")) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, { method: "DELETE" });
-      if (!res.ok) { const txt = await res.text().catch(()=>""); throw new Error(`Error ${res.status}: ${txt}`); }
+      const res = await apiFetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt}`);
+      }
       toast({ title: "محصول حذف شد" });
       await load();
-    } catch (err) { console.error(err); toast({ title: "خطا هنگام حذف محصول", description: String(err) }); }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا هنگام حذف محصول", description: String(err) });
+    }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
     try {
-      const res = await apiFetch(`/api/admin/products/${id}`, { method: "PATCH", body: JSON.stringify({ active }) });
+      const res = await apiFetch(`/api/admin/products/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ active }),
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "وضعیت محصول بروزرسانی شد" });
       await load();
-    } catch (err) { console.error(err); toast({ title: "خطا هنگام تغییر وضعیت", description: String(err) }); }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا هنگام تغییر وضعیت", description: String(err) });
+    }
   };
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -154,12 +206,25 @@ export default function AdminProducts() {
   const saveEdit = async () => {
     if (!editingId) return;
     try {
-      const res = await apiFetch(`/api/admin/products/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: editTitle, sku: editSku || null, price: Number(editPrice) || 0, description: editDesc, categoryId: editCategoryId, image: editImagePreview || null }) });
+      const res = await apiFetch(`/api/admin/products/${editingId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: editTitle,
+          sku: editSku || null,
+          price: Number(editPrice) || 0,
+          description: editDesc,
+          categoryId: editCategoryId,
+          image: editImagePreview || null,
+        }),
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       toast({ title: "محصول بروز شد" });
       setEditingId(null);
       await load();
-    } catch (err) { console.error(err); toast({ title: "خطا هنگام ذخیره محصول", description: String(err) }); }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا هنگام ذخیره محصول", description: String(err) });
+    }
   };
 
   return (
@@ -188,35 +253,97 @@ export default function AdminProducts() {
                   </thead>
                   <tbody>
                     {loading ? (
-                      <tr><td colSpan={7} className="py-6 text-center text-foreground/60">در حال بارگذاری...</td></tr>
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="py-6 text-center text-foreground/60"
+                        >
+                          در حال بارگذاری...
+                        </td>
+                      </tr>
                     ) : products.length === 0 ? (
-                      <tr><td colSpan={7} className="py-6 text-center text-foreground/60">محصولی یافت نشد</td></tr>
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="py-6 text-center text-foreground/60"
+                        >
+                          محصولی یافت نشد
+                        </td>
+                      </tr>
                     ) : (
                       products.map((p) => (
                         <tr key={p.id} className="border-t">
                           <td className="py-2">{p.id}</td>
                           <td className="py-2 w-24">
-                            {p.image ? (<img src={p.image} alt={p.title} className="h-12 w-12 object-cover rounded"/>) : (<div className="h-12 w-12 bg-muted rounded" />)}
+                            {p.image ? (
+                              <img
+                                src={p.image}
+                                alt={p.title}
+                                className="h-12 w-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="h-12 w-12 bg-muted rounded" />
+                            )}
                           </td>
                           <td className="py-2">
                             {editingId === p.id ? (
-                              <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
-                            ) : p.title}
+                              <Input
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                              />
+                            ) : (
+                              p.title
+                            )}
                           </td>
-                          <td className="py-2">{editingId === p.id ? (<Input value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />) : p.price ? `${p.price.toLocaleString()} تومان` : "—"}</td>
-                          <td className="py-2">{categories.find((c) => c.id === p.categoryId)?.title || "—"}</td>
+                          <td className="py-2">
+                            {editingId === p.id ? (
+                              <Input
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(e.target.value)}
+                              />
+                            ) : p.price ? (
+                              `${p.price.toLocaleString()} تومان`
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="py-2">
+                            {categories.find((c) => c.id === p.categoryId)
+                              ?.title || "—"}
+                          </td>
                           <td className="py-2">{p.active ? "بله" : "خیر"}</td>
                           <td className="py-2 flex gap-2">
                             {editingId === p.id ? (
                               <>
-                                <Button size="sm" onClick={saveEdit}>ذخیره</Button>
-                                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>لغو</Button>
+                                <Button size="sm" onClick={saveEdit}>
+                                  ذخیره
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setEditingId(null)}
+                                >
+                                  لغو
+                                </Button>
                               </>
                             ) : (
                               <>
-                                <Button size="sm" onClick={() => startEdit(p)}>ویرایش</Button>
-                                <Button size="sm" onClick={() => toggleActive(p.id, !p.active)}>{p.active ? "غیرفعال" : "فعال"}</Button>
-                                <Button size="sm" variant="destructive" onClick={() => deleteProduct(p.id)}>حذف</Button>
+                                <Button size="sm" onClick={() => startEdit(p)}>
+                                  ویرایش
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => toggleActive(p.id, !p.active)}
+                                >
+                                  {p.active ? "غیرفعال" : "فعال"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteProduct(p.id)}
+                                >
+                                  حذف
+                                </Button>
                               </>
                             )}
                           </td>
@@ -231,31 +358,75 @@ export default function AdminProducts() {
             <div>
               <div className="font-bold mb-2">افزودن محصول</div>
               <div className="grid gap-2">
-                <Input placeholder="عنوان" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <Input placeholder="SKU" value={sku} onChange={(e) => setSku(e.target.value)} />
-                <Input placeholder="قیمت" value={price} onChange={(e) => setPrice(e.target.value)} />
-                <Input placeholder="توضیحات" value={description} onChange={(e) => setDescription(e.target.value)} />
-                <select className="px-3 py-2 border rounded" value={categoryId || ""} onChange={(e) => setCategoryId(e.target.value || null)}>
+                <Input
+                  placeholder="عنوان"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Input
+                  placeholder="SKU"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                />
+                <Input
+                  placeholder="قیمت"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+                <Input
+                  placeholder="توضیحات"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <select
+                  className="px-3 py-2 border rounded"
+                  value={categoryId || ""}
+                  onChange={(e) => setCategoryId(e.target.value || null)}
+                >
                   <option value="">انتخاب دسته (اختیاری)</option>
-                  {categories.map((c) => (<option key={c.id} value={c.id}>{c.title}</option>))}
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
                 </select>
                 <div>
                   <label className="block text-sm mb-1">تصویر محصول</label>
-                  <input type="file" accept="image/*" onChange={(e) => handleImageChange(e.target.files?.[0])} />
-                  {imagePreview ? <img src={imagePreview} alt="preview" className="mt-2 h-20 w-full object-cover rounded" /> : null}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e.target.files?.[0])}
+                  />
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="preview"
+                      className="mt-2 h-20 w-full object-cover rounded"
+                    />
+                  ) : null}
                 </div>
                 <div className="pt-2">
-                  <Button onClick={addProduct} disabled={submitting}>{submitting ? "در حال ارسال..." : "افزودن"}</Button>
+                  <Button onClick={addProduct} disabled={submitting}>
+                    {submitting ? "در حال ارسال..." : "افزودن"}
+                  </Button>
                 </div>
 
                 <hr className="my-2" />
                 <div className="font-bold">دسته‌بندی محصولات</div>
                 <div className="flex gap-2">
-                  <Input placeholder="عنوان دسته" value={catTitle} onChange={(e) => setCatTitle(e.target.value)} />
+                  <Input
+                    placeholder="عنوان دسته"
+                    value={catTitle}
+                    onChange={(e) => setCatTitle(e.target.value)}
+                  />
                   <Button onClick={addCategory}>افزودن دسته</Button>
                 </div>
                 <div className="mt-2 text-sm text-foreground/60">
-                  {categories.map((c) => (<div key={c.id} className="py-1">{c.title}</div>))}
+                  {categories.map((c) => (
+                    <div key={c.id} className="py-1">
+                      {c.title}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

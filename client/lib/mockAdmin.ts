@@ -37,7 +37,12 @@ if (isDev) {
 
   const users = [
     { id: "usr_1", name: "علی رضایی", email: "ali@example.com", active: true },
-    { id: "usr_2", name: "زهرا موسوی", email: "zahra@example.com", active: true },
+    {
+      id: "usr_2",
+      name: "زهرا موسوی",
+      email: "zahra@example.com",
+      active: true,
+    },
   ];
 
   const productCategories = [
@@ -51,13 +56,47 @@ if (isDev) {
   ];
 
   const products = [
-    { id: "prd_1", title: "خدمت بسته‌بندی", sku: "PKG001", price: 200000, active: true, description: "خدمات حرفه‌ای بسته‌بندی اثاثیه", categoryId: "pc_1", image: null },
-    { id: "prd_2", title: "خاور ۶ متری", sku: "TRK001", price: 800000, active: true, description: "حمل و نقل با خاور ۶ متری", categoryId: "pc_2", image: null },
+    {
+      id: "prd_1",
+      title: "خدمت بسته‌بندی",
+      sku: "PKG001",
+      price: 200000,
+      active: true,
+      description: "خدمات حرفه‌ای بسته‌بندی اثاثیه",
+      categoryId: "pc_1",
+      image: null,
+    },
+    {
+      id: "prd_2",
+      title: "خاور ۶ متری",
+      sku: "TRK001",
+      price: 800000,
+      active: true,
+      description: "حمل و نقل با خاور ۶ متری",
+      categoryId: "pc_2",
+      image: null,
+    },
   ];
 
   const items = [
-    { id: "itm_1", productId: "prd_1", name: "پک بسته‌بندی فرش", amount: 50, unit: "عدد", price: 50000, categoryId: "ic_1" },
-    { id: "itm_2", productId: "prd_2", name: "خاور استاندارد", amount: 1, unit: "دست", price: 800000, categoryId: "ic_2" },
+    {
+      id: "itm_1",
+      productId: "prd_1",
+      name: "پک بسته‌بندی فرش",
+      amount: 50,
+      unit: "عدد",
+      price: 50000,
+      categoryId: "ic_1",
+    },
+    {
+      id: "itm_2",
+      productId: "prd_2",
+      name: "خاور استاندارد",
+      amount: 1,
+      unit: "دست",
+      price: 800000,
+      categoryId: "ic_2",
+    },
   ];
 
   // Simple helper to build Response
@@ -188,7 +227,8 @@ if (isDev) {
         if (u.pathname === "/api/admin/product-categories") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
-            if (!body.title) return jsonResponse({ error: "title required" }, 400);
+            if (!body.title)
+              return jsonResponse({ error: "title required" }, 400);
             const newCat = { id: `pc_${Date.now()}`, title: body.title };
             productCategories.unshift(newCat);
             return jsonResponse(newCat, 201);
@@ -196,7 +236,9 @@ if (isDev) {
           return jsonResponse({ categories: productCategories });
         }
 
-        const prodCatMatch = u.pathname.match(/^\/api\/admin\/product-categories\/(.+)$/);
+        const prodCatMatch = u.pathname.match(
+          /^\/api\/admin\/product-categories\/(.+)$/,
+        );
         if (prodCatMatch) {
           const id = prodCatMatch[1];
           if ((init?.method || "GET").toUpperCase() === "PATCH") {
@@ -208,7 +250,8 @@ if (isDev) {
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
             const idx = productCategories.findIndex((c) => c.id === id);
-            if (idx === -1) return jsonResponse({ error: "Category not found" }, 404);
+            if (idx === -1)
+              return jsonResponse({ error: "Category not found" }, 404);
             const removed = productCategories.splice(idx, 1)[0];
             return jsonResponse({ success: true, removed });
           }
@@ -221,7 +264,8 @@ if (isDev) {
         if (u.pathname === "/api/admin/item-categories") {
           if ((init?.method || "GET").toUpperCase() === "POST") {
             const body = init?.body ? JSON.parse(String(init.body)) : {};
-            if (!body.title) return jsonResponse({ error: "title required" }, 400);
+            if (!body.title)
+              return jsonResponse({ error: "title required" }, 400);
             const newCat = { id: `ic_${Date.now()}`, title: body.title };
             itemCategories.unshift(newCat);
             return jsonResponse(newCat, 201);
@@ -229,7 +273,9 @@ if (isDev) {
           return jsonResponse({ categories: itemCategories });
         }
 
-        const itemCatMatch = u.pathname.match(/^\/api\/admin\/item-categories\/(.+)$/);
+        const itemCatMatch = u.pathname.match(
+          /^\/api\/admin\/item-categories\/(.+)$/,
+        );
         if (itemCatMatch) {
           const id = itemCatMatch[1];
           if ((init?.method || "GET").toUpperCase() === "PATCH") {
@@ -241,7 +287,8 @@ if (isDev) {
           }
           if ((init?.method || "GET").toUpperCase() === "DELETE") {
             const idx = itemCategories.findIndex((c) => c.id === id);
-            if (idx === -1) return jsonResponse({ error: "Category not found" }, 404);
+            if (idx === -1)
+              return jsonResponse({ error: "Category not found" }, 404);
             const removed = itemCategories.splice(idx, 1)[0];
             return jsonResponse({ success: true, removed });
           }
@@ -285,7 +332,8 @@ if (isDev) {
             if (body.active !== undefined) prod.active = Boolean(body.active);
             if (body.description !== undefined)
               prod.description = body.description;
-            if (body.categoryId !== undefined) prod.categoryId = body.categoryId;
+            if (body.categoryId !== undefined)
+              prod.categoryId = body.categoryId;
             if (body.image !== undefined) prod.image = body.image;
             return jsonResponse(prod);
           }
