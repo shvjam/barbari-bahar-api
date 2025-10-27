@@ -23,7 +23,8 @@ const AdminProductsPage: React.FC = () => {
       ]);
       setProducts(prodResponse.data);
       setCategories(catResponse.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError('خطا در دریافت اطلاعات.');
     } finally {
       setLoading(false);
@@ -53,7 +54,8 @@ const AdminProductsPage: React.FC = () => {
       }
       handleCloseModal();
       fetchProductsAndCategories(); // Refresh data
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert('خطا در ذخیره سازی محصول.');
     }
   };
@@ -63,7 +65,8 @@ const AdminProductsPage: React.FC = () => {
       try {
         await api.delete(`/products/${productId}`);
         fetchProductsAndCategories(); // Refresh data
-      } catch {
+      } catch (err) {
+        console.error(err);
         alert('خطا در حذف محصول.');
       }
     }

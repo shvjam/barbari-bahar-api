@@ -49,7 +49,8 @@ const DriverOrderDetailsPage: React.FC = () => {
       try {
         const response = await api.get<OrderDetail>(`/driver/orders/${id}`);
         setOrder(response.data);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("خطا در دریافت جزئیات سفارش.");
       } finally {
         setLoading(false);
@@ -119,7 +120,8 @@ const DriverOrderDetailsPage: React.FC = () => {
       if (order) {
         setOrder({ ...order, status: newStatus });
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert('خطا در به‌روزرسانی وضعیت.');
     } finally {
       setIsUpdating(false);

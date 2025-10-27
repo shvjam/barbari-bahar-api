@@ -28,7 +28,8 @@ const QuotePage: React.FC = () => {
         };
         const response = await api.post('/order/calculate-price', requestBody);
         setGlobalTotalPrice(response.data.finalPrice);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("خطا در محاسبه قیمت.");
       } finally {
         setLoading(false);
@@ -55,7 +56,8 @@ const QuotePage: React.FC = () => {
         };
         await api.post('/order', requestBody);
         navigate('/order/confirmation');
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("خطا در ثبت سفارش.");
       } finally {
         setIsSubmitting(false);

@@ -28,7 +28,8 @@ const MovingDetailsPage: React.FC = () => {
         ]);
         setFactors(factorsRes.data);
         setCategories(categoriesRes.data);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError('خطا در دریافت اطلاعات خدمات.');
       } finally {
         setLoading(false);

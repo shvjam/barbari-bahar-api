@@ -29,7 +29,8 @@ const DriverOrdersPage: React.FC = () => {
         const params = filter === 'All' ? {} : { status: filter };
         const response = await api.get<DriverOrder[]>('/driver/orders', { params });
         setOrders(response.data);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("خطا در دریافت سفارش‌ها. لطفاً دوباره تلاش کنید.");
       } finally {
         setLoading(false);

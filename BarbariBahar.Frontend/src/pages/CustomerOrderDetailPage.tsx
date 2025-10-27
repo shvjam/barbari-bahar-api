@@ -28,7 +28,8 @@ const CustomerOrderDetailPage: React.FC = () => {
         // Assuming an endpoint like this exists for customer order details
         const response = await api.get<OrderDetail>(`/order/${id}`);
         setOrder(response.data);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("خطا در دریافت جزئیات سفارش.");
       } finally {
         setLoading(false);
