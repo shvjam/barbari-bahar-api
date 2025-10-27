@@ -19,6 +19,7 @@ import AdminUsers from "./pages/AdminUsers";
 import { Layout } from "@/components/layout/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProducts from "./pages/AdminProducts";
+import AdminServiceCategories from "./pages/AdminServiceCategories";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/service-categories"
+              element={
+                <ProtectedRoute>
+                  <AdminServiceCategories />
                 </ProtectedRoute>
               }
             />

@@ -10,10 +10,17 @@ import AdminDrivers from "./AdminDrivers";
 import AdminUsers from "./AdminUsers";
 import AdminProducts from "./AdminProducts";
 import AdminItems from "./AdminItems";
+import AdminServiceCategories from "./AdminServiceCategories";
 
 export default function DashboardAdmin() {
   const [tab, setTab] = useState<
-    "overview" | "orders" | "drivers" | "users" | "products" | "items"
+    | "overview"
+    | "orders"
+    | "drivers"
+    | "users"
+    | "products"
+    | "items"
+    | "service-categories"
   >("overview");
   const [stats] = useState({
     pendingOrders: 0,
@@ -68,7 +75,13 @@ export default function DashboardAdmin() {
           variant={tab === "items" ? undefined : "ghost"}
           onClick={() => setTab("items")}
         >
-          آیتم‌ها
+          عوامل قیمت‌گذاری
+        </Button>
+        <Button
+          variant={tab === "service-categories" ? undefined : "ghost"}
+          onClick={() => setTab("service-categories")}
+        >
+          دسته‌بندی خدمات
         </Button>
         <div className="ms-auto">
           <Button asChild>
@@ -145,6 +158,12 @@ export default function DashboardAdmin() {
       {tab === "items" && (
         <div className="mt-4">
           <AdminItems />
+        </div>
+      )}
+
+      {tab === "service-categories" && (
+        <div className="mt-4">
+          <AdminServiceCategories />
         </div>
       )}
     </div>

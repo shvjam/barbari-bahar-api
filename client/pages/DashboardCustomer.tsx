@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import LiveDriverLocation from "@/components/LiveDriverLocation";
 import { useToast } from "@/hooks/use-toast";
+import CustomerTickets from "@/components/CustomerTickets";
 
 const Card = UiCard as typeof UiCard;
 const CardContent = UiCardContent as typeof UiCardContent;
@@ -33,6 +34,7 @@ export default function DashboardCustomer() {
   const [selDriver, setSelDriver] = useState<string | null>(null);
   const [locOpen, setLocOpen] = useState(false);
   const { toast } = useToast();
+  const [tab, setTab] = useState<"orders" | "tickets">("orders");
 
   useEffect(() => {
     const load = async () => {
@@ -78,81 +80,96 @@ export default function DashboardCustomer() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <UiCard>
-          <UiCardContent>
-            <div className="text-sm text-foreground/70">سفارش‌های فعال</div>
-            <div className="text-2xl font-bold mt-2">{activeOrders.length}</div>
-          </UiCardContent>
-        </UiCard>
-        <UiCard>
-          <UiCardContent>
-            <div className="text-sm text-foreground/70">
-              سفارش‌های تکم��ل‌شده
-            </div>
-            <div className="text-2xl font-bold mt-2">0</div>
-          </UiCardContent>
-        </UiCard>
-        <UiCard>
-          <UiCardContent>
-            <div className="text-sm text-foreground/70">موجودی کیف پول</div>
-            <div className="text-2xl font-bold mt-2">0 تومان</div>
-          </UiCardContent>
-        </UiCard>
+      <div className="flex items-center gap-2 mb-4">
+        <Button
+          variant={tab === "orders" ? "default" : "ghost"}
+          onClick={() => setTab("orders")}
+        >
+          سفارش‌ها
+        </Button>
+        <Button
+          variant={tab === "tickets" ? "default" : "ghost"}
+          onClick={() => setTab("tickets")}
+        >
+          پشتیبانی
+        </Button>
       </div>
 
-      <div className="mt-6">
-        <UiCard>
-          <UiCardContent>
-            <div className="font-bold">سابقه سفارش‌ها</div>
-            <div className="mt-3 text-sm text-foreground/70">
-              این بخش لیست سفارش‌های مشتری را نمایش می‌دهد.
-            </div>
+      {tab === "orders" && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardContent>
+                <div className="text-sm text-foreground/70">سفارش‌های فعال</div>
+                <div className="text-2xl font-bold mt-2">
+                  {activeOrders.length}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                <div className="text-sm text-foreground/70">
+                  سفارش‌های تکمیل‌شده
+                </div>
+                <div className="text-2xl font-bold mt-2">
+                  {orders.length - activeOrders.length}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            <div className="mt-4">
-              {loading ? (
-                <div className="py-6 text-center text-foreground/60">
-                  در حال بارگذاری...
-                </div>
-              ) : activeOrders.length === 0 ? (
-                <div className="py-6 text-center text-foreground/60">
-                  سفارشی یافت نشد
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {activeOrders.map((o) => (
-                    <div
-                      key={o.id}
-                      className="border rounded p-3 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="font-bold">{o.id}</div>
-                        <div className="text-sm text-foreground/70">
-                          {o.customerName} — {o.status}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {o.driverId ? (
-                          <Button
-                            size="sm"
-                            onClick={() => openLocation(o.driverId)}
-                          >
-                            نما��ش موقعیت راننده
-                          </Button>
-                        ) : (
-                          <div className="text-sm text-foreground/60">
-                            راننده تخصیص نیافته
-                          </div>
-                        )}
-                      </div>
+          <div className="mt-6">
+            <Card>
+              <CardContent>
+                <div className="font-bold">سابقه سفارش‌ها</div>
+                <div className="mt-4">
+                  {loading ? (
+                    <div className="py-6 text-center text-foreground/60">
+                      در حال بارگذاری...
                     </div>
-                  ))}
+                  ) : activeOrders.length === 0 ? (
+                    <div className="py-6 text-center text-foreground/60">
+                      سفارشی یافت نشد
+                    </div>
+                  ) : (
+                    <div className="grid gap-3">
+                      {activeOrders.map((o) => (
+                        <div
+                          key={o.id}
+                          className="border rounded p-3 flex items-center justify-between"
+                        >
+                          <div>
+                            <div className="font-bold">سفارش #{o.id}</div>
+                            <div className="text-sm text-foreground/70">
+                              وضعیت: {o.status}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {o.driverId ? (
+                              <Button
+                                size="sm"
+                                onClick={() => openLocation(o.driverId)}
+                              >
+                                نمایش موقعیت راننده
+                              </Button>
+                            ) : (
+                              <div className="text-sm text-foreground/60">
+                                راننده تخصیص نیافته
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </UiCardContent>
-        </UiCard>
-      </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {tab === "tickets" && <CustomerTickets />}
 
       <LiveDriverLocation
         driverId={selDriver}

@@ -202,39 +202,28 @@ export default function Order() {
   }
 
   async function submitOrder() {
-    if (!originAddress || !destAddress)
-      return toast({ title: "آدرس مبدا و مقصد را انتخاب کنید" });
-    if (!customerPhone) return toast({ title: "شماره تماس وارد نشده" });
+    if (!originAddress || !destAddress || !priceDetails)
+      return toast({ title: "آدرس و قیمت نهایی مشخص نشده است" });
+
     setSubmitting(true);
     try {
-      const payload = {
-        city,
-        service: selectedService,
-        packNeeded,
-        packType,
-        packSmalls,
-        packMen,
-        packWomen,
-        packHours,
-        packMaterials,
-        originFloor,
-        originElevator,
-        destFloor,
-        destElevator,
-        heavy,
-        walk,
-        workers,
-        originAddress,
-        destAddress,
-        customerName,
-        customerPhone,
-        notes,
-        coupon,
-      };
-      const res = await fetch("/api/orders", {
+      const res = await fetch("/api/Order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          origin: {
+            latitude: originAddress.lat,
+            longitude: originAddress.lon,
+            fullAddress: originAddress.label,
+          },
+          destination: {
+            latitude: destAddress.lat,
+            longitude: destAddress.lon,
+            fullAddress: destAddress.label,
+          },
+          finalPrice: priceDetails.amount,
+          // You can add pricingFactorIds and packagingProducts if needed
+        }),
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");

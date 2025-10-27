@@ -12,6 +12,13 @@ type Order = {
   status?: string;
   finalPrice?: number;
   createdAt?: string;
+  driverId?: number;
+};
+
+type Driver = {
+  id: number;
+  firstName: string;
+  lastName: string;
 };
 
 function apiFetch(path: string, opts: RequestInit = {}) {
@@ -25,6 +32,7 @@ function apiFetch(path: string, opts: RequestInit = {}) {
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
@@ -33,20 +41,19 @@ export default function AdminOrders() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/api/admin/orders`);
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt.substring(0, 200)}`);
-      }
+      const [ordersRes, driversRes] = await Promise.all([
+        apiFetch(`/api/admin/orders`),
+        apiFetch(`/api/admin/Drivers`),
+      ]);
 
-      const ct = res.headers.get("content-type") || "";
-      if (ct.includes("application/json")) {
-        const data = await res.json();
-        setOrders(data || []);
-      } else {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Expected JSON but received: ${txt.substring(0, 200)}`);
-      }
+      if (!ordersRes.ok) throw new Error(`Orders fetch failed: ${ordersRes.status}`);
+      if (!driversRes.ok) throw new Error(`Drivers fetch failed: ${driversRes.status}`);
+
+      const ordersData = await ordersRes.json();
+      const driversData = await driversRes.json();
+
+      setOrders(ordersData || []);
+      setDrivers(driversData || []);
     } catch (err) {
       console.error(err);
       toast({ title: "خطا در بارگیری سفارش‌ها", description: String(err) });
@@ -72,6 +79,21 @@ export default function AdminOrders() {
     } catch (err) {
       console.error(err);
       toast({ title: "خطا هنگام تغییر وضعیت", description: String(err) });
+    }
+  };
+
+  const assignDriver = async (orderId: number, driverId: number) => {
+    try {
+      const res = await apiFetch(`/api/admin/orders/${orderId}/assign-driver`, {
+        method: "PUT",
+        body: JSON.stringify({ driverId }),
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      toast({ title: "راننده تخصیص داده شد" });
+      load();
+    } catch (err) {
+      console.error(err);
+      toast({ title: "خطا در تخصیص راننده", description: String(err) });
     }
   };
 
@@ -127,6 +149,7 @@ export default function AdminOrders() {
                   <th className="pb-2">مقصد</th>
                   <th className="pb-2">قیمت</th>
                   <th className="pb-2">وضعیت</th>
+                  <th className="pb-2">راننده</th>
                   <th className="pb-2">عملیات</th>
                 </tr>
               </thead>
@@ -164,6 +187,29 @@ export default function AdminOrders() {
                           : "—"}
                       </td>
                       <td className="py-2">{o.status || "—"}</td>
+                      <td className="py-2">
+                        {o.driverId ? (
+                          drivers.find((d) => d.id === o.driverId)?.firstName +
+                          " " +
+                          drivers.find((d) => d.id === o.driverId)?.lastName
+                        ) : (
+                          <select
+                            onChange={(e) =>
+                              assignDriver(o.id, Number(e.target.value))
+                            }
+                            defaultValue=""
+                          >
+                            <option value="" disabled>
+                              انتخاب راننده
+                            </option>
+                            {drivers.map((d) => (
+                              <option key={d.id} value={d.id}>
+                                {d.firstName} {d.lastName}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </td>
                       <td className="py-2 flex gap-2">
                         <Button
                           size="sm"

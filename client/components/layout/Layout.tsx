@@ -5,6 +5,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 import AuthDialog from "../AuthDialog";
 
+type User = {
+  firstName: string;
+  lastName: string;
+};
+
 const nav = [
   { to: "/", label: "صفحه اصلی" },
   { to: "/order", label: "ثبت سفارش" },
@@ -18,20 +23,42 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  const fetchUser = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+    try {
+      const res = await fetch("/api/v1/Users/Me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+        localStorage.removeItem("authToken");
+      }
+    } catch (error) {
+      setIsLoggedIn(false);
+      localStorage.removeItem("authToken");
+    }
+  };
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("authToken"));
+    fetchUser();
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     setIsLoggedIn(false);
+    setUser(null);
     navigate("/");
   };
 
   const authSuccess = () => {
-    setIsLoggedIn(true);
-    // You might want to navigate to a dashboard or refresh data here
+    fetchUser();
   };
 
   return (
@@ -64,6 +91,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="hidden md:flex items-center gap-2">
             {isLoggedIn ? (
               <>
+                <span className="text-sm">
+                  سلام، {user?.firstName || "کاربر"}!
+                </span>
                 <Button onClick={() => navigate("/dashboard/customer")}>
                   داشبورد
                 </Button>
