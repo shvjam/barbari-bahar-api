@@ -45,8 +45,8 @@ const AddressSelectionPage: React.FC = () => {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 font-['Vazirmatn'] flex flex-col">
-      <header className="bg-[#221896] text-white text-center p-6 shadow-md z-10">
+    <div dir="rtl" className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-100 font-['Vazirmatn'] flex flex-col">
+      <header className="bg-white text-primary text-center p-6 shadow-md z-10">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,13 +75,13 @@ const AddressSelectionPage: React.FC = () => {
           <div className="flex justify-around mb-6">
             <button
               onClick={() => setActiveSelection('origin')}
-              className={`w-full text-center py-3 text-lg font-semibold transition-colors duration-300 ${activeSelection === 'origin' ? 'border-b-4 border-[#FF8B06] text-[#221896]' : 'text-gray-500'}`}
+              className={`w-full text-center py-3 text-lg font-semibold transition-colors duration-300 ${activeSelection === 'origin' ? 'border-b-4 border-accent text-primary' : 'text-gray-500'}`}
             >
               <Pin className="inline-block ml-2"/> مبدأ
             </button>
             <button
               onClick={() => setActiveSelection('destination')}
-              className={`w-full text-center py-3 text-lg font-semibold transition-colors duration-300 ${activeSelection === 'destination' ? 'border-b-4 border-[#FF8B06] text-[#221896]' : 'text-gray-500'}`}
+              className={`w-full text-center py-3 text-lg font-semibold transition-colors duration-300 ${activeSelection === 'destination' ? 'border-b-4 border-accent text-primary' : 'text-gray-500'}`}
             >
               <MapPin className="inline-block ml-2"/> مقصد
             </button>
@@ -103,7 +103,7 @@ const AddressSelectionPage: React.FC = () => {
           <div className="mt-8">
             <button
               onClick={handleNextStep}
-              className="w-full bg-[#221896] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 hover:bg-[#001AA8] transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400"
+              className="w-full bg-primary text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 hover:bg-secondary transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400"
               disabled={!origin.latlng || !destination.latlng || !origin.fullAddress || !destination.fullAddress}
             >
               <span>مرحله بعد</span>
@@ -140,7 +140,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, setAddress, title })
         <textarea
           id="fullAddress"
           rows={4}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF8B06] focus:border-transparent transition"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition"
           placeholder="مثال: تهران، خیابان آزادی، پلاک ۱۲۳، واحد ۴"
           value={address.fullAddress}
           onChange={(e) => setAddress(prev => ({ ...prev, fullAddress: e.target.value }))}

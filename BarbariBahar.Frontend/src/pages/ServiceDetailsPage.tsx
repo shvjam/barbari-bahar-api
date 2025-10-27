@@ -36,8 +36,8 @@ const ServiceDetailsPage: React.FC = () => {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 font-['Vazirmatn']">
-      <header className="bg-[#221896] text-white text-center p-6 shadow-md">
+    <div dir="rtl" className="min-h-screen bg-gradient-to-b from-gray-50 to-blue-100 font-['Vazirmatn']">
+      <header className="bg-white text-primary text-center p-6 shadow-md">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -56,19 +56,19 @@ const ServiceDetailsPage: React.FC = () => {
           className="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-gray-200"
         >
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-            <ShoppingCart className="ml-3 text-[#FF8B06]" />
+            <ShoppingCart className="ml-3 text-accent" />
             خلاصه سفارش شما
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             <div className="flex items-start">
-              <MapPin size={20} className="text-[#001AA8] mt-1 ml-2" />
+              <MapPin size={20} className="text-secondary mt-1 ml-2" />
               <div>
                 <strong className="block">مبدأ:</strong>
                 <p>{origin.fullAddress || 'انتخاب نشده'}</p>
               </div>
             </div>
             <div className="flex items-start">
-              <MapPin size={20} className="text-[#001AA8] mt-1 ml-2" />
+              <MapPin size={20} className="text-secondary mt-1 ml-2" />
               <div>
                 <strong className="block">مقصد:</strong>
                 <p>{destination.fullAddress || 'انتخاب نشده'}</p>
@@ -88,7 +88,7 @@ const ServiceDetailsPage: React.FC = () => {
             {/* Date Picker */}
             <div className="flex flex-col items-center">
               <label className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <Calendar className="ml-2 text-[#FF8B06]" />
+                <Calendar className="ml-2 text-accent" />
                 تاریخ را انتخاب کنید
               </label>
               <PersianCalendar
@@ -103,26 +103,26 @@ const ServiceDetailsPage: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <label htmlFor="time" className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <Clock className="ml-2 text-[#FF8B06]" />
+                  <Clock className="ml-2 text-accent" />
                   ساعت را مشخص کنید
                 </label>
                 <input
                   id="time"
                   type="time"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF8B06] focus:border-transparent transition text-lg"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition text-lg"
                   value={schedule.time}
                   onChange={(e) => setSchedule(prev => ({ ...prev, time: e.target.value }))}
                 />
               </div>
               <div>
                 <label htmlFor="description" className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <MessageSquare className="ml-2 text-[#FF8B06]" />
+                  <MessageSquare className="ml-2 text-accent" />
                   توضیحات (اختیاری)
                 </label>
                 <textarea
                   id="description"
                   rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF8B06] focus:border-transparent transition"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition"
                   placeholder="جزئیاتی که به ما در ارائه سرویس بهتر کمک می‌کند را اینجا بنویسید."
                   value={schedule.description}
                   onChange={(e) => setSchedule(prev => ({ ...prev, description: e.target.value }))}
@@ -134,7 +134,7 @@ const ServiceDetailsPage: React.FC = () => {
           <div className="mt-10 text-center">
             <button
               onClick={handleNextStep}
-              className="bg-[#221896] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:bg-[#001AA8] transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 mx-auto"
+              className="bg-primary text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:bg-secondary transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 mx-auto"
               disabled={!schedule.date || !schedule.time}
             >
               <span>مشاهده قیمت و تأیید</span>

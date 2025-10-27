@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrder, type ServiceType } from '../../context/OrderContext';
+import { motion } from 'framer-motion';
 
 interface ServiceCardProps {
   title: string;
@@ -20,14 +21,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, icon, ser
   };
 
   return (
-    <div
+    <motion.div
       onClick={handleClick}
-      className="cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center text-center transform hover:scale-105 transition-transform duration-300"
+      whileHover={{ y: -10, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+      transition={{ duration: 0.3 }}
+      className="bg-white rounded-2xl shadow-lg p-8 max-w-sm text-center cursor-pointer"
     >
-      <div className="text-5xl text-primary mb-4">{icon}</div>
-      <h3 className="text-xl font-bold mb-2">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400">{description}</p>
-    </div>
+      <div className="mx-auto bg-primary rounded-full h-20 w-20 flex items-center justify-center mb-6">
+        {icon}
+      </div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+      <div className="mt-6 text-sm font-semibold text-accent">انتخاب سرویس</div>
+    </motion.div>
   );
 };
 
