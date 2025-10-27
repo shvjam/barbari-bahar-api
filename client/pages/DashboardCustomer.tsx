@@ -43,30 +43,30 @@ export default function DashboardCustomer() {
         <h2 className="text-2xl font-extrabold">داشبورد مشتری</h2>
         <div>
           <Button asChild>
-            <Link to="/order">��بت سفارش جدید</Link>
+            <Link to="/order">ثبت سفارش جدید</Link>
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardContent>
+        <UiCard>
+          <UiCardContent>
             <div className="text-sm text-foreground/70">سفارش‌های فعال</div>
             <div className="text-2xl font-bold mt-2">{activeOrders.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
+          </UiCardContent>
+        </UiCard>
+        <UiCard>
+          <UiCardContent>
             <div className="text-sm text-foreground/70">سفارش‌های تکمیل‌شده</div>
             <div className="text-2xl font-bold mt-2">0</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
+          </UiCardContent>
+        </UiCard>
+        <UiCard>
+          <UiCardContent>
             <div className="text-sm text-foreground/70">موجودی کیف پول</div>
             <div className="text-2xl font-bold mt-2">0 تومان</div>
-          </CardContent>
-        </Card>
+          </UiCardContent>
+        </UiCard>
       </div>
 
       <div className="mt-6">
