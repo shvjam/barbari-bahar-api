@@ -58,6 +58,8 @@ export default function AdminDrivers() {
   }, []);
 
   const addDriver = async () => {
+    if (!name || name.trim() === "") return toast({ title: "نام راننده را وارد کنید" });
+    setSubmitting(true);
     try {
       const res = await apiFetch(`/api/admin/drivers`, {
         method: "POST",
@@ -70,10 +72,12 @@ export default function AdminDrivers() {
       toast({ title: "راننده اضافه شد" });
       setName("");
       setPhone("");
-      load();
+      await load();
     } catch (err) {
       console.error(err);
       toast({ title: "خطا هنگام افزودن راننده", description: String(err) });
+    } finally {
+      setSubmitting(false);
     }
   };
 
