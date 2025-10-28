@@ -83,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 to={n.to}
                 className={({ isActive }) =>
                   `px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary ${
-                    isActive ? "text-primary" : "text-foreground/70"
+                    isActive ? "text-primary" : "text-gray-500"
                   }`
                 }
               >
@@ -129,7 +129,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         `px-3 py-2 rounded-md text-base transition-colors hover:text-primary ${
                           pathname === n.to || isActive
                             ? "text-primary"
-                            "text-foreground/80"
+                            : "text-gray-500"
                         }`
                       }
                     >
@@ -168,14 +168,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="container py-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="font-extrabold text-lg mb-2">باربری بهار</div>
-            <p className="text-sm text-foreground/70">
-              سامانه هوشمند سفارش آنلاین اسبابکشی و حمل بار. تجربهای سریع،
+            <p className="text-sm text-gray-500">
+              سامانه هوشمند سفارش آنلاین اسباب کشی و حمل بار. تجربه ای سریع،
               امن و شفاف.
             </p>
           </div>
           <div>
             <div className="font-bold mb-2">دسترسی سریع</div>
-            <ul className="space-y-2 text-sm text-foreground/80">
+            <ul className="space-y-2 text-sm text-gray-500">
               <li>
                 <Link to="/order" className="hover:text-primary">
                   ثبت سفارش
@@ -190,14 +190,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <div className="font-bold mb-2">ارتباط با ما</div>
-            <ul className="space-y-2 text-sm text-foreground/80">
+            <ul className="space-y-2 text-sm text-gray-500">
               <li>تلفن: 021-00000000</li>
               <li>تهران، ...</li>
             </ul>
           </div>
           <div>
-            <div className="font-bold mb-2">شبکههای اجتماعی</div>
-            <div className="flex gap-3 text-sm text-foreground/70">
+            <div className="font-bold mb-2">شبکه های اجتماعی</div>
+            <div className="flex gap-3 text-sm text-gray-500">
               <a href="#" className="hover:text-primary">اینستاگرام</a>
               <a href="#" className="hover:text-primary">تلگرام</a>
             </div>
