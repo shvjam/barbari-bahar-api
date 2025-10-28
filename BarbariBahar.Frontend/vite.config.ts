@@ -3,14 +3,10 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   server: {
-    host: "127.0.0.1",
-    port: 8080,
-    fs: {
-      allow: ["./client", "./shared", path.resolve(__dirname, "node_modules")],
-      deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**"],
-    },
+    host: "localhost",
+    port: 5173,
     proxy: {
       "/api": {
         target: "https://localhost:7259",
@@ -25,8 +21,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./client"),
-      "@shared": path.resolve(__dirname, "./shared"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+});
