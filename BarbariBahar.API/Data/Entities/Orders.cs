@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BarbariBahar.API.Data.Entities;
 
 namespace BarbariBahar.API.Data.Entities
 {
@@ -14,15 +13,16 @@ namespace BarbariBahar.API.Data.Entities
         [Required]
         public string TrackingCode { get; set; }
 
-        [Required]
-        public long CustomerId { get; set; }
+        // CustomerId is now nullable to support guest orders
+        public long? CustomerId { get; set; }
         [ForeignKey("CustomerId")]
         public virtual Customer Customer { get; set; }
 
         public long? DriverId { get; set; }
         [ForeignKey("DriverId")]
         public virtual Driver Driver { get; set; }
-      [Required]
+
+        [Required]
         public OrderStatus Status { get; set; }
 
         [Required]

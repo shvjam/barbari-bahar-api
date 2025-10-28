@@ -3,13 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BarbariBahar.API.Data.Entities
 {
-    public enum AddressType
-    {
-        Origin,
-        Destination,
-        Stop
-    }
-
     public class OrderAddress
     {
         [Key]
@@ -26,11 +19,16 @@ namespace BarbariBahar.API.Data.Entities
         [Required]
         public string FullAddress { get; set; }
 
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
+        [Required]
+        public double Latitude { get; set; } // Changed to non-nullable
 
-public int? Floor { get; set; }
-        
-        public bool HasElevator { get; set; }
+        [Required]
+        public double Longitude { get; set; } // Changed to non-nullable
+    }
+
+    public enum AddressType
+    {
+        Origin,
+        Destination
     }
 }

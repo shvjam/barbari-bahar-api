@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BarbariBahar.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateWithSeedData : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -121,7 +121,7 @@ namespace BarbariBahar.API.Migrations
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     TrackingCode = table.Column<string>(type: "TEXT", nullable: false),
-                    CustomerId = table.Column<long>(type: "INTEGER", nullable: false),
+                    CustomerId = table.Column<long>(type: "INTEGER", nullable: true),
                     DriverId = table.Column<long>(type: "INTEGER", nullable: true),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     FinalPrice = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
@@ -202,10 +202,8 @@ namespace BarbariBahar.API.Migrations
                     OrderId = table.Column<long>(type: "INTEGER", nullable: false),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
                     FullAddress = table.Column<string>(type: "TEXT", nullable: false),
-                    Latitude = table.Column<double>(type: "REAL", nullable: true),
-                    Longitude = table.Column<double>(type: "REAL", nullable: true),
-                    Floor = table.Column<int>(type: "INTEGER", nullable: true),
-                    HasElevator = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Latitude = table.Column<double>(type: "REAL", nullable: false),
+                    Longitude = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -250,7 +248,6 @@ namespace BarbariBahar.API.Migrations
                     OrderId = table.Column<long>(type: "INTEGER", nullable: true),
                     UserId = table.Column<long>(type: "INTEGER", nullable: false),
                     Subject = table.Column<string>(type: "TEXT", nullable: false),
-                    Message = table.Column<string>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     Priority = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -267,6 +264,34 @@ namespace BarbariBahar.API.Migrations
                     table.ForeignKey(
                         name: "FK_Tickets_Users_UserId",
                         column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TicketId = table.Column<long>(type: "INTEGER", nullable: false),
+                    SenderId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Message = table.Column<string>(type: "TEXT", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketMessages_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketMessages_Users_SenderId",
+                        column: x => x.SenderId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -352,6 +377,16 @@ namespace BarbariBahar.API.Migrations
                 column: "ServiceCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TicketMessages_SenderId",
+                table: "TicketMessages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketMessages_TicketId",
+                table: "TicketMessages",
+                column: "TicketId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_OrderId",
                 table: "Tickets",
                 column: "OrderId");
@@ -381,7 +416,7 @@ namespace BarbariBahar.API.Migrations
                 name: "PackingServiceSubItem");
 
             migrationBuilder.DropTable(
-                name: "Tickets");
+                name: "TicketMessages");
 
             migrationBuilder.DropTable(
                 name: "PackagingProductCategories");
@@ -390,10 +425,13 @@ namespace BarbariBahar.API.Migrations
                 name: "PricingFactors");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Tickets");
 
             migrationBuilder.DropTable(
                 name: "ServiceCategories");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Users");

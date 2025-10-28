@@ -146,7 +146,7 @@ export default function Index() {
               <p className="text-foreground/70 text-sm mt-1">بدون نیاز به ورود، مراحل را طی کنید و پیش‌فاکتور دریافت کنید.</p>
             </div>
             <Button asChild className="ms-auto">
-              <Link to="/order?service=moving-truck">شروع</Link>
+              <Link to="/quote">شروع استعلام قیمت</Link>
             </Button>
           </div>
         </div>
