@@ -4,10 +4,10 @@ namespace BarbariBahar.API.Core.DTOs.Order
 {
     public class CalculatePriceRequestDto
     {
-        public AddressDto Origin { get; set; }
-        public AddressDto Destination { get; set; }
-        public List<int> PricingFactorIds { get; set; }
-        public List<OrderItemDto> PackagingProducts { get; set; }
+        public AddressDto Origin { get; set; } = null!;
+        public AddressDto Destination { get; set; } = null!;
+        public List<int> PricingFactorIds { get; set; } = new List<int>();
+        public List<OrderItemDto> PackagingProducts { get; set; } = new List<OrderItemDto>();
 
         // New fields to match the UI
         public int OriginFloor { get; set; }
@@ -16,6 +16,6 @@ namespace BarbariBahar.API.Core.DTOs.Order
         public bool DestElevator { get; set; }
         public int Workers { get; set; }
         public int WalkDistance { get; set; }
-        public List<HeavyItemDto> HeavyItems { get; set; }
+        public List<HeavyItemDto> HeavyItems { get; set; } = new List<HeavyItemDto>();
     }
 }

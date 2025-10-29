@@ -11,13 +11,13 @@ namespace BarbariBahar.API.Data.Entities
         [Required]
         public long OrderId { get; set; }
         [ForeignKey("OrderId")]
-        public virtual Order Order { get; set; }
+        public virtual Order Order { get; set; } = null!;
 
         [Required]
         public AddressType Type { get; set; }
 
         [Required]
-        public string FullAddress { get; set; }
+        public string FullAddress { get; set; } = string.Empty;
 
         [Required]
         public double Latitude { get; set; } // Changed to non-nullable

@@ -14,5 +14,6 @@ namespace BarbariBahar.API.Core.DTOs.Auth
 
         [Required]
         public int RequestId { get; set; } // <<-- تغییر نام
+        public long? GuestOrderId { get; set; }
     }
 }

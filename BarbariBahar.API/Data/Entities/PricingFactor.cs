@@ -21,7 +21,7 @@
         public int ServiceCategoryId { get; set; }
 
         // Navigation property to ServiceCategory
-        public virtual ServiceCategory ServiceCategory { get; set; }
+        public virtual ServiceCategory ServiceCategory { get; set; } = null!;
 
         // برای غیرفعال کردن یک آیتم بدون حذف آن
         public bool IsActive { get; set; } = true;

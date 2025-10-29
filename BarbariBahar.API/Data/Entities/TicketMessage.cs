@@ -12,15 +12,15 @@ namespace BarbariBahar.API.Data.Entities
         [Required]
         public long TicketId { get; set; }
         [ForeignKey("TicketId")]
-        public virtual Ticket Ticket { get; set; }
+        public virtual Ticket Ticket { get; set; } = null!;
 
         [Required]
         public long SenderId { get; set; }
         [ForeignKey("SenderId")]
-        public virtual User Sender { get; set; }
+        public virtual User Sender { get; set; } = null!;
 
         [Required]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
 
         [Required]
         public DateTime SentAt { get; set; } = DateTime.UtcNow;

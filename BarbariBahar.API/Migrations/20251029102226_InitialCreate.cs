@@ -240,6 +240,33 @@ namespace BarbariBahar.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PackingItemSelections",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OrderId = table.Column<long>(type: "INTEGER", nullable: false),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PackingItemSelections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PackingItemSelections_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PackingItemSelections_PackagingProducts_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "PackagingProducts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tickets",
                 columns: table => new
                 {
@@ -367,6 +394,16 @@ namespace BarbariBahar.API.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PackingItemSelections_OrderId",
+                table: "PackingItemSelections",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PackingItemSelections_ProductId",
+                table: "PackingItemSelections",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PackingServiceSubItem_SubItemId",
                 table: "PackingServiceSubItem",
                 column: "SubItemId");
@@ -410,7 +447,7 @@ namespace BarbariBahar.API.Migrations
                 name: "OtpRequests");
 
             migrationBuilder.DropTable(
-                name: "PackagingProducts");
+                name: "PackingItemSelections");
 
             migrationBuilder.DropTable(
                 name: "PackingServiceSubItem");
@@ -419,13 +456,16 @@ namespace BarbariBahar.API.Migrations
                 name: "TicketMessages");
 
             migrationBuilder.DropTable(
-                name: "PackagingProductCategories");
+                name: "PackagingProducts");
 
             migrationBuilder.DropTable(
                 name: "PricingFactors");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
+
+            migrationBuilder.DropTable(
+                name: "PackagingProductCategories");
 
             migrationBuilder.DropTable(
                 name: "ServiceCategories");

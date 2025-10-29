@@ -2,8 +2,12 @@ using BarbariBahar.API.Data;
 using BarbariBahar.API.Core.DTOs.Product;
 using BarbariBahar.API.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BarbariBahar.API.Controllers
@@ -20,12 +24,30 @@ namespace BarbariBahar.API.Controllers
             _context = context;
         }
 
-        // CRUD Endpoints will be added here
         [HttpGet]
-        [AllowAnonymous] // Allow anonymous access to get products
-        public async Task<IActionResult> GetPackagingProducts()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPackagingProducts([FromQuery] int? categoryId)
         {
-            var products = await _context.PackagingProducts.ToListAsync();
+            var query = _context.PackagingProducts
+                .Include(p => p.Category)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            var products = await query.Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Title = p.Name,
+                    UnitPrice = p.Price,
+                    Unit = "عدد", // Assuming static unit for now
+                    CategoryName = p.Category.Name,
+                    ImageUrl = p.ImageUrl
+                })
+                .ToListAsync();
+
             return Ok(products);
         }
 
@@ -108,7 +130,7 @@ namespace BarbariBahar.API.Controllers
         }
 
         [HttpPost("{id}/upload-image")]
-        public async Task<IActionResult> UploadImage(int id, IFormFile file)
+        public async Task<IActionResult> UploadImage(int id, [FromForm] IFormFile file)
         {
             var product = await _context.PackagingProducts.FindAsync(id);
             if (product == null)
@@ -121,7 +143,7 @@ namespace BarbariBahar.API.Controllers
                 return BadRequest("Upload a valid image.");
             }
 
-            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads");
             if (!Directory.Exists(uploadsFolderPath))
             {
                 Directory.CreateDirectory(uploadsFolderPath);

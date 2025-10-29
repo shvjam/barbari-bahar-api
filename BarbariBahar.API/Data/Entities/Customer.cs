@@ -9,6 +9,6 @@
         }
 
         // در آینده می‌توانید ویژگی‌های اختصاصی Customer را اینجا اضافه کنید.
-        public virtual System.Collections.Generic.ICollection<Order> Orders { get; set; }
+        public virtual System.Collections.Generic.ICollection<Order> Orders { get; set; } = new System.Collections.Generic.List<Order>();
     }
 }

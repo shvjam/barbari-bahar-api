@@ -58,8 +58,8 @@ namespace BarbariBahar.API.Controllers
             var profileDto = new ProfileDto
             {
                 Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
                 Mobile = user.Mobile,
                 RoleName = roleName, // <<--- استفاده از نقشی که تشخیص دادیم
                 CreatedAt = user.CreatedAt

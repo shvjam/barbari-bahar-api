@@ -11,16 +11,16 @@ namespace BarbariBahar.API.Data.Entities
         public long Id { get; set; }
 
         [Required]
-        public string TrackingCode { get; set; }
+        public string TrackingCode { get; set; } = string.Empty;
 
         // CustomerId is now nullable to support guest orders
         public long? CustomerId { get; set; }
         [ForeignKey("CustomerId")]
-        public virtual Customer Customer { get; set; }
+        public virtual Customer Customer { get; set; } = null!;
 
         public long? DriverId { get; set; }
         [ForeignKey("DriverId")]
-        public virtual Driver Driver { get; set; }
+        public virtual Driver Driver { get; set; } = null!;
 
         [Required]
         public OrderStatus Status { get; set; }
@@ -36,8 +36,9 @@ namespace BarbariBahar.API.Data.Entities
 
         public DateTime? LastUpdatedAt { get; set; }
 
-        public virtual ICollection<OrderAddress> OrderAddresses { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
-        public virtual ICollection<Ticket> Tickets { get; set; }
+        public virtual ICollection<OrderAddress> OrderAddresses { get; set; } = new List<OrderAddress>();
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public virtual ICollection<PackingItemSelection> PackingItems { get; set; } = new List<PackingItemSelection>();
     }
 }

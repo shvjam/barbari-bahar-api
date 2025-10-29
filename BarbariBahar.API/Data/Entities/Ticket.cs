@@ -14,15 +14,15 @@ namespace BarbariBahar.API.Data.Entities
 
         public long? OrderId { get; set; }
         [ForeignKey("OrderId")]
-        public virtual Order Order { get; set; }
+        public virtual Order Order { get; set; } = null!;
 
         [Required]
         public long UserId { get; set; }
         [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+        public virtual User User { get; set; } = null!;
 
         [Required]
-        public string Subject { get; set; }
+        public string Subject { get; set; } = string.Empty;
 
         [Required]
         public TicketStatus Status { get; set; } = TicketStatus.Open;

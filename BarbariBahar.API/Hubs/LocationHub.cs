@@ -28,7 +28,7 @@ namespace BarbariBahar.API.Hubs
 
         public async Task SendLocation(LocationData location)
         {
-            var driverIdStr = Context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var driverIdStr = Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (!long.TryParse(driverIdStr, out var driverId))
             {
                 return; // Not a valid user or driver
@@ -55,7 +55,7 @@ namespace BarbariBahar.API.Hubs
 
         public async Task SubscribeToOrder(long orderId)
         {
-            var customerIdStr = Context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var customerIdStr = Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (!long.TryParse(customerIdStr, out var customerId))
             {
                 return; // Not a valid user

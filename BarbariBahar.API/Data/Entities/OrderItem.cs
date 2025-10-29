@@ -11,10 +11,10 @@ namespace BarbariBahar.API.Data.Entities
         [Required]
         public long OrderId { get; set; }
         [ForeignKey("OrderId")]
-        public virtual Order Order { get; set; }
+        public virtual Order Order { get; set; } = null!;
         
         [Required]
-        public string ItemName { get; set; }
+        public string ItemName { get; set; } = string.Empty;
 
         [Required]
         public int Quantity { get; set; }

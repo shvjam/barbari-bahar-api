@@ -22,6 +22,7 @@ namespace BarbariBahar.API.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderAddress> OrderAddresses { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<PackingItemSelection> PackingItemSelections { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<TicketMessage> TicketMessages { get; set; }
 
@@ -123,6 +124,16 @@ namespace BarbariBahar.API.Data
                 .WithMany() // A user can send many messages
                 .HasForeignKey(tm => tm.SenderId)
                 .OnDelete(DeleteBehavior.Restrict); // Don't delete user if they have messages
+
+            modelBuilder.Entity<PackingItemSelection>()
+                .HasOne(pi => pi.Order)
+                .WithMany(o => o.PackingItems)
+                .HasForeignKey(pi => pi.OrderId);
+
+            modelBuilder.Entity<PackingItemSelection>()
+                .HasOne(pi => pi.Product)
+                .WithMany()
+                .HasForeignKey(pi => pi.ProductId);
 
             // Seed Data
             modelBuilder.Entity<ServiceCategory>().HasData(

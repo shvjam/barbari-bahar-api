@@ -250,6 +250,30 @@ namespace BarbariBahar.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingItemSelection", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("PackingItemSelections");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingServiceSubItem", b =>
                 {
                     b.Property<int>("PackingServiceId")
@@ -563,6 +587,25 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingItemSelection", b =>
+                {
+                    b.HasOne("BarbariBahar.API.Data.Entities.Order", "Order")
+                        .WithMany("PackingItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BarbariBahar.API.Data.Entities.PackagingProduct", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("BarbariBahar.API.Data.Entities.PackingServiceSubItem", b =>
                 {
                     b.HasOne("BarbariBahar.API.Data.Entities.PricingFactor", "PackingService")
@@ -634,6 +677,8 @@ namespace BarbariBahar.API.Migrations
                     b.Navigation("OrderAddresses");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("PackingItems");
 
                     b.Navigation("Tickets");
                 });

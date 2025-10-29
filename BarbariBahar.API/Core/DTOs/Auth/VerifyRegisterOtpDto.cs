@@ -12,7 +12,7 @@ namespace BarbariBahar.API.Core.DTOs.Auth
         [RegularExpression(@"^09\d{9}$")]
         public string Phone { get; set; } = string.Empty;
         [Required]
-        public string Role { get; set; } // "Customer" or "Driver"
+        public string Role { get; set; } = string.Empty; // "Customer" or "Driver"
 
         // اطلاعات تایید OTP
         [Required]

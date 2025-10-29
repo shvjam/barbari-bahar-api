@@ -2,8 +2,10 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 interface PriceDetails {
+  distancePrice: number;
+  laborPrice: number;
+  packingSupplies: { name: string; unitPrice: number; quantity: number; subtotal: number }[];
   totalPrice: number;
-  priceFactors: { name: string; price: number }[];
 }
 
 interface QuoteContextType {

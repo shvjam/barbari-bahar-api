@@ -2,7 +2,7 @@ namespace BarbariBahar.API.Core.DTOs.Admin
 {
     public class PackagingProductDto
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
         public string? Dimensions { get; set; }
