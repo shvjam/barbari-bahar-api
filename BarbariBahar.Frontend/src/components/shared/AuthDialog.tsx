@@ -1,36 +1,29 @@
-import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../components/ui/dialog";
-import Auth from "./Auth";
+// src/components/shared/AuthDialog.tsx (modified)
+import React, { useState } from 'react';
+// ... other imports
 
-export default function AuthDialog({
-  trigger,
-  onAuthSuccess,
-}: {
-  trigger: React.ReactNode;
-  onAuthSuccess: () => void;
-}) {
-  const [open, setOpen] = React.useState(false);
+export default function AuthDialog({ trigger, onAuthSuccess, guestOrderId }) {
+  const [step, setStep] = useState('phone');
+  const [phone, setPhone] = useState('');
 
-  const handleSuccess = () => {
-    setOpen(false);
-    onAuthSuccess();
+  const handleSendOtp = async () => {
+    // API call to send OTP, now including guestOrderId
+    await fetch('/api/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber: phone, guestOrderId }), // <-- Pass guestOrderId
+      headers: { 'Content-Type': 'application/json' },
+    });
+    setStep('otp');
+  };
+
+  const handleVerifyOtp = async (otp: string) => {
+    const response = await fetch('/api/auth/verify-otp', { /* ... */ });
+    const { token } = await response.json();
+    localStorage.setItem('customer_token', token);
+    onAuthSuccess(token);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>احراز هویت</DialogTitle>
-        </DialogHeader>
-        <Auth onAuthSuccess={handleSuccess} />
-      </DialogContent>
-    </Dialog>
+    // ... Dialog JSX
   );
 }
